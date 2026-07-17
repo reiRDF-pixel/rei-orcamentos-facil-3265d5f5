@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { QuoteEditor } from "@/components/quote-editor";
+import { QuoteEditor, type QuoteFormState } from "@/components/quote-editor";
 import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
@@ -28,16 +28,18 @@ function NovoOrcamentoPage() {
     },
   });
 
-  const [state, setState] = useState({
+  const [state, setState] = useState<QuoteFormState>({
     client_id: "",
-    machine_id: null as string | null,
+    machine_id: null,
     condicao_pagamento: "",
+    tipo_frete: "SEM FRETE",
     prazo_entrega: "",
     validade_dias: 7,
     desconto_percentual: 0,
     desconto_valor: 0,
     frete: 0,
     observacoes: "",
+    pdf_template: "azul",
     items: [] as QuoteItemDraft[],
   });
 
@@ -75,6 +77,7 @@ function NovoOrcamentoPage() {
           machine_id: state.machine_id,
           vendedor_id: user.id,
           condicao_pagamento: state.condicao_pagamento || null,
+          tipo_frete: state.tipo_frete || null,
           prazo_entrega: state.prazo_entrega || null,
           validade_dias: state.validade_dias,
           desconto_percentual: state.desconto_percentual,
@@ -83,6 +86,7 @@ function NovoOrcamentoPage() {
           subtotal,
           total,
           observacoes: state.observacoes || null,
+          pdf_template: state.pdf_template,
         })
         .select("id")
         .single();
