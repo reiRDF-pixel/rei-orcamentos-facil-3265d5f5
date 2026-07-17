@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { QuoteEditor } from "@/components/quote-editor";
-import type { QuoteItemDraft } from "@/lib/quote";
+import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
   component: NovoOrcamentoPage,
