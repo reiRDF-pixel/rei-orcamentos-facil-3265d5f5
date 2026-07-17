@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
 import { Plus, Trash2, Save, ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,19 +18,24 @@ import {
 import { DataPageHeader } from "@/components/data-page-header";
 import { formatBRL } from "@/lib/format";
 import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
+import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
 
 export interface QuoteFormState {
   client_id: string;
   machine_id: string | null;
   condicao_pagamento: string;
+  tipo_frete: string;
   prazo_entrega: string;
   validade_dias: number;
   desconto_percentual: number;
   desconto_valor: number;
   frete: number;
   observacoes: string;
+  pdf_template: PdfTemplateId;
   items: QuoteItemDraft[];
 }
+
+const TIPO_FRETE_OPTIONS = ["FRETE FOB", "FRETE CIF", "SEM FRETE"];
 
 interface Props {
   title: string;
@@ -64,18 +69,6 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
     },
   });
 
-  const { data: products } = useQuery({
-    queryKey: ["products-active"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("id, codigo, descricao, preco_venda, unidade")
-        .eq("ativo", true)
-        .order("descricao");
-      return data ?? [];
-    },
-  });
-
   const setField = <K extends keyof QuoteFormState>(k: K, v: QuoteFormState[K]) =>
     setState((s) => ({ ...s, [k]: v }));
 
@@ -104,17 +97,6 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
       ...s,
       items: s.items.map((i, k) => (k === idx ? { ...i, ...patch } : i)),
     }));
-
-  const onPickProduct = (idx: number, productId: string) => {
-    const p = products?.find((x) => x.id === productId);
-    if (!p) return;
-    updateItem(idx, {
-      product_id: p.id,
-      codigo: p.codigo,
-      descricao: p.descricao,
-      preco_unitario: Number(p.preco_venda),
-    });
-  };
 
   const { subtotal, total } = quoteTotals(
     state.items,
@@ -222,35 +204,17 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 key={idx}
                 className="grid grid-cols-12 items-end gap-2 rounded-2xl border border-border/60 p-3"
               >
-                <div className="col-span-12 md:col-span-4">
-                  <Label className="text-[10px]">Produto</Label>
-                  <Select
-                    value={item.product_id ?? ""}
-                    onValueChange={(v) => onPickProduct(idx, v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products?.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.codigo ? `${p.codigo} · ` : ""}
-                          {p.descricao}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="col-span-12 md:col-span-4">
-                  <Label className="text-[10px]">Descrição</Label>
+                <div className="col-span-12 md:col-span-6">
+                  <Label className="text-[10px]">Item / descrição</Label>
                   <Input
+                    placeholder="Ex: Filtro de óleo Mann W1160"
                     value={item.descricao}
                     onChange={(e) =>
                       updateItem(idx, { descricao: e.target.value })
                     }
                   />
                 </div>
-                <div className="col-span-4 md:col-span-1">
+                <div className="col-span-4 md:col-span-2">
                   <Label className="text-[10px]">Qtd</Label>
                   <Input
                     type="number"
@@ -261,8 +225,8 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     }
                   />
                 </div>
-                <div className="col-span-4 md:col-span-1">
-                  <Label className="text-[10px]">Preço</Label>
+                <div className="col-span-4 md:col-span-2">
+                  <Label className="text-[10px]">Preço un. (R$)</Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -272,23 +236,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     }
                   />
                 </div>
-                <div className="col-span-4 md:col-span-1">
-                  <Label className="text-[10px]">Desc %</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={item.desconto_percentual}
-                    onChange={(e) =>
-                      updateItem(idx, {
-                        desconto_percentual: Number(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-                <div className="col-span-10 md:col-span-1 text-right font-mono text-sm font-semibold">
+                <div className="col-span-3 md:col-span-1 text-right font-mono text-sm font-semibold">
                   {formatBRL(itemTotal(item))}
                 </div>
-                <div className="col-span-2 flex justify-end md:col-span-12">
+                <div className="col-span-1 flex justify-end">
                   <Button
                     type="button"
                     variant="ghost"
@@ -318,6 +269,24 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
               />
             </div>
             <div className="space-y-2">
+              <Label>Frete</Label>
+              <Select
+                value={state.tipo_frete}
+                onValueChange={(v) => setField("tipo_frete", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIPO_FRETE_OPTIONS.map((f) => (
+                    <SelectItem key={f} value={f}>
+                      {f}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label>Prazo de entrega</Label>
               <Input
                 value={state.prazo_entrega}
@@ -334,14 +303,23 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 }
               />
             </div>
-            <div className="space-y-2">
-              <Label>Frete (R$)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={state.frete}
-                onChange={(e) => setField("frete", Number(e.target.value))}
-              />
+            <div className="space-y-2 md:col-span-2">
+              <Label>Modelo de PDF</Label>
+              <Select
+                value={state.pdf_template}
+                onValueChange={(v) => setField("pdf_template", v as PdfTemplateId)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PDF_TEMPLATES.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label>Observações</Label>
