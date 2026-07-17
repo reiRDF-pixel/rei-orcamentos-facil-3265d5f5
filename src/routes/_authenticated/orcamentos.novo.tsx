@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { QuoteEditor } from "@/components/quote-editor";
-import type { QuoteItemDraft } from "@/lib/quote";
+import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
   component: NovoOrcamentoPage,
@@ -61,6 +61,13 @@ function NovoOrcamentoPage() {
       if (!state.client_id) throw new Error("Selecione um cliente");
       if (state.items.length === 0) throw new Error("Adicione ao menos um item");
 
+      const { subtotal, total } = quoteTotals(
+        state.items,
+        state.desconto_percentual,
+        state.desconto_valor,
+        state.frete,
+      );
+
       const { data: quote, error } = await supabase
         .from("quotes")
         .insert({
@@ -73,6 +80,8 @@ function NovoOrcamentoPage() {
           desconto_percentual: state.desconto_percentual,
           desconto_valor: state.desconto_valor,
           frete: state.frete,
+          subtotal,
+          total,
           observacoes: state.observacoes || null,
         })
         .select("id")
@@ -87,6 +96,7 @@ function NovoOrcamentoPage() {
         quantidade: i.quantidade,
         preco_unitario: i.preco_unitario,
         desconto_percentual: i.desconto_percentual,
+        total: itemTotal(i),
         ordem: idx,
       }));
       const { error: ie } = await supabase
