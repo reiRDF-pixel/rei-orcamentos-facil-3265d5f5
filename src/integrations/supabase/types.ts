@@ -357,10 +357,12 @@ export type Database = {
           machine_id: string | null
           numero: number
           observacoes: string | null
+          pdf_template: string
           prazo_entrega: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["quote_status"]
           subtotal: number
+          tipo_frete: string | null
           total: number
           updated_at: string
           validade_dias: number
@@ -379,10 +381,12 @@ export type Database = {
           machine_id?: string | null
           numero?: number
           observacoes?: string | null
+          pdf_template?: string
           prazo_entrega?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           subtotal?: number
+          tipo_frete?: string | null
           total?: number
           updated_at?: string
           validade_dias?: number
@@ -401,10 +405,12 @@ export type Database = {
           machine_id?: string | null
           numero?: number
           observacoes?: string | null
+          pdf_template?: string
           prazo_entrega?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           subtotal?: number
+          tipo_frete?: string | null
           total?: number
           updated_at?: string
           validade_dias?: number
