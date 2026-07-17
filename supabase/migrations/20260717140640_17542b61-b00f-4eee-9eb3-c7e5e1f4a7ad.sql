@@ -1,0 +1,3 @@
+ALTER TABLE public.quotes
+  ADD COLUMN IF NOT EXISTS tipo_frete TEXT,
+  ADD COLUMN IF NOT EXISTS pdf_template TEXT NOT NULL DEFAULT 'azul';
