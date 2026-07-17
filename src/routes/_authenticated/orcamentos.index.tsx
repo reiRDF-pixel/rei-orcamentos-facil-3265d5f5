@@ -26,7 +26,7 @@ import {
   QUOTE_STATUS_LABEL,
 } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/orcamentos")({
+export const Route = createFileRoute("/_authenticated/orcamentos/")({
   component: OrcamentosPage,
 });
 

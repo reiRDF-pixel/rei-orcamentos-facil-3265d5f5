@@ -14,11 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedProdutosRouteImport } from './routes/_authenticated/produtos'
-import { Route as AuthenticatedOrcamentosRouteImport } from './routes/_authenticated/orcamentos'
 import { Route as AuthenticatedMaquinasRouteImport } from './routes/_authenticated/maquinas'
 import { Route as AuthenticatedEmpresaRouteImport } from './routes/_authenticated/empresa'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
+import { Route as AuthenticatedOrcamentosIndexRouteImport } from './routes/_authenticated/orcamentos.index'
 import { Route as AuthenticatedOrcamentosNovoRouteImport } from './routes/_authenticated/orcamentos.novo'
 import { Route as AuthenticatedOrcamentosIdRouteImport } from './routes/_authenticated/orcamentos.$id'
 
@@ -46,11 +46,6 @@ const AuthenticatedProdutosRoute = AuthenticatedProdutosRouteImport.update({
   path: '/produtos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedOrcamentosRoute = AuthenticatedOrcamentosRouteImport.update({
-  id: '/orcamentos',
-  path: '/orcamentos',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedMaquinasRoute = AuthenticatedMaquinasRouteImport.update({
   id: '/maquinas',
   path: '/maquinas',
@@ -71,17 +66,23 @@ const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOrcamentosIndexRoute =
+  AuthenticatedOrcamentosIndexRouteImport.update({
+    id: '/orcamentos/',
+    path: '/orcamentos/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOrcamentosNovoRoute =
   AuthenticatedOrcamentosNovoRouteImport.update({
-    id: '/novo',
-    path: '/novo',
-    getParentRoute: () => AuthenticatedOrcamentosRoute,
+    id: '/orcamentos/novo',
+    path: '/orcamentos/novo',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOrcamentosIdRoute =
   AuthenticatedOrcamentosIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedOrcamentosRoute,
+    id: '/orcamentos/$id',
+    path: '/orcamentos/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -91,11 +92,11 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/maquinas': typeof AuthenticatedMaquinasRoute
-  '/orcamentos': typeof AuthenticatedOrcamentosRouteWithChildren
   '/produtos': typeof AuthenticatedProdutosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/orcamentos/$id': typeof AuthenticatedOrcamentosIdRoute
   '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
+  '/orcamentos/': typeof AuthenticatedOrcamentosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,11 +105,11 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/maquinas': typeof AuthenticatedMaquinasRoute
-  '/orcamentos': typeof AuthenticatedOrcamentosRouteWithChildren
   '/produtos': typeof AuthenticatedProdutosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/orcamentos/$id': typeof AuthenticatedOrcamentosIdRoute
   '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
+  '/orcamentos': typeof AuthenticatedOrcamentosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,11 +120,11 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/empresa': typeof AuthenticatedEmpresaRoute
   '/_authenticated/maquinas': typeof AuthenticatedMaquinasRoute
-  '/_authenticated/orcamentos': typeof AuthenticatedOrcamentosRouteWithChildren
   '/_authenticated/produtos': typeof AuthenticatedProdutosRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/_authenticated/orcamentos/$id': typeof AuthenticatedOrcamentosIdRoute
   '/_authenticated/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
+  '/_authenticated/orcamentos/': typeof AuthenticatedOrcamentosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -134,11 +135,11 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/empresa'
     | '/maquinas'
-    | '/orcamentos'
     | '/produtos'
     | '/usuarios'
     | '/orcamentos/$id'
     | '/orcamentos/novo'
+    | '/orcamentos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -147,11 +148,11 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/empresa'
     | '/maquinas'
-    | '/orcamentos'
     | '/produtos'
     | '/usuarios'
     | '/orcamentos/$id'
     | '/orcamentos/novo'
+    | '/orcamentos'
   id:
     | '__root__'
     | '/'
@@ -161,11 +162,11 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/empresa'
     | '/_authenticated/maquinas'
-    | '/_authenticated/orcamentos'
     | '/_authenticated/produtos'
     | '/_authenticated/usuarios'
     | '/_authenticated/orcamentos/$id'
     | '/_authenticated/orcamentos/novo'
+    | '/_authenticated/orcamentos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -211,13 +212,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProdutosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/orcamentos': {
-      id: '/_authenticated/orcamentos'
-      path: '/orcamentos'
-      fullPath: '/orcamentos'
-      preLoaderRoute: typeof AuthenticatedOrcamentosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/maquinas': {
       id: '/_authenticated/maquinas'
       path: '/maquinas'
@@ -246,47 +240,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/orcamentos/': {
+      id: '/_authenticated/orcamentos/'
+      path: '/orcamentos'
+      fullPath: '/orcamentos/'
+      preLoaderRoute: typeof AuthenticatedOrcamentosIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/orcamentos/novo': {
       id: '/_authenticated/orcamentos/novo'
-      path: '/novo'
+      path: '/orcamentos/novo'
       fullPath: '/orcamentos/novo'
       preLoaderRoute: typeof AuthenticatedOrcamentosNovoRouteImport
-      parentRoute: typeof AuthenticatedOrcamentosRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/orcamentos/$id': {
       id: '/_authenticated/orcamentos/$id'
-      path: '/$id'
+      path: '/orcamentos/$id'
       fullPath: '/orcamentos/$id'
       preLoaderRoute: typeof AuthenticatedOrcamentosIdRouteImport
-      parentRoute: typeof AuthenticatedOrcamentosRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
-
-interface AuthenticatedOrcamentosRouteChildren {
-  AuthenticatedOrcamentosIdRoute: typeof AuthenticatedOrcamentosIdRoute
-  AuthenticatedOrcamentosNovoRoute: typeof AuthenticatedOrcamentosNovoRoute
-}
-
-const AuthenticatedOrcamentosRouteChildren: AuthenticatedOrcamentosRouteChildren =
-  {
-    AuthenticatedOrcamentosIdRoute: AuthenticatedOrcamentosIdRoute,
-    AuthenticatedOrcamentosNovoRoute: AuthenticatedOrcamentosNovoRoute,
-  }
-
-const AuthenticatedOrcamentosRouteWithChildren =
-  AuthenticatedOrcamentosRoute._addFileChildren(
-    AuthenticatedOrcamentosRouteChildren,
-  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEmpresaRoute: typeof AuthenticatedEmpresaRoute
   AuthenticatedMaquinasRoute: typeof AuthenticatedMaquinasRoute
-  AuthenticatedOrcamentosRoute: typeof AuthenticatedOrcamentosRouteWithChildren
   AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
+  AuthenticatedOrcamentosIdRoute: typeof AuthenticatedOrcamentosIdRoute
+  AuthenticatedOrcamentosNovoRoute: typeof AuthenticatedOrcamentosNovoRoute
+  AuthenticatedOrcamentosIndexRoute: typeof AuthenticatedOrcamentosIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -294,9 +281,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEmpresaRoute: AuthenticatedEmpresaRoute,
   AuthenticatedMaquinasRoute: AuthenticatedMaquinasRoute,
-  AuthenticatedOrcamentosRoute: AuthenticatedOrcamentosRouteWithChildren,
   AuthenticatedProdutosRoute: AuthenticatedProdutosRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
+  AuthenticatedOrcamentosIdRoute: AuthenticatedOrcamentosIdRoute,
+  AuthenticatedOrcamentosNovoRoute: AuthenticatedOrcamentosNovoRoute,
+  AuthenticatedOrcamentosIndexRoute: AuthenticatedOrcamentosIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
