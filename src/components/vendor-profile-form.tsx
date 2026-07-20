@@ -80,7 +80,7 @@ export function VendorProfileForm({ userId, ownProfile }: Props) {
           patch[k] = v === "" ? null : (v ?? null);
         }
       }
-      const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
+      const { error } = await supabase.from("profiles").update(patch as never).eq("id", userId);
       if (error) throw error;
     },
     onSuccess: () => {
