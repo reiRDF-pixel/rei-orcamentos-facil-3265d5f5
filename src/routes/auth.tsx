@@ -42,8 +42,10 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Conta criada!", {
-          description: "Você já pode entrar no sistema.",
+          description:
+            "Aguarde um administrador liberar seu acesso antes de entrar no sistema.",
         });
+
         setMode("login");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
