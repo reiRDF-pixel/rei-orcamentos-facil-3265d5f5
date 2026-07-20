@@ -158,7 +158,7 @@ export type Database = {
       machines: {
         Row: {
           ano: number | null
-          client_id: string
+          client_id: string | null
           created_at: string
           foto_url: string | null
           horimetro: number | null
@@ -172,7 +172,7 @@ export type Database = {
         }
         Insert: {
           ano?: number | null
-          client_id: string
+          client_id?: string | null
           created_at?: string
           foto_url?: string | null
           horimetro?: number | null
@@ -186,7 +186,7 @@ export type Database = {
         }
         Update: {
           ano?: number | null
-          client_id?: string
+          client_id?: string | null
           created_at?: string
           foto_url?: string | null
           horimetro?: number | null
@@ -459,7 +459,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_quote: { Args: { _quote_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "vendedor"
