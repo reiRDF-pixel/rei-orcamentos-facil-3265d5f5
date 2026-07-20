@@ -1,22 +1,5 @@
-// PDF generation isolated in an iframe to avoid Tailwind v4 oklch() colors,
-// which html2canvas (bundled in html2pdf.js 0.14) cannot parse.
-
-type Html2PdfChain = {
-  set: (opts: Record<string, unknown>) => Html2PdfChain;
-  from: (el: HTMLElement) => Html2PdfChain;
-  save: () => Promise<void>;
-};
-
-const IFRAME_STYLE =
-  "position:fixed;left:-99999px;top:0;width:800px;height:1200px;border:0;visibility:hidden;";
-
-const BASE_CSS = `
-  html,body{margin:0;padding:0;background:#ffffff;color:#0f172a;
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}
-  *,*::before,*::after{box-sizing:border-box;border:0 solid transparent;}
-  table{border-collapse:collapse;}
-  img{max-width:100%;}
-`;
+// PDF generation via html2canvas-pro (parses oklch/lab/lch) + jsPDF.
+// Snapshots the live element in place, so Tailwind v4 CSS variables work.
 
 async function urlToDataUrl(url: string): Promise<string | null> {
   try {
@@ -42,11 +25,8 @@ async function inlineImages(root: ParentNode) {
       const src = img.getAttribute("src") || "";
       if (!src || src.startsWith("data:")) return;
       const data = await urlToDataUrl(src);
-      if (data) {
-        img.setAttribute("src", data);
-      } else {
-        img.remove();
-      }
+      if (data) img.setAttribute("src", data);
+      else img.remove();
       img.removeAttribute("crossorigin");
     }),
   );
@@ -67,69 +47,43 @@ async function waitForImages(root: ParentNode) {
   );
 }
 
-function createSandboxIframe(): HTMLIFrameElement {
-  const iframe = document.createElement("iframe");
-  iframe.setAttribute("aria-hidden", "true");
-  iframe.style.cssText = IFRAME_STYLE;
-  document.body.appendChild(iframe);
-  return iframe;
-}
-
 export async function downloadPdfFromElement(el: HTMLElement, filename: string) {
   if (!el) throw new Error("Elemento do orçamento não encontrado");
 
-  const iframe = createSandboxIframe();
-  try {
-    const doc = iframe.contentDocument;
-    if (!doc) throw new Error("Não foi possível preparar o documento para PDF");
+  await inlineImages(el);
+  await waitForImages(el);
 
-    doc.open();
-    doc.write(
-      `<!doctype html><html><head><meta charset="utf-8"><style>${BASE_CSS}</style></head><body><div id="pdf-root"></div></body></html>`,
-    );
-    doc.close();
+  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+    import("html2canvas-pro"),
+    import("jspdf"),
+  ]);
 
-    const root = doc.getElementById("pdf-root");
-    if (!root) throw new Error("Falha ao montar o container do PDF");
+  const canvas = await html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+    logging: false,
+  });
 
-    // Adopt the rendered markup into the isolated document. Using outerHTML
-    // copies the inline-styled tree without pulling any of the app's global
-    // stylesheets (which use oklch() and break html2canvas 1.4.1).
-    root.innerHTML = el.outerHTML;
+  const imgData = canvas.toDataURL("image/jpeg", 0.95);
+  const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const imgH = (canvas.height * pageW) / canvas.width;
 
-    await inlineImages(root);
-    await waitForImages(root);
-
-    const target = root.firstElementChild as HTMLElement | null;
-    if (!target) throw new Error("Conteúdo do PDF vazio");
-
-    const mod = await import("html2pdf.js");
-    const html2pdf = mod.default as unknown as () => Html2PdfChain;
-
-    await html2pdf()
-      .set({
-        margin: 0,
-        filename,
-        image: { type: "jpeg", quality: 0.95 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: false,
-          backgroundColor: "#ffffff",
-          logging: false,
-          windowWidth: 800,
-        },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["css", "legacy"] },
-      })
-      .from(target)
-      .save();
-  } catch (err) {
-    console.error("[pdf] geração falhou", err);
-    throw err instanceof Error
-      ? err
-      : new Error("Erro desconhecido ao gerar PDF");
-  } finally {
-    iframe.remove();
+  if (imgH <= pageH) {
+    pdf.addImage(imgData, "JPEG", 0, 0, pageW, imgH);
+  } else {
+    // Multi-page: slice the tall image across A4 pages.
+    let remaining = imgH;
+    let position = 0;
+    while (remaining > 0) {
+      pdf.addImage(imgData, "JPEG", 0, position, pageW, imgH);
+      remaining -= pageH;
+      position -= pageH;
+      if (remaining > 0) pdf.addPage();
+    }
   }
+
+  pdf.save(filename);
 }
