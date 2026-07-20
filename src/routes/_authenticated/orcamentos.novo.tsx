@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { QuoteEditor, type QuoteFormState } from "@/components/quote-editor";
 import { type QuoteItemDraft } from "@/lib/quote";
 import { createQuote } from "@/lib/quotes.functions";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
   component: NovoOrcamentoPage,
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
 function NovoOrcamentoPage() {
   const navigate = useNavigate();
   const createQuoteFn = useServerFn(createQuote);
+  const { user } = useAuth();
 
   const { data: company } = useQuery({
     queryKey: ["company_settings"],
@@ -26,6 +28,19 @@ function NovoOrcamentoPage() {
         .limit(1)
         .maybeSingle();
       return data;
+    },
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile-defaults", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data as Record<string, unknown> | null;
     },
   });
 
@@ -45,17 +60,26 @@ function NovoOrcamentoPage() {
   });
 
   useEffect(() => {
-    if (!company?.condicao_pagamento_padrao) return;
     setState((s) => {
-      if (s.condicao_pagamento !== "") return s;
+      // User profile defaults take precedence; fall back to company defaults.
+      const pCond = (profile?.condicao_pagamento_padrao as string | null) ?? null;
+      const pPrazo = (profile?.prazo_entrega_padrao as string | null) ?? null;
+      const pValid = profile?.validade_padrao_dias as number | null | undefined;
+      const pObs = (profile?.observacao_padrao as string | null) ?? null;
+
       return {
         ...s,
-        condicao_pagamento: company.condicao_pagamento_padrao ?? "",
-        validade_dias: company.validade_padrao_dias ?? 7,
-        observacoes: company.observacoes_padrao ?? "",
+        condicao_pagamento:
+          s.condicao_pagamento || pCond || company?.condicao_pagamento_padrao || "",
+        prazo_entrega: s.prazo_entrega || pPrazo || "",
+        validade_dias:
+          s.validade_dias && s.validade_dias !== 7
+            ? s.validade_dias
+            : pValid ?? company?.validade_padrao_dias ?? 7,
+        observacoes: s.observacoes || pObs || company?.observacoes_padrao || "",
       };
     });
-  }, [company]);
+  }, [company, profile]);
 
   const save = useMutation({
     mutationFn: async () => {

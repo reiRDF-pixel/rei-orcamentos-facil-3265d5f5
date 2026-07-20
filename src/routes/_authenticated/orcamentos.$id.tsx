@@ -135,7 +135,10 @@ function OrcamentoDetailPage() {
   const currentTemplateId = (templateOverride ??
     (data.pdf_template as PdfTemplateId | null) ??
     "azul") as PdfTemplateId;
-  const vendedorNome = vendedor?.full_name ?? null;
+  const vendedorNome =
+    (vendedor?.nome_pdf as string | undefined) ??
+    (vendedor?.full_name as string | undefined) ??
+    null;
   const isOwner = user?.id === data.vendedor_id;
   const canEdit = isOwner && data.status !== "aprovado";
 
@@ -254,6 +257,7 @@ function OrcamentoDetailPage() {
             items={items}
             company={company ?? null}
             vendedorNome={vendedorNome}
+            vendedor={vendedor as never}
             templateId={currentTemplateId}
           />
         </div>
