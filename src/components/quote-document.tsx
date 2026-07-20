@@ -136,10 +136,20 @@ export function QuoteDocument({
           />
 
           <div>
-            <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 2, opacity: 0.85, margin: 0 }}>
+            <p
+              style={{
+                fontSize: 10,
+                textTransform: "uppercase",
+                letterSpacing: 2,
+                opacity: 0.85,
+                margin: 0,
+              }}
+            >
               Orçamento
             </p>
-            <h1 style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 800, margin: "4px 0 0" }}>
+            <h1
+              style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 800, margin: "4px 0 0" }}
+            >
               #{String(quote.numero).padStart(5, "0")}
             </h1>
             <p style={{ fontSize: 11, opacity: 0.85, margin: "4px 0 0" }}>
@@ -195,13 +205,23 @@ export function QuoteDocument({
           }}
         >
           <div>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: tpl.accent, margin: 0 }}>
+            <p
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 1,
+                color: tpl.accent,
+                margin: 0,
+              }}
+            >
               CLIENTE
             </p>
             <p style={{ fontWeight: 600, margin: "4px 0 0" }}>
               {client?.nome_fantasia || client?.razao_social || "—"}
             </p>
-            {client?.cnpj_cpf && <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>{client.cnpj_cpf}</p>}
+            {client?.cnpj_cpf && (
+              <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>{client.cnpj_cpf}</p>
+            )}
             {client?.endereco && (
               <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>
                 {client.endereco}
@@ -209,40 +229,91 @@ export function QuoteDocument({
                 {client.estado ? `/${client.estado}` : ""}
               </p>
             )}
-            {client?.phone && <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>{client.phone}</p>}
+            {client?.phone && (
+              <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>{client.phone}</p>
+            )}
           </div>
           {machine && (machine.marca || machine.modelo) && (
             <div>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: tpl.accent, margin: 0 }}>
+              <p
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  color: tpl.accent,
+                  margin: 0,
+                }}
+              >
                 MÁQUINA
               </p>
               <p style={{ fontWeight: 600, margin: "4px 0 0" }}>
                 {machine.marca} {machine.modelo}
               </p>
               {machine.numero_serie && (
-                <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>Série: {machine.numero_serie}</p>
+                <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>
+                  Série: {machine.numero_serie}
+                </p>
               )}
-              {machine.ano && <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>Ano: {machine.ano}</p>}
+              {machine.ano && (
+                <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>Ano: {machine.ano}</p>
+              )}
             </div>
           )}
         </section>
 
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, marginBottom: 16 }}>
+        <table
+          style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, marginBottom: 16 }}
+        >
           <thead>
             <tr style={{ background: tpl.tableHeaderBg, color: tpl.tableHeaderText }}>
-              <th style={{ padding: "8px 10px", textAlign: "left", fontSize: 10, textTransform: "uppercase" }}>
+              <th
+                style={{
+                  padding: "8px 10px",
+                  textAlign: "left",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                }}
+              >
                 Código
               </th>
-              <th style={{ padding: "8px 10px", textAlign: "left", fontSize: 10, textTransform: "uppercase" }}>
+              <th
+                style={{
+                  padding: "8px 10px",
+                  textAlign: "left",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                }}
+              >
                 Item
               </th>
-              <th style={{ padding: "8px 10px", textAlign: "right", fontSize: 10, textTransform: "uppercase" }}>
+              <th
+                style={{
+                  padding: "8px 10px",
+                  textAlign: "right",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                }}
+              >
                 Qtd
               </th>
-              <th style={{ padding: "8px 10px", textAlign: "right", fontSize: 10, textTransform: "uppercase" }}>
+              <th
+                style={{
+                  padding: "8px 10px",
+                  textAlign: "right",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                }}
+              >
                 Preço un.
               </th>
-              <th style={{ padding: "8px 10px", textAlign: "right", fontSize: 10, textTransform: "uppercase" }}>
+              <th
+                style={{
+                  padding: "8px 10px",
+                  textAlign: "right",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                }}
+              >
                 Total
               </th>
             </tr>
@@ -288,9 +359,7 @@ export function QuoteDocument({
           {Number(quote.desconto_valor) > 0 && (
             <Row label="Desconto (valor)" value={`- ${formatBRL(Number(quote.desconto_valor))}`} />
           )}
-          {Number(quote.frete) > 0 && (
-            <Row label="Frete" value={formatBRL(Number(quote.frete))} />
-          )}
+          {Number(quote.frete) > 0 && <Row label="Frete" value={formatBRL(Number(quote.frete))} />}
           <div
             style={{
               marginTop: 8,
@@ -309,11 +378,17 @@ export function QuoteDocument({
           </div>
         </div>
 
-        {(quote.condicao_pagamento || quote.tipo_frete || quote.prazo_entrega || quote.observacoes) && (
-          <section style={{ marginTop: 28, borderTop: "1px solid #e2e8f0", paddingTop: 20, fontSize: 12 }}>
+        {(quote.condicao_pagamento ||
+          quote.tipo_frete ||
+          quote.prazo_entrega ||
+          quote.observacoes) && (
+          <section
+            style={{ marginTop: 28, borderTop: "1px solid #e2e8f0", paddingTop: 20, fontSize: 12 }}
+          >
             {quote.condicao_pagamento && (
               <p style={{ margin: "4px 0" }}>
-                <b style={{ color: tpl.accent }}>Condição de pagamento:</b> {quote.condicao_pagamento}
+                <b style={{ color: tpl.accent }}>Condição de pagamento:</b>{" "}
+                {quote.condicao_pagamento}
               </p>
             )}
             {quote.tipo_frete && (
@@ -337,11 +412,10 @@ export function QuoteDocument({
           </section>
         )}
 
-
-
-
         {vendedor && (vendedor.mensagem_padrao || vendedor.pix_key) && (
-          <section style={{ marginTop: 24, borderTop: "1px solid #e2e8f0", paddingTop: 16, fontSize: 12 }}>
+          <section
+            style={{ marginTop: 24, borderTop: "1px solid #e2e8f0", paddingTop: 16, fontSize: 12 }}
+          >
             {vendedor.mensagem_padrao && (
               <p style={{ margin: "4px 0", whiteSpace: "pre-wrap", color: "#475569" }}>
                 {vendedor.mensagem_padrao}
@@ -368,7 +442,15 @@ export function QuoteDocument({
           }}
         >
           <div>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: tpl.accent, margin: 0 }}>
+            <p
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 1,
+                color: tpl.accent,
+                margin: 0,
+              }}
+            >
               VENDEDOR RESPONSÁVEL
             </p>
             {displayName && (
@@ -385,7 +467,9 @@ export function QuoteDocument({
               </p>
             )}
             {vendedor?.whatsapp && <p style={{ margin: 0 }}>WhatsApp: {vendedor.whatsapp}</p>}
-            {vendedor?.phone_comercial && <p style={{ margin: 0 }}>Telefone: {vendedor.phone_comercial}</p>}
+            {vendedor?.phone_comercial && (
+              <p style={{ margin: 0 }}>Telefone: {vendedor.phone_comercial}</p>
+            )}
             {vendedor?.email && <p style={{ margin: 0 }}>{vendedor.email}</p>}
             {vendedor?.site && <p style={{ margin: 0 }}>{vendedor.site}</p>}
           </div>

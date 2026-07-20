@@ -50,9 +50,7 @@ function PublicQuotePage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-8 text-center">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">
-            Orçamento não encontrado
-          </h1>
+          <h1 className="text-xl font-semibold text-foreground">Orçamento não encontrado</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             O link pode ter expirado ou está incorreto.
           </p>

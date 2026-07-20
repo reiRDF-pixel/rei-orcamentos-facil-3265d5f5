@@ -142,9 +142,7 @@ function MaquinasPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-14 text-center text-sm text-muted-foreground">
-            {search
-              ? "Nenhuma máquina encontrada."
-              : "Nenhuma máquina cadastrada."}
+            {search ? "Nenhuma máquina encontrada." : "Nenhuma máquina cadastrada."}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -172,9 +170,7 @@ function MaquinasPage() {
                     <td className="px-6 py-3 font-mono text-xs text-muted-foreground">
                       {m.numero_serie ?? "—"}
                     </td>
-                    <td className="px-6 py-3 text-xs text-muted-foreground">
-                      {m.ano ?? "—"}
-                    </td>
+                    <td className="px-6 py-3 text-xs text-muted-foreground">{m.ano ?? "—"}</td>
                     <td className="px-6 py-3 text-right">
                       <Button
                         variant="ghost"
@@ -186,11 +182,7 @@ function MaquinasPage() {
                       >
                         <Pencil className="size-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteTarget(m)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(m)}>
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
                     </td>
@@ -202,10 +194,7 @@ function MaquinasPage() {
         )}
       </Card>
 
-      <AlertDialog
-        open={!!deleteTarget}
-        onOpenChange={(o) => !o && setDeleteTarget(null)}
-      >
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remover máquina?</AlertDialogTitle>
@@ -225,13 +214,7 @@ function MaquinasPage() {
   );
 }
 
-function MachineDialog({
-  editing,
-  onClose,
-}: {
-  editing: Machine | null;
-  onClose: () => void;
-}) {
+function MachineDialog({ editing, onClose }: { editing: Machine | null; onClose: () => void }) {
   const qc = useQueryClient();
   const [form, setForm] = useState<TablesInsert<"machines">>({
     client_id: editing?.client_id ?? null,
@@ -266,10 +249,7 @@ function MachineDialog({
         throw new Error("Marca e modelo são obrigatórios");
       const payload = { ...form, client_id: form.client_id || null };
       if (editing) {
-        const { error } = await supabase
-          .from("machines")
-          .update(payload)
-          .eq("id", editing.id);
+        const { error } = await supabase.from("machines").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("machines").insert(payload);
@@ -343,9 +323,7 @@ function MachineDialog({
           <Input
             type="number"
             value={form.ano ?? ""}
-            onChange={(e) =>
-              setField("ano", e.target.value ? Number(e.target.value) : null)
-            }
+            onChange={(e) => setField("ano", e.target.value ? Number(e.target.value) : null)}
           />
         </div>
         <div className="space-y-2">
@@ -354,12 +332,7 @@ function MachineDialog({
             type="number"
             step="0.1"
             value={form.horimetro ?? ""}
-            onChange={(e) =>
-              setField(
-                "horimetro",
-                e.target.value ? Number(e.target.value) : null,
-              )
-            }
+            onChange={(e) => setField("horimetro", e.target.value ? Number(e.target.value) : null)}
           />
         </div>
         <div className="space-y-2">
@@ -367,9 +340,7 @@ function MachineDialog({
           <Input
             type="number"
             value={form.km ?? ""}
-            onChange={(e) =>
-              setField("km", e.target.value ? Number(e.target.value) : null)
-            }
+            onChange={(e) => setField("km", e.target.value ? Number(e.target.value) : null)}
           />
         </div>
         <div className="space-y-2 md:col-span-2">

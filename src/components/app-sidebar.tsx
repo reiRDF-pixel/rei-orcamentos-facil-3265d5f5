@@ -69,8 +69,7 @@ export function AppSidebar() {
       .then(({ data }) => setProfileName(data?.full_name || user.email || ""));
   }, [user]);
 
-  const isActive = (url: string) =>
-    currentPath === url || currentPath.startsWith(url + "/");
+  const isActive = (url: string) => currentPath === url || currentPath.startsWith(url + "/");
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

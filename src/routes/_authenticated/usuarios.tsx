@@ -12,12 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/format";
 import { VendorProfileForm } from "@/components/vendor-profile-form";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/usuarios")({
   component: UsuariosPage,
@@ -46,13 +41,7 @@ function UsuariosPage() {
   });
 
   const toggleRole = useMutation({
-    mutationFn: async ({
-      userId,
-      makeAdmin,
-    }: {
-      userId: string;
-      makeAdmin: boolean;
-    }) => {
+    mutationFn: async ({ userId, makeAdmin }: { userId: string; makeAdmin: boolean }) => {
       if (makeAdmin) {
         const { error } = await supabase
           .from("user_roles")
@@ -74,7 +63,12 @@ function UsuariosPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (loading) return <div className="p-8"><Skeleton className="h-40 w-full rounded-3xl" /></div>;
+  if (loading)
+    return (
+      <div className="p-8">
+        <Skeleton className="h-40 w-full rounded-3xl" />
+      </div>
+    );
 
   if (!isAdmin) {
     return (
@@ -128,7 +122,9 @@ function UsuariosPage() {
                     <tr key={u.id} className="hover:bg-muted/30">
                       <td className="px-6 py-3 font-semibold">{u.full_name || "—"}</td>
                       <td className="px-6 py-3 text-xs text-muted-foreground">{u.email}</td>
-                      <td className="px-6 py-3 text-xs text-muted-foreground">{formatDate(u.created_at)}</td>
+                      <td className="px-6 py-3 text-xs text-muted-foreground">
+                        {formatDate(u.created_at)}
+                      </td>
                       <td className="px-6 py-3">
                         <span
                           className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold ${
@@ -152,9 +148,7 @@ function UsuariosPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              toggleRole.mutate({ userId: u.id, makeAdmin: !admin })
-                            }
+                            onClick={() => toggleRole.mutate({ userId: u.id, makeAdmin: !admin })}
                           >
                             {admin ? "Rebaixar" : "Tornar admin"}
                           </Button>

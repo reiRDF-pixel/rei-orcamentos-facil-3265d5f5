@@ -22,11 +22,7 @@ function NovoOrcamentoPage() {
   const { data: company } = useQuery({
     queryKey: ["company_settings"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("company_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
+      const { data } = await supabase.from("company_settings").select("*").limit(1).maybeSingle();
       return data;
     },
   });
@@ -35,11 +31,7 @@ function NovoOrcamentoPage() {
     queryKey: ["profile-defaults", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user!.id)
-        .maybeSingle();
+      const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
       return data as Record<string, unknown> | null;
     },
   });
@@ -75,7 +67,7 @@ function NovoOrcamentoPage() {
         validade_dias:
           s.validade_dias && s.validade_dias !== 7
             ? s.validade_dias
-            : pValid ?? company?.validade_padrao_dias ?? 7,
+            : (pValid ?? company?.validade_padrao_dias ?? 7),
         observacoes: s.observacoes || pObs || company?.observacoes_padrao || "",
       };
     });

@@ -57,10 +57,7 @@ function ClientesPage() {
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .order("razao_social");
+      const { data, error } = await supabase.from("clients").select("*").order("razao_social");
       if (error) throw error;
       return data ?? [];
     },
@@ -168,9 +165,7 @@ function ClientesPage() {
                         {c.nome_fantasia || c.razao_social}
                       </p>
                       {c.nome_fantasia && (
-                        <p className="text-xs text-muted-foreground">
-                          {c.razao_social}
-                        </p>
+                        <p className="text-xs text-muted-foreground">{c.razao_social}</p>
                       )}
                     </td>
                     <td className="px-6 py-3 font-mono text-xs text-muted-foreground">
@@ -205,11 +200,7 @@ function ClientesPage() {
                       >
                         <Pencil className="size-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteTarget(c)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(c)}>
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
                     </td>
@@ -221,10 +212,7 @@ function ClientesPage() {
         )}
       </Card>
 
-      <AlertDialog
-        open={!!deleteTarget}
-        onOpenChange={(o) => !o && setDeleteTarget(null)}
-      >
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remover cliente?</AlertDialogTitle>
@@ -278,25 +266,17 @@ function ClientDialog({
     observacoes: editing?.observacoes ?? "",
   });
 
-  const setField = <K extends keyof TablesInsert<"clients">>(
-    k: K,
-    v: TablesInsert<"clients">[K],
-  ) => setForm((f) => ({ ...f, [k]: v }));
+  const setField = <K extends keyof TablesInsert<"clients">>(k: K, v: TablesInsert<"clients">[K]) =>
+    setForm((f) => ({ ...f, [k]: v }));
 
   const save = useMutation({
     mutationFn: async () => {
-      if (!form.razao_social?.trim())
-        throw new Error("Razão social é obrigatória");
+      if (!form.razao_social?.trim()) throw new Error("Razão social é obrigatória");
       if (editing) {
-        const { error } = await supabase
-          .from("clients")
-          .update(form)
-          .eq("id", editing.id);
+        const { error } = await supabase.from("clients").update(form).eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("clients")
-          .insert({ ...form, created_by: userId });
+        const { error } = await supabase.from("clients").insert({ ...form, created_by: userId });
         if (error) throw error;
       }
     },
@@ -381,10 +361,7 @@ function ClientDialog({
         </div>
         <div className="space-y-2">
           <Label>Telefone</Label>
-          <Input
-            value={form.phone ?? ""}
-            onChange={(e) => setField("phone", e.target.value)}
-          />
+          <Input value={form.phone ?? ""} onChange={(e) => setField("phone", e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>WhatsApp</Label>
@@ -396,10 +373,7 @@ function ClientDialog({
         </div>
         <div className="space-y-2">
           <Label>CEP</Label>
-          <Input
-            value={form.cep ?? ""}
-            onChange={(e) => setField("cep", e.target.value)}
-          />
+          <Input value={form.cep ?? ""} onChange={(e) => setField("cep", e.target.value)} />
         </div>
         <div className="space-y-2 md:col-span-2">
           <Label>Endereço</Label>
@@ -410,10 +384,7 @@ function ClientDialog({
         </div>
         <div className="space-y-2">
           <Label>Número</Label>
-          <Input
-            value={form.numero ?? ""}
-            onChange={(e) => setField("numero", e.target.value)}
-          />
+          <Input value={form.numero ?? ""} onChange={(e) => setField("numero", e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>Complemento</Label>
@@ -424,17 +395,11 @@ function ClientDialog({
         </div>
         <div className="space-y-2">
           <Label>Bairro</Label>
-          <Input
-            value={form.bairro ?? ""}
-            onChange={(e) => setField("bairro", e.target.value)}
-          />
+          <Input value={form.bairro ?? ""} onChange={(e) => setField("bairro", e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>Cidade</Label>
-          <Input
-            value={form.cidade ?? ""}
-            onChange={(e) => setField("cidade", e.target.value)}
-          />
+          <Input value={form.cidade ?? ""} onChange={(e) => setField("cidade", e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>Estado (UF)</Label>

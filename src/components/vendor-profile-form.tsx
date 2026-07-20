@@ -80,7 +80,10 @@ export function VendorProfileForm({ userId, ownProfile }: Props) {
           patch[k] = v === "" ? null : (v ?? null);
         }
       }
-      const { error } = await supabase.from("profiles").update(patch as never).eq("id", userId);
+      const { error } = await supabase
+        .from("profiles")
+        .update(patch as never)
+        .eq("id", userId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -101,23 +104,56 @@ export function VendorProfileForm({ userId, ownProfile }: Props) {
   return (
     <div className="space-y-6">
       <Section title="Dados pessoais">
-        <Field label="Nome completo" value={val("full_name")} onChange={(v) => set("full_name", v)} />
-        <Field label="Nome que aparece no PDF" value={val("nome_pdf")} onChange={(v) => set("nome_pdf", v)} />
+        <Field
+          label="Nome completo"
+          value={val("full_name")}
+          onChange={(v) => set("full_name", v)}
+        />
+        <Field
+          label="Nome que aparece no PDF"
+          value={val("nome_pdf")}
+          onChange={(v) => set("nome_pdf", v)}
+        />
         <Field label="Cargo" value={val("cargo")} onChange={(v) => set("cargo", v)} />
-        <Field label="E-mail" value={val("email")} onChange={(v) => set("email", v)} disabled={ownProfile} />
-        <Field label="Telefone comercial" value={val("phone_comercial")} onChange={(v) => set("phone_comercial", v)} />
+        <Field
+          label="E-mail"
+          value={val("email")}
+          onChange={(v) => set("email", v)}
+          disabled={ownProfile}
+        />
+        <Field
+          label="Telefone comercial"
+          value={val("phone_comercial")}
+          onChange={(v) => set("phone_comercial", v)}
+        />
         <Field label="WhatsApp" value={val("whatsapp")} onChange={(v) => set("whatsapp", v)} />
         <Field label="Telefone pessoal" value={val("phone")} onChange={(v) => set("phone", v)} />
       </Section>
 
       <Section title="Imagens (URL)">
-        <Field label="URL da foto de perfil" value={val("avatar_url")} onChange={(v) => set("avatar_url", v)} />
-        <Field label="URL da assinatura digital" value={val("signature_url")} onChange={(v) => set("signature_url", v)} />
-        <Field label="URL da logo da unidade" value={val("logo_url")} onChange={(v) => set("logo_url", v)} />
+        <Field
+          label="URL da foto de perfil"
+          value={val("avatar_url")}
+          onChange={(v) => set("avatar_url", v)}
+        />
+        <Field
+          label="URL da assinatura digital"
+          value={val("signature_url")}
+          onChange={(v) => set("signature_url", v)}
+        />
+        <Field
+          label="URL da logo da unidade"
+          value={val("logo_url")}
+          onChange={(v) => set("logo_url", v)}
+        />
       </Section>
 
       <Section title="Empresa / Unidade">
-        <Field label="Nome da empresa" value={val("empresa_nome")} onChange={(v) => set("empresa_nome", v)} />
+        <Field
+          label="Nome da empresa"
+          value={val("empresa_nome")}
+          onChange={(v) => set("empresa_nome", v)}
+        />
         <Field label="Endereço" value={val("endereco")} onChange={(v) => set("endereco", v)} />
         <Field label="CEP" value={val("cep")} onChange={(v) => set("cep", v)} />
         <Field label="Cidade" value={val("cidade")} onChange={(v) => set("cidade", v)} />

@@ -49,10 +49,7 @@ function EmpresaPage() {
   const save = useMutation({
     mutationFn: async () => {
       if (data?.id) {
-        const { error } = await supabase
-          .from("company_settings")
-          .update(form)
-          .eq("id", data.id);
+        const { error } = await supabase.from("company_settings").update(form).eq("id", data.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("company_settings").insert(form);
@@ -101,10 +98,7 @@ function EmpresaPage() {
             />
           </Field>
           <Field label="CNPJ">
-            <Input
-              value={form.cnpj ?? ""}
-              onChange={(e) => setField("cnpj", e.target.value)}
-            />
+            <Input value={form.cnpj ?? ""} onChange={(e) => setField("cnpj", e.target.value)} />
           </Field>
           <Field label="Inscrição Estadual">
             <Input
@@ -130,10 +124,7 @@ function EmpresaPage() {
             />
           </Field>
           <Field label="Telefone">
-            <Input
-              value={form.phone ?? ""}
-              onChange={(e) => setField("phone", e.target.value)}
-            />
+            <Input value={form.phone ?? ""} onChange={(e) => setField("phone", e.target.value)} />
           </Field>
           <Field label="WhatsApp">
             <Input
@@ -146,10 +137,7 @@ function EmpresaPage() {
 
         <Section title="Endereço">
           <Field label="CEP">
-            <Input
-              value={form.cep ?? ""}
-              onChange={(e) => setField("cep", e.target.value)}
-            />
+            <Input value={form.cep ?? ""} onChange={(e) => setField("cep", e.target.value)} />
           </Field>
           <Field label="Endereço" full>
             <Input
@@ -158,10 +146,7 @@ function EmpresaPage() {
             />
           </Field>
           <Field label="Número">
-            <Input
-              value={form.numero ?? ""}
-              onChange={(e) => setField("numero", e.target.value)}
-            />
+            <Input value={form.numero ?? ""} onChange={(e) => setField("numero", e.target.value)} />
           </Field>
           <Field label="Complemento">
             <Input
@@ -170,16 +155,10 @@ function EmpresaPage() {
             />
           </Field>
           <Field label="Bairro">
-            <Input
-              value={form.bairro ?? ""}
-              onChange={(e) => setField("bairro", e.target.value)}
-            />
+            <Input value={form.bairro ?? ""} onChange={(e) => setField("bairro", e.target.value)} />
           </Field>
           <Field label="Cidade">
-            <Input
-              value={form.cidade ?? ""}
-              onChange={(e) => setField("cidade", e.target.value)}
-            />
+            <Input value={form.cidade ?? ""} onChange={(e) => setField("cidade", e.target.value)} />
           </Field>
           <Field label="Estado (UF)">
             <Input
@@ -195,17 +174,13 @@ function EmpresaPage() {
             <Input
               type="number"
               value={form.validade_padrao_dias ?? 7}
-              onChange={(e) =>
-                setField("validade_padrao_dias", Number(e.target.value))
-              }
+              onChange={(e) => setField("validade_padrao_dias", Number(e.target.value))}
             />
           </Field>
           <Field label="Condição de pagamento padrão">
             <Input
               value={form.condicao_pagamento_padrao ?? ""}
-              onChange={(e) =>
-                setField("condicao_pagamento_padrao", e.target.value)
-              }
+              onChange={(e) => setField("condicao_pagamento_padrao", e.target.value)}
               placeholder="Ex: À vista / 30 dias"
             />
           </Field>

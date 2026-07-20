@@ -42,8 +42,7 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Conta criada!", {
-          description:
-            "Aguarde um administrador liberar seu acesso antes de entrar no sistema.",
+          description: "Aguarde um administrador liberar seu acesso antes de entrar no sistema.",
         });
 
         setMode("login");
@@ -55,9 +54,7 @@ function AuthPage() {
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao autenticar";
-      toast.error(
-        message.includes("Invalid login") ? "Email ou senha incorretos" : message,
-      );
+      toast.error(message.includes("Invalid login") ? "Email ou senha incorretos" : message);
     } finally {
       setLoading(false);
     }

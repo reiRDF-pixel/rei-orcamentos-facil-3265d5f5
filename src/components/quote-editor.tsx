@@ -242,9 +242,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                   <Input
                     placeholder="Ex: Filtro de óleo Mann W1160"
                     value={item.descricao}
-                    onChange={(e) =>
-                      updateItem(idx, { descricao: e.target.value })
-                    }
+                    onChange={(e) => updateItem(idx, { descricao: e.target.value })}
                   />
                 </div>
                 <div className="col-span-4 md:col-span-2">
@@ -253,9 +251,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     type="number"
                     step="0.01"
                     value={item.quantidade}
-                    onChange={(e) =>
-                      updateItem(idx, { quantidade: Number(e.target.value) })
-                    }
+                    onChange={(e) => updateItem(idx, { quantidade: Number(e.target.value) })}
                   />
                 </div>
                 <div className="col-span-4 md:col-span-2">
@@ -264,21 +260,14 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     type="number"
                     step="0.01"
                     value={item.preco_unitario}
-                    onChange={(e) =>
-                      updateItem(idx, { preco_unitario: Number(e.target.value) })
-                    }
+                    onChange={(e) => updateItem(idx, { preco_unitario: Number(e.target.value) })}
                   />
                 </div>
                 <div className="col-span-3 md:col-span-1 text-right font-mono text-sm font-semibold">
                   {formatBRL(itemTotal(item))}
                 </div>
                 <div className="col-span-1 flex justify-end">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeItem(idx)}
-                  >
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removeItem(idx)}>
                     <Trash2 className="size-4 text-destructive" />
                   </Button>
                 </div>
@@ -303,10 +292,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
             </div>
             <div className="space-y-2">
               <Label>Frete</Label>
-              <Select
-                value={state.tipo_frete}
-                onValueChange={(v) => setField("tipo_frete", v)}
-              >
+              <Select value={state.tipo_frete} onValueChange={(v) => setField("tipo_frete", v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -331,9 +317,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
               <Input
                 type="number"
                 value={state.validade_dias}
-                onChange={(e) =>
-                  setField("validade_dias", Number(e.target.value))
-                }
+                onChange={(e) => setField("validade_dias", Number(e.target.value))}
               />
             </div>
             <div className="space-y-2 md:col-span-2">
@@ -372,9 +356,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-mono font-semibold">
-                {formatBRL(subtotal)}
-              </span>
+              <span className="font-mono font-semibold">{formatBRL(subtotal)}</span>
             </div>
             <div className="space-y-2">
               <Label className="text-[10px]">Desconto (%)</Label>
@@ -382,9 +364,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 type="number"
                 step="0.01"
                 value={state.desconto_percentual}
-                onChange={(e) =>
-                  setField("desconto_percentual", Number(e.target.value))
-                }
+                onChange={(e) => setField("desconto_percentual", Number(e.target.value))}
               />
             </div>
             <div className="space-y-2">
@@ -393,9 +373,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 type="number"
                 step="0.01"
                 value={state.desconto_valor}
-                onChange={(e) =>
-                  setField("desconto_valor", Number(e.target.value))
-                }
+                onChange={(e) => setField("desconto_valor", Number(e.target.value))}
               />
             </div>
             <div className="flex justify-between border-t border-border pt-3 text-base font-bold">

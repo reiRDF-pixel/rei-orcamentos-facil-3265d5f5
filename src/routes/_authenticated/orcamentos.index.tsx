@@ -19,12 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  formatBRL,
-  formatDate,
-  QUOTE_STATUS_CLASS,
-  QUOTE_STATUS_LABEL,
-} from "@/lib/format";
+import { formatBRL, formatDate, QUOTE_STATUS_CLASS, QUOTE_STATUS_LABEL } from "@/lib/format";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/")({
@@ -48,23 +43,14 @@ function OrcamentosPage() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       const rows = data ?? [];
-      const vendedorIds = Array.from(
-        new Set(rows.map((q) => q.vendedor_id).filter(Boolean)),
-      );
+      const vendedorIds = Array.from(new Set(rows.map((q) => q.vendedor_id).filter(Boolean)));
       const { data: profiles } = vendedorIds.length
-        ? await supabase
-            .from("profiles")
-            .select("id, full_name")
-            .in("id", vendedorIds)
+        ? await supabase.from("profiles").select("id, full_name").in("id", vendedorIds)
         : { data: [] };
-      const profileById = new Map(
-        (profiles ?? []).map((p) => [p.id, p.full_name]),
-      );
+      const profileById = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
       return rows.map((q) => ({
         ...q,
-        vendedor_nome: q.vendedor_id
-          ? (profileById.get(q.vendedor_id) ?? null)
-          : null,
+        vendedor_nome: q.vendedor_id ? (profileById.get(q.vendedor_id) ?? null) : null,
       }));
     },
   });
@@ -137,9 +123,7 @@ function OrcamentosPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-14 text-center text-sm text-muted-foreground">
-            {search
-              ? "Nenhum orçamento encontrado."
-              : "Nenhum orçamento criado ainda."}
+            {search ? "Nenhum orçamento encontrado." : "Nenhum orçamento criado ainda."}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -197,10 +181,7 @@ function OrcamentosPage() {
                         </Button>
                         {canEdit && (
                           <Button asChild variant="ghost" size="sm" title="Editar">
-                            <Link
-                              to="/orcamentos/$id/editar"
-                              params={{ id: q.id }}
-                            >
+                            <Link to="/orcamentos/$id/editar" params={{ id: q.id }}>
                               <Pencil className="size-4" />
                             </Link>
                           </Button>
