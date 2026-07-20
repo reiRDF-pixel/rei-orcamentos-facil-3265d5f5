@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as QIdRouteImport } from './routes/q.$id'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedProdutosRouteImport } from './routes/_authenticated/produtos'
+import { Route as AuthenticatedMeuPerfilRouteImport } from './routes/_authenticated/meu-perfil'
 import { Route as AuthenticatedMaquinasRouteImport } from './routes/_authenticated/maquinas'
 import { Route as AuthenticatedEmpresaRouteImport } from './routes/_authenticated/empresa'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -51,6 +52,11 @@ const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
 const AuthenticatedProdutosRoute = AuthenticatedProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMeuPerfilRoute = AuthenticatedMeuPerfilRouteImport.update({
+  id: '/meu-perfil',
+  path: '/meu-perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMaquinasRoute = AuthenticatedMaquinasRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/maquinas': typeof AuthenticatedMaquinasRoute
+  '/meu-perfil': typeof AuthenticatedMeuPerfilRoute
   '/produtos': typeof AuthenticatedProdutosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/q/$id': typeof QIdRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/maquinas': typeof AuthenticatedMaquinasRoute
+  '/meu-perfil': typeof AuthenticatedMeuPerfilRoute
   '/produtos': typeof AuthenticatedProdutosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/q/$id': typeof QIdRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/empresa': typeof AuthenticatedEmpresaRoute
   '/_authenticated/maquinas': typeof AuthenticatedMaquinasRoute
+  '/_authenticated/meu-perfil': typeof AuthenticatedMeuPerfilRoute
   '/_authenticated/produtos': typeof AuthenticatedProdutosRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/q/$id': typeof QIdRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/empresa'
     | '/maquinas'
+    | '/meu-perfil'
     | '/produtos'
     | '/usuarios'
     | '/q/$id'
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/empresa'
     | '/maquinas'
+    | '/meu-perfil'
     | '/produtos'
     | '/usuarios'
     | '/q/$id'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/empresa'
     | '/_authenticated/maquinas'
+    | '/_authenticated/meu-perfil'
     | '/_authenticated/produtos'
     | '/_authenticated/usuarios'
     | '/q/$id'
@@ -243,6 +255,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/produtos'
       preLoaderRoute: typeof AuthenticatedProdutosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meu-perfil': {
+      id: '/_authenticated/meu-perfil'
+      path: '/meu-perfil'
+      fullPath: '/meu-perfil'
+      preLoaderRoute: typeof AuthenticatedMeuPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/maquinas': {
@@ -323,6 +342,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEmpresaRoute: typeof AuthenticatedEmpresaRoute
   AuthenticatedMaquinasRoute: typeof AuthenticatedMaquinasRoute
+  AuthenticatedMeuPerfilRoute: typeof AuthenticatedMeuPerfilRoute
   AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
   AuthenticatedOrcamentosIdRoute: typeof AuthenticatedOrcamentosIdRouteWithChildren
@@ -335,6 +355,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEmpresaRoute: AuthenticatedEmpresaRoute,
   AuthenticatedMaquinasRoute: AuthenticatedMaquinasRoute,
+  AuthenticatedMeuPerfilRoute: AuthenticatedMeuPerfilRoute,
   AuthenticatedProdutosRoute: AuthenticatedProdutosRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
   AuthenticatedOrcamentosIdRoute: AuthenticatedOrcamentosIdRouteWithChildren,

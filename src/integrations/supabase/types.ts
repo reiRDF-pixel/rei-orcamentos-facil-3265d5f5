@@ -260,32 +260,95 @@ export type Database = {
         Row: {
           active: boolean
           avatar_url: string | null
+          cargo: string | null
+          cep: string | null
+          cidade: string | null
+          condicao_pagamento_padrao: string | null
           created_at: string
           email: string
+          empresa_nome: string | null
+          endereco: string | null
+          estado: string | null
+          facebook: string | null
           full_name: string
           id: string
+          instagram: string | null
+          linkedin: string | null
+          logo_url: string | null
+          mensagem_padrao: string | null
+          nome_pdf: string | null
+          observacao_padrao: string | null
           phone: string | null
+          phone_comercial: string | null
+          pix_key: string | null
+          prazo_entrega_padrao: string | null
+          signature_url: string | null
+          site: string | null
           updated_at: string
+          validade_padrao_dias: number | null
+          whatsapp: string | null
         }
         Insert: {
           active?: boolean
           avatar_url?: string | null
+          cargo?: string | null
+          cep?: string | null
+          cidade?: string | null
+          condicao_pagamento_padrao?: string | null
           created_at?: string
           email: string
+          empresa_nome?: string | null
+          endereco?: string | null
+          estado?: string | null
+          facebook?: string | null
           full_name?: string
           id: string
+          instagram?: string | null
+          linkedin?: string | null
+          logo_url?: string | null
+          mensagem_padrao?: string | null
+          nome_pdf?: string | null
+          observacao_padrao?: string | null
           phone?: string | null
+          phone_comercial?: string | null
+          pix_key?: string | null
+          prazo_entrega_padrao?: string | null
+          signature_url?: string | null
+          site?: string | null
           updated_at?: string
+          validade_padrao_dias?: number | null
+          whatsapp?: string | null
         }
         Update: {
           active?: boolean
           avatar_url?: string | null
+          cargo?: string | null
+          cep?: string | null
+          cidade?: string | null
+          condicao_pagamento_padrao?: string | null
           created_at?: string
           email?: string
+          empresa_nome?: string | null
+          endereco?: string | null
+          estado?: string | null
+          facebook?: string | null
           full_name?: string
           id?: string
+          instagram?: string | null
+          linkedin?: string | null
+          logo_url?: string | null
+          mensagem_padrao?: string | null
+          nome_pdf?: string | null
+          observacao_padrao?: string | null
           phone?: string | null
+          phone_comercial?: string | null
+          pix_key?: string | null
+          prazo_entrega_padrao?: string | null
+          signature_url?: string | null
+          site?: string | null
           updated_at?: string
+          validade_padrao_dias?: number | null
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -367,6 +430,7 @@ export type Database = {
           updated_at: string
           validade_dias: number
           vendedor_id: string
+          vendedor_snapshot: Json | null
         }
         Insert: {
           approved_at?: string | null
@@ -391,6 +455,7 @@ export type Database = {
           updated_at?: string
           validade_dias?: number
           vendedor_id: string
+          vendedor_snapshot?: Json | null
         }
         Update: {
           approved_at?: string | null
@@ -415,6 +480,7 @@ export type Database = {
           updated_at?: string
           validade_dias?: number
           vendedor_id?: string
+          vendedor_snapshot?: Json | null
         }
         Relationships: [
           {

@@ -8,6 +8,7 @@ import {
   Settings,
   UserCog,
   LogOut,
+  User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -35,6 +36,7 @@ const mainItems = [
   { title: "Orçamentos", url: "/orcamentos", icon: FileText },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Máquinas", url: "/maquinas", icon: Wrench },
+  { title: "Meu perfil", url: "/meu-perfil", icon: User },
   { title: "Produtos", url: "/produtos", icon: Package },
 ];
 

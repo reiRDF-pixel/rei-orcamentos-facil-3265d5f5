@@ -32,6 +32,7 @@ function PublicQuotePage() {
         machine: QuoteDocumentData["machine"];
         items: QuoteDocumentData["items"];
         company: QuoteDocumentData["company"];
+        vendedor: QuoteDocumentData["vendedor"];
         vendedor_nome: string | null;
       } | null;
     },
@@ -102,6 +103,7 @@ function PublicQuotePage() {
               machine={data.machine}
               items={data.items}
               company={data.company}
+              vendedor={data.vendedor}
               vendedorNome={data.vendedor_nome}
             />
           </div>
