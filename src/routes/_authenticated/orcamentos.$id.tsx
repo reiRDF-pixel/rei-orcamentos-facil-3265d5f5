@@ -233,7 +233,7 @@ function OrcamentoDetailPage() {
             client={client}
             machine={data.machine}
             items={items}
-            company={company}
+            company={company ?? null}
             vendedorNome={vendedorNome}
             templateId={currentTemplateId}
           />
