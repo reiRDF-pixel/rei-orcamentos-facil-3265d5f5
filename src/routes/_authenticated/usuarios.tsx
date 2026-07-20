@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Shield, User } from "lucide-react";
+import { Shield, User, Pencil } from "lucide-react";
+import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/use-is-admin";
@@ -10,6 +11,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/format";
+import { VendorProfileForm } from "@/components/vendor-profile-form";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/usuarios")({
   component: UsuariosPage,
@@ -18,6 +26,7 @@ export const Route = createFileRoute("/_authenticated/usuarios")({
 function UsuariosPage() {
   const { isAdmin, loading } = useIsAdmin();
   const qc = useQueryClient();
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: users, isLoading } = useQuery({
     enabled: isAdmin,
