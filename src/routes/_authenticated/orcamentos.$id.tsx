@@ -158,8 +158,9 @@ function OrcamentoDetailPage() {
         `orcamento-${String(data.numero).padStart(5, "0")}.pdf`,
       );
     } catch (e) {
-      toast.error("Falha ao gerar PDF");
-      console.error(e);
+      const msg = e instanceof Error ? e.message : "Erro desconhecido";
+      toast.error(`Falha ao gerar PDF: ${msg}`);
+      console.error("[pdf]", e);
     } finally {
       setDownloading(false);
     }
