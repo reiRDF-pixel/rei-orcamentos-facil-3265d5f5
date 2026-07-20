@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { QuoteDocument, type QuoteDocumentData } from "@/components/quote-document";
 import { downloadPdfFromElement } from "@/lib/pdf-download";
 import { toast } from "sonner";
+import { getPublicQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/q/$id")({
   ssr: false,
@@ -19,14 +20,12 @@ export const Route = createFileRoute("/q/$id")({
 function PublicQuotePage() {
   const { id } = Route.useParams();
   const [downloading, setDownloading] = useState(false);
+  const getPublicQuoteFn = useServerFn(getPublicQuote);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["public-quote", id],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_public_quote", {
-        _quote_id: id,
-      });
-      if (error) throw error;
+      const data = await getPublicQuoteFn({ data: { id } });
       return data as unknown as {
         quote: QuoteDocumentData["quote"] & { numero: number };
         client: QuoteDocumentData["client"];

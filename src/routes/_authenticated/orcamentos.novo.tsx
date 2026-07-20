@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
 import { QuoteEditor, type QuoteFormState } from "@/components/quote-editor";
-import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
+import { type QuoteItemDraft } from "@/lib/quote";
+import { createQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
   component: NovoOrcamentoPage,
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
 
 function NovoOrcamentoPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const createQuoteFn = useServerFn(createQuote);
 
   const { data: company } = useQuery({
     queryKey: ["company_settings"],
@@ -43,71 +44,22 @@ function NovoOrcamentoPage() {
     items: [] as QuoteItemDraft[],
   });
 
-  // Initialize defaults once company loads
-  if (
-    company &&
-    state.condicao_pagamento === "" &&
-    company.condicao_pagamento_padrao
-  ) {
-    setState((s) => ({
-      ...s,
-      condicao_pagamento: company.condicao_pagamento_padrao ?? "",
-      validade_dias: company.validade_padrao_dias ?? 7,
-      observacoes: company.observacoes_padrao ?? "",
-    }));
-  }
+  useEffect(() => {
+    if (!company?.condicao_pagamento_padrao) return;
+    setState((s) => {
+      if (s.condicao_pagamento !== "") return s;
+      return {
+        ...s,
+        condicao_pagamento: company.condicao_pagamento_padrao ?? "",
+        validade_dias: company.validade_padrao_dias ?? 7,
+        observacoes: company.observacoes_padrao ?? "",
+      };
+    });
+  }, [company]);
 
   const save = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error("Sessão expirada");
-      if (!state.client_id) throw new Error("Selecione um cliente");
-      if (state.items.length === 0) throw new Error("Adicione ao menos um item");
-
-      const { subtotal, total } = quoteTotals(
-        state.items,
-        state.desconto_percentual,
-        state.desconto_valor,
-        state.frete,
-      );
-
-      const { data: quote, error } = await supabase
-        .from("quotes")
-        .insert({
-          client_id: state.client_id,
-          machine_id: state.machine_id,
-          vendedor_id: user.id,
-          condicao_pagamento: state.condicao_pagamento || null,
-          tipo_frete: state.tipo_frete || null,
-          prazo_entrega: state.prazo_entrega || null,
-          validade_dias: state.validade_dias,
-          desconto_percentual: state.desconto_percentual,
-          desconto_valor: state.desconto_valor,
-          frete: state.frete,
-          subtotal,
-          total,
-          observacoes: state.observacoes || null,
-          pdf_template: state.pdf_template,
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
-
-      const itemsPayload = state.items.map((i, idx) => ({
-        quote_id: quote.id,
-        product_id: i.product_id,
-        codigo: i.codigo,
-        descricao: i.descricao,
-        quantidade: i.quantidade,
-        preco_unitario: i.preco_unitario,
-        desconto_percentual: i.desconto_percentual,
-        total: itemTotal(i),
-        ordem: idx,
-      }));
-      const { error: ie } = await supabase
-        .from("quote_items")
-        .insert(itemsPayload);
-      if (ie) throw ie;
-
+      const quote = await createQuoteFn({ data: state });
       return quote.id;
     },
     onSuccess: (id) => {

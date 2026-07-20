@@ -48,7 +48,7 @@ function OrcamentoDetailPage() {
       const { data: q, error } = await supabase
         .from("quotes")
         .select(
-          "*, client:clients(*), machine:machines(*), items:quote_items(*), vendedor:profiles!quotes_vendedor_id_fkey(full_name)",
+          "*, client:clients(*), machine:machines(*), items:quote_items(*)",
         )
         .eq("id", id)
         .single();
@@ -66,6 +66,19 @@ function OrcamentoDetailPage() {
         .limit(1)
         .maybeSingle();
       return data;
+    },
+  });
+
+  const { data: vendedor } = useQuery({
+    queryKey: ["quote-vendedor", data?.vendedor_id],
+    enabled: !!data?.vendedor_id,
+    queryFn: async () => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", data!.vendedor_id)
+        .maybeSingle();
+      return profile;
     },
   });
 
@@ -117,7 +130,7 @@ function OrcamentoDetailPage() {
   const currentTemplateId = (templateOverride ??
     (data.pdf_template as PdfTemplateId | null) ??
     "azul") as PdfTemplateId;
-  const vendedorNome = (data.vendedor as { full_name?: string | null } | null)?.full_name ?? null;
+  const vendedorNome = vendedor?.full_name ?? null;
   const isOwner = user?.id === data.vendedor_id;
   const canEdit = isOwner && data.status !== "aprovado";
 
