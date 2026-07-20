@@ -100,7 +100,6 @@ export function QuoteDocument({
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <img
             src={logoUrl}
-            crossOrigin="anonymous"
             alt="Rei dos Filtros"
             style={{
               height: 64,
@@ -110,6 +109,7 @@ export function QuoteDocument({
               borderRadius: 8,
             }}
           />
+
           <div>
             <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 2, opacity: 0.85, margin: 0 }}>
               Orçamento

@@ -42,8 +42,10 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Conta criada!", {
-          description: "Você já pode entrar no sistema.",
+          description:
+            "Aguarde um administrador liberar seu acesso antes de entrar no sistema.",
         });
+
         setMode("login");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -166,8 +168,9 @@ function AuthPage() {
         <p className="mt-6 text-center text-xs text-muted-foreground">
           O primeiro cadastro se torna Administrador do sistema.
           <br />
-          Após isso, novos funcionários são cadastrados pelo admin.
+          Novas contas ficam sem acesso até um administrador liberar o papel na tela de Usuários.
         </p>
+
         <div className="mt-4 text-center">
           <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
             ← Voltar
