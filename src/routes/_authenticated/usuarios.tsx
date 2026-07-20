@@ -140,15 +140,25 @@ function UsuariosPage() {
                         </span>
                       </td>
                       <td className="px-6 py-3 text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            toggleRole.mutate({ userId: u.id, makeAdmin: !admin })
-                          }
-                        >
-                          {admin ? "Rebaixar" : "Tornar admin"}
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingId(u.id)}
+                            title="Editar perfil"
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              toggleRole.mutate({ userId: u.id, makeAdmin: !admin })
+                            }
+                          >
+                            {admin ? "Rebaixar" : "Tornar admin"}
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -158,6 +168,19 @@ function UsuariosPage() {
           </div>
         )}
       </Card>
+
+      <Sheet open={!!editingId} onOpenChange={(open) => !open && setEditingId(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
+          <SheetHeader>
+            <SheetTitle>Editar perfil do vendedor</SheetTitle>
+          </SheetHeader>
+          {editingId && (
+            <div className="mt-6">
+              <VendorProfileForm userId={editingId} />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
