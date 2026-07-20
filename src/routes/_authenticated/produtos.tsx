@@ -49,10 +49,7 @@ function ProdutosPage() {
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("descricao");
+      const { data, error } = await supabase.from("products").select("*").order("descricao");
       if (error) throw error;
       return data ?? [];
     },
@@ -159,22 +156,16 @@ function ProdutosPage() {
                       {p.codigo ?? "—"}
                     </td>
                     <td className="px-6 py-3">
-                      <p className="font-semibold text-foreground">
-                        {p.descricao}
-                      </p>
+                      <p className="font-semibold text-foreground">{p.descricao}</p>
                       <p className="text-xs text-muted-foreground">
                         {p.categoria ?? "—"} · {p.unidade}
                       </p>
                     </td>
-                    <td className="px-6 py-3 text-xs text-muted-foreground">
-                      {p.marca ?? "—"}
-                    </td>
+                    <td className="px-6 py-3 text-xs text-muted-foreground">{p.marca ?? "—"}</td>
                     <td className="px-6 py-3 text-right font-mono font-semibold text-foreground">
                       {formatBRL(p.preco_venda)}
                     </td>
-                    <td className="px-6 py-3 text-right font-mono text-xs">
-                      {p.estoque}
-                    </td>
+                    <td className="px-6 py-3 text-right font-mono text-xs">{p.estoque}</td>
                     <td className="px-6 py-3 text-right">
                       <Button
                         variant="ghost"
@@ -186,11 +177,7 @@ function ProdutosPage() {
                       >
                         <Pencil className="size-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteTarget(p)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(p)}>
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
                     </td>
@@ -202,10 +189,7 @@ function ProdutosPage() {
         )}
       </Card>
 
-      <AlertDialog
-        open={!!deleteTarget}
-        onOpenChange={(o) => !o && setDeleteTarget(null)}
-      >
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remover produto?</AlertDialogTitle>
@@ -225,13 +209,7 @@ function ProdutosPage() {
   );
 }
 
-function ProductDialog({
-  editing,
-  onClose,
-}: {
-  editing: Product | null;
-  onClose: () => void;
-}) {
+function ProductDialog({ editing, onClose }: { editing: Product | null; onClose: () => void }) {
   const qc = useQueryClient();
   const [form, setForm] = useState<TablesInsert<"products">>({
     codigo: editing?.codigo ?? "",
@@ -255,10 +233,7 @@ function ProductDialog({
     mutationFn: async () => {
       if (!form.descricao?.trim()) throw new Error("Descrição é obrigatória");
       if (editing) {
-        const { error } = await supabase
-          .from("products")
-          .update(form)
-          .eq("id", editing.id);
+        const { error } = await supabase.from("products").update(form).eq("id", editing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("products").insert(form);
@@ -287,17 +262,11 @@ function ProductDialog({
       >
         <div className="space-y-2">
           <Label>Código</Label>
-          <Input
-            value={form.codigo ?? ""}
-            onChange={(e) => setField("codigo", e.target.value)}
-          />
+          <Input value={form.codigo ?? ""} onChange={(e) => setField("codigo", e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>Marca</Label>
-          <Input
-            value={form.marca ?? ""}
-            onChange={(e) => setField("marca", e.target.value)}
-          />
+          <Input value={form.marca ?? ""} onChange={(e) => setField("marca", e.target.value)} />
         </div>
         <div className="space-y-2 md:col-span-2">
           <Label>Descrição *</Label>
@@ -351,10 +320,7 @@ function ProductDialog({
           />
         </div>
         <div className="flex items-center gap-3 pt-6">
-          <Switch
-            checked={form.ativo ?? true}
-            onCheckedChange={(v) => setField("ativo", v)}
-          />
+          <Switch checked={form.ativo ?? true} onCheckedChange={(v) => setField("ativo", v)} />
           <Label>Produto ativo</Label>
         </div>
         <div className="space-y-2 md:col-span-2">

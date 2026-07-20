@@ -48,9 +48,7 @@ function AuthenticatedLayout() {
           <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
             <SidebarTrigger />
             <Separator orientation="vertical" className="h-5" />
-            <span className="text-sm font-semibold text-foreground">
-              Rei dos Filtros
-            </span>
+            <span className="text-sm font-semibold text-foreground">Rei dos Filtros</span>
           </header>
           <main className="flex-1 overflow-y-auto">
             <Outlet />

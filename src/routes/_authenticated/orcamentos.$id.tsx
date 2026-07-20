@@ -47,9 +47,7 @@ function OrcamentoDetailPage() {
     queryFn: async () => {
       const { data: q, error } = await supabase
         .from("quotes")
-        .select(
-          "*, client:clients(*), machine:machines(*), items:quote_items(*)",
-        )
+        .select("*, client:clients(*), machine:machines(*), items:quote_items(*)")
         .eq("id", id)
         .single();
       if (error) throw error;
@@ -60,11 +58,7 @@ function OrcamentoDetailPage() {
   const { data: company } = useQuery({
     queryKey: ["company_settings"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("company_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
+      const { data } = await supabase.from("company_settings").select("*").limit(1).maybeSingle();
       return data;
     },
   });
@@ -109,10 +103,7 @@ function OrcamentoDetailPage() {
 
   const saveTemplate = useMutation({
     mutationFn: async (tpl: PdfTemplateId) => {
-      const { error } = await supabase
-        .from("quotes")
-        .update({ pdf_template: tpl })
-        .eq("id", id);
+      const { error } = await supabase.from("quotes").update({ pdf_template: tpl }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -150,10 +141,7 @@ function OrcamentoDetailPage() {
     }
     const url = `${window.location.origin}/q/${id}`;
     const text = `Olá ${client?.contato_nome ?? client?.razao_social ?? ""}, segue o orçamento #${String(data.numero).padStart(5, "0")} no valor de ${Number(data.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}.\n\n${url}`;
-    window.open(
-      `https://wa.me/${phone}?text=${encodeURIComponent(text)}`,
-      "_blank",
-    );
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
   const handleDownload = async () => {
@@ -161,10 +149,7 @@ function OrcamentoDetailPage() {
     if (!el) return;
     setDownloading(true);
     try {
-      await downloadPdfFromElement(
-        el,
-        `orcamento-${String(data.numero).padStart(5, "0")}.pdf`,
-      );
+      await downloadPdfFromElement(el, `orcamento-${String(data.numero).padStart(5, "0")}.pdf`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erro desconhecido";
       toast.error(`Falha ao gerar PDF: ${msg}`);
@@ -222,10 +207,7 @@ function OrcamentoDetailPage() {
             <MessageCircle className="size-4" /> WhatsApp
           </Button>
           {data.status === "rascunho" && (
-            <Button
-              onClick={() => setStatus.mutate("enviado")}
-              variant="outline"
-            >
+            <Button onClick={() => setStatus.mutate("enviado")} variant="outline">
               <Send className="size-4" /> Marcar como enviado
             </Button>
           )}
@@ -237,10 +219,7 @@ function OrcamentoDetailPage() {
               >
                 <CheckCircle2 className="size-4" /> Aprovado
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => setStatus.mutate("recusado")}
-              >
+              <Button variant="outline" onClick={() => setStatus.mutate("recusado")}>
                 <XCircle className="size-4" /> Recusado
               </Button>
             </>

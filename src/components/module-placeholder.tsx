@@ -11,12 +11,8 @@ export function ModulePlaceholder({ title, description, nextSteps }: Props) {
   return (
     <div className="mx-auto max-w-4xl p-6 lg:p-8">
       <header className="mb-8">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Módulo
-        </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground">
-          {title}
-        </h1>
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Módulo</p>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground">{title}</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
       </header>
 

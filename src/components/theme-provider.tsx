@@ -22,9 +22,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
 
   useEffect(() => {
-    const saved = (typeof window !== "undefined"
-      ? (localStorage.getItem(STORAGE_KEY) as Theme | null)
-      : null) ?? "light";
+    const saved =
+      (typeof window !== "undefined"
+        ? (localStorage.getItem(STORAGE_KEY) as Theme | null)
+        : null) ?? "light";
     setThemeState(saved);
     applyTheme(saved);
   }, []);

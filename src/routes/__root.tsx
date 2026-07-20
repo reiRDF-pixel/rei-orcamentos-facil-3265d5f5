@@ -89,14 +89,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Rei dos Filtros — Sistema de Orçamentos" },
       {
         property: "og:description",
-        content: "Sistema interno de orçamentos da Rei dos Filtros. Gerencie clientes, máquinas, produtos e envie orçamentos profissionais em minutos.",
+        content:
+          "Sistema interno de orçamentos da Rei dos Filtros. Gerencie clientes, máquinas, produtos e envie orçamentos profissionais em minutos.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Rei dos Filtros — Sistema de Orçamentos" },
-      { name: "twitter:description", content: "Sistema interno de orçamentos da Rei dos Filtros. Gerencie clientes, máquinas, produtos e envie orçamentos profissionais em minutos." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/66401435-2a76-4ffd-bff6-6031dfb4d2bf/id-preview-9b2cfed0--057e2941-b085-43af-920c-b4209a26a47c.lovable.app-1784213333091.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/66401435-2a76-4ffd-bff6-6031dfb4d2bf/id-preview-9b2cfed0--057e2941-b085-43af-920c-b4209a26a47c.lovable.app-1784213333091.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Sistema interno de orçamentos da Rei dos Filtros. Gerencie clientes, máquinas, produtos e envie orçamentos profissionais em minutos.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/66401435-2a76-4ffd-bff6-6031dfb4d2bf/id-preview-9b2cfed0--057e2941-b085-43af-920c-b4209a26a47c.lovable.app-1784213333091.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/66401435-2a76-4ffd-bff6-6031dfb4d2bf/id-preview-9b2cfed0--057e2941-b085-43af-920c-b4209a26a47c.lovable.app-1784213333091.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

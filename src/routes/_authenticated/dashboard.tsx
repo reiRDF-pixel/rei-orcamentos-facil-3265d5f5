@@ -5,14 +5,7 @@ import { formatBRL, formatDate, QUOTE_STATUS_LABEL, QUOTE_STATUS_CLASS } from "@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  FileText,
-  TrendingUp,
-  CheckCircle2,
-  DollarSign,
-  Plus,
-  ArrowRight,
-} from "lucide-react";
+import { FileText, TrendingUp, CheckCircle2, DollarSign, Plus, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
@@ -27,23 +20,17 @@ function DashboardPage() {
 
       const [quotesRes, monthQuotesRes] = await Promise.all([
         supabase.from("quotes").select("id, total, status", { count: "exact" }),
-        supabase
-          .from("quotes")
-          .select("id, total, status")
-          .gte("created_at", start),
+        supabase.from("quotes").select("id, total, status").gte("created_at", start),
       ]);
 
       const monthQuotes = monthQuotesRes.data ?? [];
       const totalMonth = monthQuotes.reduce((sum, q) => sum + Number(q.total ?? 0), 0);
       const approvedMonth = monthQuotes.filter((q) => q.status === "aprovado");
       const conversion =
-        monthQuotes.length > 0
-          ? (approvedMonth.length / monthQuotes.length) * 100
-          : 0;
+        monthQuotes.length > 0 ? (approvedMonth.length / monthQuotes.length) * 100 : 0;
       const ticket =
         approvedMonth.length > 0
-          ? approvedMonth.reduce((s, q) => s + Number(q.total ?? 0), 0) /
-            approvedMonth.length
+          ? approvedMonth.reduce((s, q) => s + Number(q.total ?? 0), 0) / approvedMonth.length
           : 0;
 
       return {
@@ -162,7 +149,10 @@ function DashboardPage() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {recentQuotes.map((q) => {
-                    const client = q.client as { razao_social?: string; nome_fantasia?: string } | null;
+                    const client = q.client as {
+                      razao_social?: string;
+                      nome_fantasia?: string;
+                    } | null;
                     return (
                       <tr key={q.id} className="hover:bg-muted/30">
                         <td className="px-6 py-4 font-mono text-xs font-semibold text-foreground">
@@ -218,9 +208,7 @@ function StatCard({ label, value, hint, icon: Icon, highlight }: StatCardProps) 
         <p className="text-xs font-semibold text-muted-foreground">{label}</p>
         <div
           className={`flex size-8 items-center justify-center rounded-xl ${
-            highlight
-              ? "bg-primary text-primary-foreground"
-              : "bg-primary/10 text-primary"
+            highlight ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
           }`}
         >
           <Icon className="size-4" />
