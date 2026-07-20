@@ -337,15 +337,8 @@ export function QuoteDocument({
           </section>
         )}
 
-        {vendedorNome && (
-          <p style={{ marginTop: 24, fontSize: 11, color: "#94a3b8" }}>
-            Orçamento elaborado por <b style={{ color: "#475569" }}>{vendedorNome}</b>
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
+
+
 
         {vendedor && (vendedor.mensagem_padrao || vendedor.pix_key) && (
           <section style={{ marginTop: 24, borderTop: "1px solid #e2e8f0", paddingTop: 16, fontSize: 12 }}>
