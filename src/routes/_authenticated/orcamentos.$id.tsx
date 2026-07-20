@@ -70,15 +70,20 @@ function OrcamentoDetailPage() {
   });
 
   const { data: vendedor } = useQuery({
-    queryKey: ["quote-vendedor", data?.vendedor_id],
+    queryKey: ["quote-vendedor", data?.vendedor_id, data?.id],
     enabled: !!data?.vendedor_id,
     queryFn: async () => {
+      // Prefer snapshot stored on the quote (immutable history);
+      // fall back to live profile for legacy quotes without a snapshot.
+      const snap = (data as { vendedor_snapshot?: Record<string, unknown> } | null)
+        ?.vendedor_snapshot;
+      if (snap && Object.keys(snap).length > 0) return snap as Record<string, unknown>;
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("*")
         .eq("id", data!.vendedor_id)
         .maybeSingle();
-      return profile;
+      return profile as Record<string, unknown> | null;
     },
   });
 
