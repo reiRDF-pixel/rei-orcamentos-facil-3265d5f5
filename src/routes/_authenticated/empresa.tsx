@@ -258,3 +258,37 @@ function Field({
     </div>
   );
 }
+
+function ThemeToggleCard() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <Card className="mb-6 flex items-center justify-between rounded-3xl border-border/60 p-6 shadow-elegant">
+      <div>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+          Aparência
+        </h2>
+        <p className="mt-1 text-sm text-foreground">
+          Escolha entre o modo claro ou escuro do sistema.
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant={theme === "light" ? "default" : "outline"}
+          onClick={() => setTheme("light")}
+          className={theme === "light" ? "bg-primary text-primary-foreground" : ""}
+        >
+          <Sun className="size-4" /> Claro
+        </Button>
+        <Button
+          type="button"
+          variant={theme === "dark" ? "default" : "outline"}
+          onClick={() => setTheme("dark")}
+          className={theme === "dark" ? "bg-primary text-primary-foreground" : ""}
+        >
+          <Moon className="size-4" /> Escuro
+        </Button>
+      </div>
+    </Card>
+  );
+}
