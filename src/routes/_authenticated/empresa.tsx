@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save } from "lucide-react";
+import { Save, Sun, Moon } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { DataPageHeader } from "@/components/data-page-header";
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { useTheme } from "@/components/theme-provider";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type Company = Tables<"company_settings">;
@@ -255,5 +256,39 @@ function Field({
       <Label>{label}</Label>
       {children}
     </div>
+  );
+}
+
+function ThemeToggleCard() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <Card className="mb-6 flex items-center justify-between rounded-3xl border-border/60 p-6 shadow-elegant">
+      <div>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+          Aparência
+        </h2>
+        <p className="mt-1 text-sm text-foreground">
+          Escolha entre o modo claro ou escuro do sistema.
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant={theme === "light" ? "default" : "outline"}
+          onClick={() => setTheme("light")}
+          className={theme === "light" ? "bg-primary text-primary-foreground" : ""}
+        >
+          <Sun className="size-4" /> Claro
+        </Button>
+        <Button
+          type="button"
+          variant={theme === "dark" ? "default" : "outline"}
+          onClick={() => setTheme("dark")}
+          className={theme === "dark" ? "bg-primary text-primary-foreground" : ""}
+        >
+          <Moon className="size-4" /> Escuro
+        </Button>
+      </div>
+    </Card>
   );
 }

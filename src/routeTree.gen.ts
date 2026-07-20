@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as QIdRouteImport } from './routes/q.$id'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedProdutosRouteImport } from './routes/_authenticated/produtos'
 import { Route as AuthenticatedMaquinasRouteImport } from './routes/_authenticated/maquinas'
@@ -21,6 +22,7 @@ import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOrcamentosIndexRouteImport } from './routes/_authenticated/orcamentos.index'
 import { Route as AuthenticatedOrcamentosNovoRouteImport } from './routes/_authenticated/orcamentos.novo'
 import { Route as AuthenticatedOrcamentosIdRouteImport } from './routes/_authenticated/orcamentos.$id'
+import { Route as AuthenticatedOrcamentosIdEditarRouteImport } from './routes/_authenticated/orcamentos.$id.editar'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -34,6 +36,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QIdRoute = QIdRouteImport.update({
+  id: '/q/$id',
+  path: '/q/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
@@ -84,6 +91,12 @@ const AuthenticatedOrcamentosIdRoute =
     path: '/orcamentos/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOrcamentosIdEditarRoute =
+  AuthenticatedOrcamentosIdEditarRouteImport.update({
+    id: '/editar',
+    path: '/editar',
+    getParentRoute: () => AuthenticatedOrcamentosIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -94,9 +107,11 @@ export interface FileRoutesByFullPath {
   '/maquinas': typeof AuthenticatedMaquinasRoute
   '/produtos': typeof AuthenticatedProdutosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
-  '/orcamentos/$id': typeof AuthenticatedOrcamentosIdRoute
+  '/q/$id': typeof QIdRoute
+  '/orcamentos/$id': typeof AuthenticatedOrcamentosIdRouteWithChildren
   '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/orcamentos/': typeof AuthenticatedOrcamentosIndexRoute
+  '/orcamentos/$id/editar': typeof AuthenticatedOrcamentosIdEditarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -107,9 +122,11 @@ export interface FileRoutesByTo {
   '/maquinas': typeof AuthenticatedMaquinasRoute
   '/produtos': typeof AuthenticatedProdutosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
-  '/orcamentos/$id': typeof AuthenticatedOrcamentosIdRoute
+  '/q/$id': typeof QIdRoute
+  '/orcamentos/$id': typeof AuthenticatedOrcamentosIdRouteWithChildren
   '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/orcamentos': typeof AuthenticatedOrcamentosIndexRoute
+  '/orcamentos/$id/editar': typeof AuthenticatedOrcamentosIdEditarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,9 +139,11 @@ export interface FileRoutesById {
   '/_authenticated/maquinas': typeof AuthenticatedMaquinasRoute
   '/_authenticated/produtos': typeof AuthenticatedProdutosRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
-  '/_authenticated/orcamentos/$id': typeof AuthenticatedOrcamentosIdRoute
+  '/q/$id': typeof QIdRoute
+  '/_authenticated/orcamentos/$id': typeof AuthenticatedOrcamentosIdRouteWithChildren
   '/_authenticated/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/_authenticated/orcamentos/': typeof AuthenticatedOrcamentosIndexRoute
+  '/_authenticated/orcamentos/$id/editar': typeof AuthenticatedOrcamentosIdEditarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -137,9 +156,11 @@ export interface FileRouteTypes {
     | '/maquinas'
     | '/produtos'
     | '/usuarios'
+    | '/q/$id'
     | '/orcamentos/$id'
     | '/orcamentos/novo'
     | '/orcamentos/'
+    | '/orcamentos/$id/editar'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -150,9 +171,11 @@ export interface FileRouteTypes {
     | '/maquinas'
     | '/produtos'
     | '/usuarios'
+    | '/q/$id'
     | '/orcamentos/$id'
     | '/orcamentos/novo'
     | '/orcamentos'
+    | '/orcamentos/$id/editar'
   id:
     | '__root__'
     | '/'
@@ -164,15 +187,18 @@ export interface FileRouteTypes {
     | '/_authenticated/maquinas'
     | '/_authenticated/produtos'
     | '/_authenticated/usuarios'
+    | '/q/$id'
     | '/_authenticated/orcamentos/$id'
     | '/_authenticated/orcamentos/novo'
     | '/_authenticated/orcamentos/'
+    | '/_authenticated/orcamentos/$id/editar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  QIdRoute: typeof QIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -196,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/q/$id': {
+      id: '/q/$id'
+      path: '/q/$id'
+      fullPath: '/q/$id'
+      preLoaderRoute: typeof QIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/usuarios': {
@@ -261,8 +294,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrcamentosIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/orcamentos/$id/editar': {
+      id: '/_authenticated/orcamentos/$id/editar'
+      path: '/editar'
+      fullPath: '/orcamentos/$id/editar'
+      preLoaderRoute: typeof AuthenticatedOrcamentosIdEditarRouteImport
+      parentRoute: typeof AuthenticatedOrcamentosIdRoute
+    }
   }
 }
+
+interface AuthenticatedOrcamentosIdRouteChildren {
+  AuthenticatedOrcamentosIdEditarRoute: typeof AuthenticatedOrcamentosIdEditarRoute
+}
+
+const AuthenticatedOrcamentosIdRouteChildren: AuthenticatedOrcamentosIdRouteChildren =
+  {
+    AuthenticatedOrcamentosIdEditarRoute: AuthenticatedOrcamentosIdEditarRoute,
+  }
+
+const AuthenticatedOrcamentosIdRouteWithChildren =
+  AuthenticatedOrcamentosIdRoute._addFileChildren(
+    AuthenticatedOrcamentosIdRouteChildren,
+  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRoute
@@ -271,7 +325,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMaquinasRoute: typeof AuthenticatedMaquinasRoute
   AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
-  AuthenticatedOrcamentosIdRoute: typeof AuthenticatedOrcamentosIdRoute
+  AuthenticatedOrcamentosIdRoute: typeof AuthenticatedOrcamentosIdRouteWithChildren
   AuthenticatedOrcamentosNovoRoute: typeof AuthenticatedOrcamentosNovoRoute
   AuthenticatedOrcamentosIndexRoute: typeof AuthenticatedOrcamentosIndexRoute
 }
@@ -283,7 +337,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMaquinasRoute: AuthenticatedMaquinasRoute,
   AuthenticatedProdutosRoute: AuthenticatedProdutosRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
-  AuthenticatedOrcamentosIdRoute: AuthenticatedOrcamentosIdRoute,
+  AuthenticatedOrcamentosIdRoute: AuthenticatedOrcamentosIdRouteWithChildren,
   AuthenticatedOrcamentosNovoRoute: AuthenticatedOrcamentosNovoRoute,
   AuthenticatedOrcamentosIndexRoute: AuthenticatedOrcamentosIndexRoute,
 }
@@ -295,6 +349,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  QIdRoute: QIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

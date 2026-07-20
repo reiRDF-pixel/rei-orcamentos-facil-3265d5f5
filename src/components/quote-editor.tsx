@@ -1,6 +1,7 @@
 import { Plus, Trash2, Save, ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -204,8 +205,40 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 key={idx}
                 className="grid grid-cols-12 items-end gap-2 rounded-2xl border border-border/60 p-3"
               >
-                <div className="col-span-12 md:col-span-6">
-                  <Label className="text-[10px]">Item / descrição</Label>
+                <div className="col-span-6 md:col-span-2">
+                  <Label className="text-[10px]">Código do produto</Label>
+                  <div className="flex gap-1">
+                    <Input
+                      placeholder="Buscar código"
+                      value={item.codigo ?? ""}
+                      onChange={(e) => updateItem(idx, { codigo: e.target.value })}
+                      onKeyDown={async (e) => {
+                        if (e.key !== "Enter") return;
+                        e.preventDefault();
+                        const code = (item.codigo ?? "").trim();
+                        if (!code) return;
+                        const { data } = await supabase
+                          .from("products")
+                          .select("id, codigo, descricao, preco_venda")
+                          .eq("codigo", code)
+                          .maybeSingle();
+                        if (!data) {
+                          toast.error("Código não encontrado");
+                          return;
+                        }
+                        updateItem(idx, {
+                          product_id: data.id,
+                          codigo: data.codigo,
+                          preco_unitario: Number(data.preco_venda),
+                          descricao: item.descricao || data.descricao,
+                        });
+                        toast.success("Produto carregado");
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="col-span-6 md:col-span-4">
+                  <Label className="text-[10px]">Item / descrição *</Label>
                   <Input
                     placeholder="Ex: Filtro de óleo Mann W1160"
                     value={item.descricao}

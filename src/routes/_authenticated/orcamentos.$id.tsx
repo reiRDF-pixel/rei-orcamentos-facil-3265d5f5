@@ -1,7 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Printer, MessageCircle, CheckCircle2, XCircle, Send, Palette } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  MessageCircle,
+  CheckCircle2,
+  XCircle,
+  Send,
+  Palette,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -15,13 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  formatBRL,
-  formatDate,
-  QUOTE_STATUS_CLASS,
-  QUOTE_STATUS_LABEL,
-} from "@/lib/format";
-import { getPdfTemplate, PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
+import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
+import { QuoteDocument } from "@/components/quote-document";
+import { downloadPdfFromElement } from "@/lib/pdf-download";
+import { useAuth } from "@/hooks/use-auth";
 import type { Database } from "@/integrations/supabase/types";
 
 type QuoteStatus = Database["public"]["Enums"]["quote_status"];
@@ -33,7 +38,9 @@ export const Route = createFileRoute("/_authenticated/orcamentos/$id")({
 function OrcamentoDetailPage() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const { user } = useAuth();
   const [templateOverride, setTemplateOverride] = useState<PdfTemplateId | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["quote", id],
@@ -41,7 +48,7 @@ function OrcamentoDetailPage() {
       const { data: q, error } = await supabase
         .from("quotes")
         .select(
-          "*, client:clients(*), machine:machines(*), items:quote_items(*)",
+          "*, client:clients(*), machine:machines(*), items:quote_items(*), vendedor:profiles!quotes_vendedor_id_fkey(full_name)",
         )
         .eq("id", id)
         .single();
@@ -110,7 +117,9 @@ function OrcamentoDetailPage() {
   const currentTemplateId = (templateOverride ??
     (data.pdf_template as PdfTemplateId | null) ??
     "azul") as PdfTemplateId;
-  const tpl = getPdfTemplate(currentTemplateId);
+  const vendedorNome = (data.vendedor as { full_name?: string | null } | null)?.full_name ?? null;
+  const isOwner = user?.id === data.vendedor_id;
+  const canEdit = isOwner && data.status !== "aprovado";
 
   const handleWhatsapp = () => {
     const phone = (client?.whatsapp ?? client?.phone ?? "").replace(/\D/g, "");
@@ -118,17 +127,34 @@ function OrcamentoDetailPage() {
       toast.error("Cliente sem WhatsApp cadastrado");
       return;
     }
-    const url = `${window.location.origin}/orcamentos/${id}`;
-    const text = `Olá ${client?.contato_nome ?? client?.razao_social ?? ""}, segue o orçamento #${String(data.numero).padStart(5, "0")} no valor de ${formatBRL(data.total)}.\n\n${url}`;
+    const url = `${window.location.origin}/q/${id}`;
+    const text = `Olá ${client?.contato_nome ?? client?.razao_social ?? ""}, segue o orçamento #${String(data.numero).padStart(5, "0")} no valor de ${Number(data.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}.\n\n${url}`;
     window.open(
       `https://wa.me/${phone}?text=${encodeURIComponent(text)}`,
       "_blank",
     );
   };
 
+  const handleDownload = async () => {
+    const el = document.getElementById("quote-document-pdf");
+    if (!el) return;
+    setDownloading(true);
+    try {
+      await downloadPdfFromElement(
+        el,
+        `orcamento-${String(data.numero).padStart(5, "0")}.pdf`,
+      );
+    } catch (e) {
+      toast.error("Falha ao gerar PDF");
+      console.error(e);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-5xl p-6 lg:p-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 print:hidden">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Button asChild variant="ghost" size="sm">
           <Link to="/orcamentos">
             <ArrowLeft className="size-4" /> Voltar
@@ -156,8 +182,19 @@ function OrcamentoDetailPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="size-4" /> Imprimir / PDF
+          {canEdit && (
+            <Button asChild variant="outline">
+              <Link to="/orcamentos/$id/editar" params={{ id }}>
+                Editar
+              </Link>
+            </Button>
+          )}
+          <Button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="bg-primary text-primary-foreground hover:bg-primary-hover"
+          >
+            <Download className="size-4" /> {downloading ? "Gerando..." : "Baixar PDF"}
           </Button>
           <Button variant="outline" onClick={handleWhatsapp}>
             <MessageCircle className="size-4" /> WhatsApp
@@ -165,7 +202,7 @@ function OrcamentoDetailPage() {
           {data.status === "rascunho" && (
             <Button
               onClick={() => setStatus.mutate("enviado")}
-              className="bg-primary text-primary-foreground hover:bg-primary-hover"
+              variant="outline"
             >
               <Send className="size-4" /> Marcar como enviado
             </Button>
@@ -189,201 +226,19 @@ function OrcamentoDetailPage() {
         </div>
       </div>
 
-      <Card className="overflow-hidden rounded-3xl border-border/60 p-0 shadow-elegant print:border-0 print:shadow-none">
-        <header
-          className="flex flex-wrap items-start justify-between gap-4 p-8"
-          style={{ background: tpl.headerBg, color: tpl.headerText }}
-        >
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest opacity-80">
-              Orçamento
-            </p>
-            <h1 className="mt-1 font-mono text-3xl font-bold tracking-tight">
-              #{String(data.numero).padStart(5, "0")}
-            </h1>
-            <p className="mt-1 text-xs opacity-80">
-              Emissão: {formatDate(data.data_emissao)} · Validade:{" "}
-              {data.validade_dias} dias
-            </p>
-            <span
-              className="mt-2 inline-flex rounded-full px-2 py-1 text-[10px] font-bold"
-              style={{ background: tpl.accent, color: "#ffffff" }}
-            >
-              {QUOTE_STATUS_LABEL[data.status] ?? data.status}
-            </span>
-          </div>
-          <div className="text-right text-xs">
-            <p className="font-bold text-base">
-              {company?.nome_fantasia || company?.razao_social || "Rei dos Filtros"}
-            </p>
-            {company?.cnpj && <p className="opacity-90">CNPJ {company.cnpj}</p>}
-            {company?.endereco && (
-              <p className="opacity-90">
-                {company.endereco}
-                {company.numero ? `, ${company.numero}` : ""}
-              </p>
-            )}
-            {company?.cidade && (
-              <p className="opacity-90">
-                {company.cidade}
-                {company.estado ? `/${company.estado}` : ""}
-              </p>
-            )}
-            {company?.phone && <p className="opacity-90">{company.phone}</p>}
-          </div>
-        </header>
-
-        <div className="p-8">
-          <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <p
-                className="text-[10px] font-bold uppercase tracking-wider"
-                style={{ color: tpl.accent }}
-              >
-                Cliente
-              </p>
-              <p className="mt-1 font-semibold text-foreground">
-                {client?.nome_fantasia || client?.razao_social}
-              </p>
-              {client?.cnpj_cpf && (
-                <p className="text-xs text-muted-foreground">{client.cnpj_cpf}</p>
-              )}
-              {client?.endereco && (
-                <p className="text-xs text-muted-foreground">
-                  {client.endereco}
-                  {client.numero ? `, ${client.numero}` : ""} - {client.cidade}
-                  {client.estado ? `/${client.estado}` : ""}
-                </p>
-              )}
-              {client?.phone && (
-                <p className="text-xs text-muted-foreground">{client.phone}</p>
-              )}
-            </div>
-            {data.machine && (
-              <div>
-                <p
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: tpl.accent }}
-                >
-                  Máquina
-                </p>
-                <p className="mt-1 font-semibold text-foreground">
-                  {data.machine.marca} {data.machine.modelo}
-                </p>
-                {data.machine.numero_serie && (
-                  <p className="text-xs text-muted-foreground">
-                    Série: {data.machine.numero_serie}
-                  </p>
-                )}
-                {data.machine.ano && (
-                  <p className="text-xs text-muted-foreground">
-                    Ano: {data.machine.ano}
-                  </p>
-                )}
-              </div>
-            )}
-          </section>
-
-          <table className="mb-6 w-full overflow-hidden rounded-xl text-left text-sm">
-            <thead
-              className="text-[10px] uppercase tracking-wider"
-              style={{ background: tpl.tableHeaderBg, color: tpl.tableHeaderText }}
-            >
-              <tr>
-                <th className="px-3 py-2 font-bold">Item</th>
-                <th className="px-3 py-2 text-right font-bold">Qtd</th>
-                <th className="px-3 py-2 text-right font-bold">Preço un.</th>
-                <th className="px-3 py-2 text-right font-bold">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {items.map((i) => (
-                <tr key={i.id}>
-                  <td className="px-3 py-2">{i.descricao}</td>
-                  <td className="px-3 py-2 text-right font-mono">
-                    {i.quantidade}
-                  </td>
-                  <td className="px-3 py-2 text-right font-mono">
-                    {formatBRL(i.preco_unitario)}
-                  </td>
-                  <td className="px-3 py-2 text-right font-mono font-semibold">
-                    {formatBRL(i.total)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="ml-auto max-w-xs space-y-1 text-sm">
-            <Row label="Subtotal" value={formatBRL(data.subtotal)} />
-            {Number(data.desconto_percentual) > 0 && (
-              <Row
-                label={`Desconto (${data.desconto_percentual}%)`}
-                value={`- ${formatBRL(
-                  (Number(data.subtotal) * Number(data.desconto_percentual)) / 100,
-                )}`}
-              />
-            )}
-            {Number(data.desconto_valor) > 0 && (
-              <Row
-                label="Desconto (valor)"
-                value={`- ${formatBRL(data.desconto_valor)}`}
-              />
-            )}
-            <div
-              className="mt-2 flex justify-between rounded-xl px-4 py-3 text-base font-bold"
-              style={{ background: tpl.totalBg, color: tpl.totalText }}
-            >
-              <span>TOTAL</span>
-              <span className="font-mono">{formatBRL(data.total)}</span>
-            </div>
-          </div>
-
-          {(data.condicao_pagamento ||
-            data.tipo_frete ||
-            data.prazo_entrega ||
-            data.observacoes) && (
-            <section className="mt-6 space-y-3 border-t border-border pt-6 text-sm">
-              {data.condicao_pagamento && (
-                <p>
-                  <b style={{ color: tpl.accent }}>Condição de pagamento:</b>{" "}
-                  {data.condicao_pagamento}
-                </p>
-              )}
-              {data.tipo_frete && (
-                <p>
-                  <b style={{ color: tpl.accent }}>Frete:</b> {data.tipo_frete}
-                </p>
-              )}
-              {data.prazo_entrega && (
-                <p>
-                  <b style={{ color: tpl.accent }}>Prazo de entrega:</b>{" "}
-                  {data.prazo_entrega}
-                </p>
-              )}
-              {data.observacoes && (
-                <div>
-                  <p className="font-bold" style={{ color: tpl.accent }}>
-                    Observações
-                  </p>
-                  <p className="whitespace-pre-wrap text-muted-foreground">
-                    {data.observacoes}
-                  </p>
-                </div>
-              )}
-            </section>
-          )}
+      <Card className="overflow-hidden rounded-3xl border-border/60 p-0 shadow-elegant">
+        <div id="quote-document-pdf">
+          <QuoteDocument
+            quote={data}
+            client={client}
+            machine={data.machine}
+            items={items}
+            company={company ?? null}
+            vendedorNome={vendedorNome}
+            templateId={currentTemplateId}
+          />
         </div>
       </Card>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between text-muted-foreground">
-      <span>{label}</span>
-      <span className="font-mono text-foreground">{value}</span>
     </div>
   );
 }
