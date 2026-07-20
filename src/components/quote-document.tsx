@@ -60,6 +60,29 @@ export interface QuoteDocumentData {
     logo_url?: string | null;
   } | null;
   vendedorNome?: string | null;
+  vendedor?: {
+    full_name?: string | null;
+    nome_pdf?: string | null;
+    cargo?: string | null;
+    email?: string | null;
+    phone_comercial?: string | null;
+    whatsapp?: string | null;
+    phone?: string | null;
+    signature_url?: string | null;
+    avatar_url?: string | null;
+    logo_url?: string | null;
+    empresa_nome?: string | null;
+    endereco?: string | null;
+    cep?: string | null;
+    cidade?: string | null;
+    estado?: string | null;
+    site?: string | null;
+    instagram?: string | null;
+    facebook?: string | null;
+    linkedin?: string | null;
+    mensagem_padrao?: string | null;
+    pix_key?: string | null;
+  } | null;
 }
 
 interface Props extends QuoteDocumentData {
@@ -73,10 +96,12 @@ export function QuoteDocument({
   items,
   company,
   vendedorNome,
+  vendedor,
   templateId,
 }: Props) {
   const tpl = getPdfTemplate(templateId ?? (quote.pdf_template as PdfTemplateId | null));
-  const logoUrl = company?.logo_url || logoAsset.url;
+  const logoUrl = vendedor?.logo_url || company?.logo_url || logoAsset.url;
+  const displayName = vendedor?.nome_pdf || vendedor?.full_name || vendedorNome;
 
   return (
     <div
@@ -317,6 +342,73 @@ export function QuoteDocument({
             Orçamento elaborado por <b style={{ color: "#475569" }}>{vendedorNome}</b>
           </p>
         )}
+      </div>
+    </div>
+  );
+}
+
+        {vendedor && (vendedor.mensagem_padrao || vendedor.pix_key) && (
+          <section style={{ marginTop: 24, borderTop: "1px solid #e2e8f0", paddingTop: 16, fontSize: 12 }}>
+            {vendedor.mensagem_padrao && (
+              <p style={{ margin: "4px 0", whiteSpace: "pre-wrap", color: "#475569" }}>
+                {vendedor.mensagem_padrao}
+              </p>
+            )}
+            {vendedor.pix_key && (
+              <p style={{ margin: "4px 0" }}>
+                <b style={{ color: tpl.accent }}>Chave PIX:</b> {vendedor.pix_key}
+              </p>
+            )}
+          </section>
+        )}
+
+        <section
+          style={{
+            marginTop: 28,
+            borderTop: `2px solid ${tpl.accent}`,
+            paddingTop: 16,
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 16,
+            fontSize: 11,
+            color: "#475569",
+          }}
+        >
+          <div>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: tpl.accent, margin: 0 }}>
+              VENDEDOR RESPONSÁVEL
+            </p>
+            {displayName && (
+              <p style={{ margin: "6px 0 0", fontWeight: 700, color: "#0f172a", fontSize: 13 }}>
+                {displayName}
+              </p>
+            )}
+            {vendedor?.cargo && <p style={{ margin: 0 }}>{vendedor.cargo}</p>}
+            {vendedor?.empresa_nome && <p style={{ margin: 0 }}>{vendedor.empresa_nome}</p>}
+            {(vendedor?.cidade || vendedor?.estado) && (
+              <p style={{ margin: 0 }}>
+                {vendedor.cidade}
+                {vendedor.estado ? `/${vendedor.estado}` : ""}
+              </p>
+            )}
+            {vendedor?.whatsapp && <p style={{ margin: 0 }}>WhatsApp: {vendedor.whatsapp}</p>}
+            {vendedor?.phone_comercial && <p style={{ margin: 0 }}>Telefone: {vendedor.phone_comercial}</p>}
+            {vendedor?.email && <p style={{ margin: 0 }}>{vendedor.email}</p>}
+            {vendedor?.site && <p style={{ margin: 0 }}>{vendedor.site}</p>}
+          </div>
+          <div style={{ textAlign: "right" }}>
+            {vendedor?.signature_url && (
+              <img
+                src={vendedor.signature_url}
+                alt="Assinatura"
+                style={{ maxHeight: 70, maxWidth: 220, marginLeft: "auto" }}
+              />
+            )}
+            <div style={{ marginTop: 6, borderTop: "1px solid #cbd5e1", paddingTop: 4 }}>
+              Assinatura
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
