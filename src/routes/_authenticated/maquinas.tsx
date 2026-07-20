@@ -234,7 +234,7 @@ function MachineDialog({
 }) {
   const qc = useQueryClient();
   const [form, setForm] = useState<TablesInsert<"machines">>({
-    client_id: editing?.client_id ?? "",
+    client_id: editing?.client_id ?? null,
     marca: editing?.marca ?? "",
     modelo: editing?.modelo ?? "",
     numero_serie: editing?.numero_serie ?? "",
@@ -262,17 +262,17 @@ function MachineDialog({
 
   const save = useMutation({
     mutationFn: async () => {
-      if (!form.client_id) throw new Error("Selecione um cliente");
       if (!form.marca?.trim() || !form.modelo?.trim())
         throw new Error("Marca e modelo são obrigatórios");
+      const payload = { ...form, client_id: form.client_id || null };
       if (editing) {
         const { error } = await supabase
           .from("machines")
-          .update(form)
+          .update(payload)
           .eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("machines").insert(form);
+        const { error } = await supabase.from("machines").insert(payload);
         if (error) throw error;
       }
     },
@@ -297,15 +297,16 @@ function MachineDialog({
         }}
       >
         <div className="space-y-2 md:col-span-2">
-          <Label>Cliente *</Label>
+          <Label>Cliente (opcional)</Label>
           <Select
-            value={form.client_id}
-            onValueChange={(v) => setField("client_id", v)}
+            value={form.client_id ?? "__none__"}
+            onValueChange={(v) => setField("client_id", v === "__none__" ? null : v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecione o cliente" />
+              <SelectValue placeholder="Sem cliente vinculado" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="__none__">Sem cliente vinculado</SelectItem>
               {clients?.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
                   {c.nome_fantasia || c.razao_social}
