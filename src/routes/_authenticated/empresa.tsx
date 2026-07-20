@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save } from "lucide-react";
+import { Save, Sun, Moon } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { DataPageHeader } from "@/components/data-page-header";
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { useTheme } from "@/components/theme-provider";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type Company = Tables<"company_settings">;

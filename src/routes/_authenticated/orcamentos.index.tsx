@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Search, Trash2, ExternalLink, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ import {
   QUOTE_STATUS_CLASS,
   QUOTE_STATUS_LABEL,
 } from "@/lib/format";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/")({
   component: OrcamentosPage,
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/orcamentos/")({
 
 function OrcamentosPage() {
   const qc = useQueryClient();
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -41,7 +43,7 @@ function OrcamentosPage() {
       const { data, error } = await supabase
         .from("quotes")
         .select(
-          "id, numero, status, total, data_emissao, created_at, client:clients(razao_social, nome_fantasia)",
+          "id, numero, status, total, data_emissao, created_at, vendedor_id, client:clients(razao_social, nome_fantasia), vendedor:profiles!quotes_vendedor_id_fkey(full_name)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -128,6 +130,7 @@ function OrcamentosPage() {
                 <tr>
                   <th className="px-6 py-3 font-bold">Nº</th>
                   <th className="px-6 py-3 font-bold">Cliente</th>
+                  <th className="px-6 py-3 font-bold">Vendedor</th>
                   <th className="px-6 py-3 font-bold">Emissão</th>
                   <th className="px-6 py-3 font-bold text-right">Total</th>
                   <th className="px-6 py-3 font-bold">Status</th>
@@ -140,6 +143,9 @@ function OrcamentosPage() {
                     razao_social?: string;
                     nome_fantasia?: string;
                   } | null;
+                  const vendedor = q.vendedor as { full_name?: string | null } | null;
+                  const isOwner = user?.id === q.vendedor_id;
+                  const canEdit = isOwner && q.status !== "aprovado";
                   return (
                     <tr key={q.id} className="hover:bg-muted/30">
                       <td className="px-6 py-3 font-mono text-xs font-semibold">
@@ -147,6 +153,9 @@ function OrcamentosPage() {
                       </td>
                       <td className="px-6 py-3 font-semibold text-foreground">
                         {client?.nome_fantasia || client?.razao_social || "—"}
+                      </td>
+                      <td className="px-6 py-3 text-xs text-muted-foreground">
+                        {vendedor?.full_name || "—"}
                       </td>
                       <td className="px-6 py-3 text-xs text-muted-foreground">
                         {formatDate(q.data_emissao)}
@@ -164,18 +173,31 @@ function OrcamentosPage() {
                         </span>
                       </td>
                       <td className="px-6 py-3 text-right">
-                        <Button asChild variant="ghost" size="sm">
+                        <Button asChild variant="ghost" size="sm" title="Ver">
                           <Link to="/orcamentos/$id" params={{ id: q.id }}>
                             <ExternalLink className="size-4" />
                           </Link>
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeleteId(q.id)}
-                        >
-                          <Trash2 className="size-4 text-destructive" />
-                        </Button>
+                        {canEdit && (
+                          <Button asChild variant="ghost" size="sm" title="Editar">
+                            <Link
+                              to="/orcamentos/$id/editar"
+                              params={{ id: q.id }}
+                            >
+                              <Pencil className="size-4" />
+                            </Link>
+                          </Button>
+                        )}
+                        {isOwner && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Remover"
+                            onClick={() => setDeleteId(q.id)}
+                          >
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   );
