@@ -43,11 +43,29 @@ function OrcamentosPage() {
       const { data, error } = await supabase
         .from("quotes")
         .select(
-          "id, numero, status, total, data_emissao, created_at, vendedor_id, client:clients(razao_social, nome_fantasia), vendedor:profiles!quotes_vendedor_id_fkey(full_name)",
+          "id, numero, status, total, data_emissao, created_at, vendedor_id, client:clients(razao_social, nome_fantasia)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+      const vendedorIds = Array.from(
+        new Set(rows.map((q) => q.vendedor_id).filter(Boolean)),
+      );
+      const { data: profiles } = vendedorIds.length
+        ? await supabase
+            .from("profiles")
+            .select("id, full_name")
+            .in("id", vendedorIds)
+        : { data: [] };
+      const profileById = new Map(
+        (profiles ?? []).map((p) => [p.id, p.full_name]),
+      );
+      return rows.map((q) => ({
+        ...q,
+        vendedor_nome: q.vendedor_id
+          ? (profileById.get(q.vendedor_id) ?? null)
+          : null,
+      }));
     },
   });
 
@@ -143,7 +161,6 @@ function OrcamentosPage() {
                     razao_social?: string;
                     nome_fantasia?: string;
                   } | null;
-                  const vendedor = q.vendedor as { full_name?: string | null } | null;
                   const isOwner = user?.id === q.vendedor_id;
                   const canEdit = isOwner && q.status !== "aprovado";
                   return (
@@ -155,7 +172,7 @@ function OrcamentosPage() {
                         {client?.nome_fantasia || client?.razao_social || "—"}
                       </td>
                       <td className="px-6 py-3 text-xs text-muted-foreground">
-                        {vendedor?.full_name || "—"}
+                        {q.vendedor_nome || "—"}
                       </td>
                       <td className="px-6 py-3 text-xs text-muted-foreground">
                         {formatDate(q.data_emissao)}

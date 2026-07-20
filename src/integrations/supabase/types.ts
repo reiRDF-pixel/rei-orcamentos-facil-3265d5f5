@@ -459,7 +459,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_quote_with_items: { Args: { _payload: Json }; Returns: string }
       get_public_quote: { Args: { _quote_id: string }; Returns: Json }
+      update_quote_with_items: {
+        Args: { _payload: Json; _quote_id: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "vendedor"

@@ -78,6 +78,8 @@ function EmpresaPage() {
         description="Dados institucionais usados no cabeçalho dos orçamentos."
       />
 
+      <ThemeToggleCard />
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
