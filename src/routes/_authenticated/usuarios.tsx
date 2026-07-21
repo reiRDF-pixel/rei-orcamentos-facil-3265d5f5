@@ -216,6 +216,73 @@ function UsuariosPage() {
           )}
         </SheetContent>
       </Sheet>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo usuário</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-name">Nome completo</Label>
+              <Input
+                id="new-name"
+                value={newUser.full_name}
+                onChange={(e) => setNewUser((s) => ({ ...s, full_name: e.target.value }))}
+                placeholder="João da Silva"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-email">Email</Label>
+              <Input
+                id="new-email"
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser((s) => ({ ...s, email: e.target.value }))}
+                placeholder="usuario@reidosfiltros.com.br"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-password">Senha inicial</Label>
+              <Input
+                id="new-password"
+                type="text"
+                value={newUser.password}
+                onChange={(e) => setNewUser((s) => ({ ...s, password: e.target.value }))}
+                placeholder="Mínimo 6 caracteres"
+              />
+              <p className="text-xs text-muted-foreground">
+                Compartilhe a senha com o usuário; ele poderá trocá-la depois.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="new-admin"
+                checked={newUser.make_admin}
+                onCheckedChange={(v) =>
+                  setNewUser((s) => ({ ...s, make_admin: v === true }))
+                }
+              />
+              <Label htmlFor="new-admin" className="cursor-pointer text-sm">
+                Tornar administrador
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => createUser.mutate()}
+              disabled={createUser.isPending}
+              className="bg-primary text-primary-foreground hover:bg-primary-hover"
+            >
+              {createUser.isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Criar usuário
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
