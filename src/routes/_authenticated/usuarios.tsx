@@ -119,11 +119,19 @@ function UsuariosPage() {
 
   return (
     <div className="mx-auto max-w-5xl p-6 lg:p-8">
-      <DataPageHeader
-        eyebrow="Administração"
-        title="Usuários"
-        description="Funcionários com acesso ao sistema. Novos usuários criam a conta em /auth; um admin ajusta a permissão aqui."
-      />
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <DataPageHeader
+          eyebrow="Administração"
+          title="Usuários"
+          description="Funcionários com acesso ao sistema. Admins criam novos usuários e ajustam permissões aqui."
+        />
+        <Button
+          onClick={() => setCreateOpen(true)}
+          className="bg-primary text-primary-foreground hover:bg-primary-hover"
+        >
+          <Plus className="size-4" /> Novo usuário
+        </Button>
+      </div>
 
       <Card className="overflow-hidden rounded-3xl border-border/60 shadow-elegant">
         {isLoading ? (
