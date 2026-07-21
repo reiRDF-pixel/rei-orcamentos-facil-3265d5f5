@@ -347,6 +347,10 @@ export function QuoteDocument({
         </table>
 
         <div style={{ marginLeft: "auto", maxWidth: 320, fontSize: 12 }}>
+          <Row
+            label="Qtd total de itens"
+            value={String(items.reduce((s, i) => s + (Number(i.quantidade) || 0), 0))}
+          />
           <Row label="Subtotal" value={formatBRL(Number(quote.subtotal))} />
           {Number(quote.desconto_percentual) > 0 && (
             <Row
