@@ -92,14 +92,40 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
       ],
     }));
 
-  const removeItem = (idx: number) =>
+  const removeItem = (idx: number) => {
     setState((s) => ({ ...s, items: s.items.filter((_, i) => i !== idx) }));
+    setConfirmed((c) => {
+      const next: Record<number, boolean> = {};
+      Object.keys(c).forEach((k) => {
+        const n = Number(k);
+        if (n < idx) next[n] = c[n];
+        else if (n > idx) next[n - 1] = c[n];
+      });
+      return next;
+    });
+  };
 
-  const updateItem = (idx: number, patch: Partial<QuoteItemDraft>) =>
+  const updateItem = (idx: number, patch: Partial<QuoteItemDraft>) => {
     setState((s) => ({
       ...s,
       items: s.items.map((i, k) => (k === idx ? { ...i, ...patch } : i)),
     }));
+    setConfirmed((c) => (c[idx] ? { ...c, [idx]: false } : c));
+  };
+
+  const confirmItem = (idx: number) => {
+    const item = state.items[idx];
+    if (!item?.descricao?.trim()) {
+      toast.error("Informe o nome do item antes de confirmar");
+      return;
+    }
+    if (!(item.quantidade > 0)) {
+      toast.error("A quantidade deve ser maior que zero");
+      return;
+    }
+    setConfirmed((c) => ({ ...c, [idx]: true }));
+    toast.success("Item confirmado");
+  };
 
   const { subtotal, total } = quoteTotals(
     state.items,
