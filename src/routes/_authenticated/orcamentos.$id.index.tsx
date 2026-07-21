@@ -31,7 +31,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 type QuoteStatus = Database["public"]["Enums"]["quote_status"];
 
-export const Route = createFileRoute("/_authenticated/orcamentos/$id")({
+export const Route = createFileRoute("/_authenticated/orcamentos/$id/")({
   component: OrcamentoDetailPage,
 });
 

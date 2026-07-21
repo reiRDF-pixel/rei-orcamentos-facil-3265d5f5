@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Shield, User, Pencil } from "lucide-react";
+import { Shield, User, Pencil, Plus, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,10 +10,21 @@ import { useIsAdmin } from "@/hooks/use-is-admin";
 import { DataPageHeader } from "@/components/data-page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/format";
 import { VendorProfileForm } from "@/components/vendor-profile-form";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { createUserByAdmin } from "@/lib/users.functions";
 
 export const Route = createFileRoute("/_authenticated/usuarios")({
   component: UsuariosPage,
@@ -22,6 +34,27 @@ function UsuariosPage() {
   const { isAdmin, loading } = useIsAdmin();
   const qc = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    full_name: "",
+    email: "",
+    password: "",
+    make_admin: false,
+  });
+  const createUserFn = useServerFn(createUserByAdmin);
+
+  const createUser = useMutation({
+    mutationFn: async () => {
+      await createUserFn({ data: newUser });
+    },
+    onSuccess: () => {
+      toast.success("Usuário criado");
+      setCreateOpen(false);
+      setNewUser({ full_name: "", email: "", password: "", make_admin: false });
+      qc.invalidateQueries({ queryKey: ["users-list"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const { data: users, isLoading } = useQuery({
     enabled: isAdmin,
@@ -86,11 +119,19 @@ function UsuariosPage() {
 
   return (
     <div className="mx-auto max-w-5xl p-6 lg:p-8">
-      <DataPageHeader
-        eyebrow="Administração"
-        title="Usuários"
-        description="Funcionários com acesso ao sistema. Novos usuários criam a conta em /auth; um admin ajusta a permissão aqui."
-      />
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <DataPageHeader
+          eyebrow="Administração"
+          title="Usuários"
+          description="Funcionários com acesso ao sistema. Admins criam novos usuários e ajustam permissões aqui."
+        />
+        <Button
+          onClick={() => setCreateOpen(true)}
+          className="bg-primary text-primary-foreground hover:bg-primary-hover"
+        >
+          <Plus className="size-4" /> Novo usuário
+        </Button>
+      </div>
 
       <Card className="overflow-hidden rounded-3xl border-border/60 shadow-elegant">
         {isLoading ? (
@@ -175,6 +216,73 @@ function UsuariosPage() {
           )}
         </SheetContent>
       </Sheet>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo usuário</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-name">Nome completo</Label>
+              <Input
+                id="new-name"
+                value={newUser.full_name}
+                onChange={(e) => setNewUser((s) => ({ ...s, full_name: e.target.value }))}
+                placeholder="João da Silva"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-email">Email</Label>
+              <Input
+                id="new-email"
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser((s) => ({ ...s, email: e.target.value }))}
+                placeholder="usuario@reidosfiltros.com.br"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-password">Senha inicial</Label>
+              <Input
+                id="new-password"
+                type="text"
+                value={newUser.password}
+                onChange={(e) => setNewUser((s) => ({ ...s, password: e.target.value }))}
+                placeholder="Mínimo 6 caracteres"
+              />
+              <p className="text-xs text-muted-foreground">
+                Compartilhe a senha com o usuário; ele poderá trocá-la depois.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="new-admin"
+                checked={newUser.make_admin}
+                onCheckedChange={(v) =>
+                  setNewUser((s) => ({ ...s, make_admin: v === true }))
+                }
+              />
+              <Label htmlFor="new-admin" className="cursor-pointer text-sm">
+                Tornar administrador
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => createUser.mutate()}
+              disabled={createUser.isPending}
+              className="bg-primary text-primary-foreground hover:bg-primary-hover"
+            >
+              {createUser.isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Criar usuário
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

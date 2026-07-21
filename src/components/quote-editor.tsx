@@ -1,4 +1,5 @@
-import { Plus, Trash2, Save, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, Save, ArrowLeft, Check } from "lucide-react";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -47,6 +48,7 @@ interface Props {
 }
 
 export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
+  const [confirmed, setConfirmed] = useState<Record<number, boolean>>({});
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
     queryFn: async () => {
@@ -90,14 +92,40 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
       ],
     }));
 
-  const removeItem = (idx: number) =>
+  const removeItem = (idx: number) => {
     setState((s) => ({ ...s, items: s.items.filter((_, i) => i !== idx) }));
+    setConfirmed((c) => {
+      const next: Record<number, boolean> = {};
+      Object.keys(c).forEach((k) => {
+        const n = Number(k);
+        if (n < idx) next[n] = c[n];
+        else if (n > idx) next[n - 1] = c[n];
+      });
+      return next;
+    });
+  };
 
-  const updateItem = (idx: number, patch: Partial<QuoteItemDraft>) =>
+  const updateItem = (idx: number, patch: Partial<QuoteItemDraft>) => {
     setState((s) => ({
       ...s,
       items: s.items.map((i, k) => (k === idx ? { ...i, ...patch } : i)),
     }));
+    setConfirmed((c) => (c[idx] ? { ...c, [idx]: false } : c));
+  };
+
+  const confirmItem = (idx: number) => {
+    const item = state.items[idx];
+    if (!item?.descricao?.trim()) {
+      toast.error("Informe o nome do item antes de confirmar");
+      return;
+    }
+    if (!(item.quantidade > 0)) {
+      toast.error("A quantidade deve ser maior que zero");
+      return;
+    }
+    setConfirmed((c) => ({ ...c, [idx]: true }));
+    toast.success("Item confirmado");
+  };
 
   const { subtotal, total } = quoteTotals(
     state.items,
@@ -200,10 +228,16 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
           </p>
         ) : (
           <div className="space-y-3">
-            {state.items.map((item, idx) => (
+            {state.items.map((item, idx) => {
+              const isConfirmed = !!confirmed[idx];
+              return (
               <div
                 key={idx}
-                className="grid grid-cols-12 items-end gap-2 rounded-2xl border border-border/60 p-3"
+                className={`grid grid-cols-12 items-end gap-2 rounded-2xl border p-3 transition-colors ${
+                  isConfirmed
+                    ? "border-success/60 bg-success/5"
+                    : "border-border/60"
+                }`}
               >
                 <div className="col-span-6 md:col-span-2">
                   <Label className="text-[10px]">Código do produto</Label>
@@ -245,7 +279,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     onChange={(e) => updateItem(idx, { descricao: e.target.value })}
                   />
                 </div>
-                <div className="col-span-4 md:col-span-2">
+                <div className="col-span-4 md:col-span-1">
                   <Label className="text-[10px]">Qtd</Label>
                   <Input
                     type="number"
@@ -266,13 +300,25 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 <div className="col-span-3 md:col-span-1 text-right font-mono text-sm font-semibold">
                   {formatBRL(itemTotal(item))}
                 </div>
-                <div className="col-span-1 flex justify-end">
-                  <Button type="button" variant="ghost" size="sm" onClick={() => removeItem(idx)}>
+                <div className="col-span-1 flex justify-end gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    title={isConfirmed ? "Item confirmado" : "Confirmar item"}
+                    onClick={() => confirmItem(idx)}
+                  >
+                    <Check
+                      className={`size-4 ${isConfirmed ? "text-success" : "text-muted-foreground"}`}
+                    />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removeItem(idx)} title="Remover item">
                     <Trash2 className="size-4 text-destructive" />
                   </Button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>

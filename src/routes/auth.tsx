@@ -15,10 +15,8 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -31,27 +29,10 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { full_name: fullName },
-          },
-        });
-        if (error) throw error;
-        toast.success("Conta criada!", {
-          description: "Aguarde um administrador liberar seu acesso antes de entrar no sistema.",
-        });
-
-        setMode("login");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Bem-vindo!");
-        navigate({ to: "/dashboard", replace: true });
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast.success("Bem-vindo!");
+      navigate({ to: "/dashboard", replace: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao autenticar";
       toast.error(message.includes("Invalid login") ? "Email ou senha incorretos" : message);
@@ -72,32 +53,13 @@ function AuthPage() {
 
         <Card className="rounded-3xl border-border/60 p-8 shadow-elegant">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              {mode === "login" ? "Entrar" : "Criar conta"}
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">Entrar</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {mode === "login"
-                ? "Acesse com seu email e senha da empresa."
-                : "Cadastre-se para acessar o sistema."}
+              Acesse com seu email e senha da empresa.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nome completo</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Seu nome"
-                  className="rounded-xl"
-                />
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -131,41 +93,15 @@ function AuthPage() {
               className="h-11 w-full rounded-xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
             >
               {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {mode === "login" ? "Entrar" : "Criar conta"}
+              Entrar
             </Button>
           </form>
-
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            {mode === "login" ? (
-              <>
-                Primeiro acesso?{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("signup")}
-                  className="font-semibold text-primary hover:underline"
-                >
-                  Criar conta
-                </button>
-              </>
-            ) : (
-              <>
-                Já tem conta?{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("login")}
-                  className="font-semibold text-primary hover:underline"
-                >
-                  Entrar
-                </button>
-              </>
-            )}
-          </div>
         </Card>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          O primeiro cadastro se torna Administrador do sistema.
+          Acesso restrito à equipe Rei dos Filtros.
           <br />
-          Novas contas ficam sem acesso até um administrador liberar o papel na tela de Usuários.
+          Solicite ao administrador a criação da sua conta na tela de Usuários.
         </p>
 
         <div className="mt-4 text-center">

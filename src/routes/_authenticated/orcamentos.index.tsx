@@ -38,7 +38,7 @@ function OrcamentosPage() {
       const { data, error } = await supabase
         .from("quotes")
         .select(
-          "id, numero, status, total, data_emissao, created_at, vendedor_id, client:clients(razao_social, nome_fantasia)",
+          "id, numero, status, total, data_emissao, created_at, vendedor_id, items:quote_items(id), client:clients(razao_social, nome_fantasia)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -50,6 +50,7 @@ function OrcamentosPage() {
       const profileById = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
       return rows.map((q) => ({
         ...q,
+        item_count: Array.isArray(q.items) ? q.items.length : 0,
         vendedor_nome: q.vendedor_id ? (profileById.get(q.vendedor_id) ?? null) : null,
       }));
     },
@@ -134,6 +135,7 @@ function OrcamentosPage() {
                   <th className="px-6 py-3 font-bold">Cliente</th>
                   <th className="px-6 py-3 font-bold">Vendedor</th>
                   <th className="px-6 py-3 font-bold">Emissão</th>
+                  <th className="px-6 py-3 font-bold text-center">Itens</th>
                   <th className="px-6 py-3 font-bold text-right">Total</th>
                   <th className="px-6 py-3 font-bold">Status</th>
                   <th className="px-6 py-3 font-bold text-right">Ações</th>
@@ -160,6 +162,9 @@ function OrcamentosPage() {
                       </td>
                       <td className="px-6 py-3 text-xs text-muted-foreground">
                         {formatDate(q.data_emissao)}
+                      </td>
+                      <td className="px-6 py-3 text-center text-xs font-semibold">
+                        {q.item_count}
                       </td>
                       <td className="px-6 py-3 text-right font-mono font-semibold">
                         {formatBRL(q.total)}
