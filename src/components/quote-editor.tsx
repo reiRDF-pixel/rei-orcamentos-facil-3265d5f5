@@ -1,4 +1,13 @@
-import { Plus, Trash2, Save, ArrowLeft, Check } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Save,
+  ArrowLeft,
+  Check,
+  ChevronsUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -17,6 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import { DataPageHeader } from "@/components/data-page-header";
 import { formatBRL } from "@/lib/format";
 import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
@@ -49,6 +68,9 @@ interface Props {
 
 export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
   const [confirmed, setConfirmed] = useState<Record<number, boolean>>({});
+  const [clientPickerOpen, setClientPickerOpen] = useState(false);
+  const [clientSearch, setClientSearch] = useState("");
+
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
     queryFn: async () => {
@@ -72,6 +94,16 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
     },
   });
 
+  const selectedClient = clients?.find((c) => c.id === state.client_id) ?? null;
+  const trimmedSearch = clientSearch.trim().toLowerCase();
+  const filteredClients = trimmedSearch
+    ? (clients ?? []).filter((c) =>
+        `${c.razao_social ?? ""} ${c.nome_fantasia ?? ""}`
+          .toLowerCase()
+          .includes(trimmedSearch),
+      )
+    : [];
+
   const setField = <K extends keyof QuoteFormState>(k: K, v: QuoteFormState[K]) =>
     setState((s) => ({ ...s, [k]: v }));
 
@@ -93,7 +125,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
     }));
 
   const removeItem = (idx: number) => {
-    setState((s) => ({ ...s, items: s.items.filter((_, i) => i !== idx) }));
+    setState((s) => ({
+      ...s,
+      items: s.items.filter((_, i) => i !== idx).map((it, i) => ({ ...it, ordem: i })),
+    }));
     setConfirmed((c) => {
       const next: Record<number, boolean> = {};
       Object.keys(c).forEach((k) => {
@@ -101,6 +136,27 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         if (n < idx) next[n] = c[n];
         else if (n > idx) next[n - 1] = c[n];
       });
+      return next;
+    });
+  };
+
+  const moveItem = (idx: number, dir: -1 | 1) => {
+    const target = idx + dir;
+    setState((s) => {
+      if (target < 0 || target >= s.items.length) return s;
+      const items = [...s.items];
+      [items[idx], items[target]] = [items[target], items[idx]];
+      return { ...s, items: items.map((it, i) => ({ ...it, ordem: i })) };
+    });
+    setConfirmed((c) => {
+      if (target < 0 || target >= state.items.length) return c;
+      const next = { ...c };
+      const a = next[idx];
+      const b = next[target];
+      if (b) next[idx] = b;
+      else delete next[idx];
+      if (a) next[target] = a;
+      else delete next[target];
       return next;
     });
   };
@@ -133,6 +189,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
     state.desconto_valor,
     state.frete,
   );
+  const totalQtd = state.items.reduce((s, i) => s + (Number(i.quantidade) || 0), 0);
 
   return (
     <div className="mx-auto max-w-6xl p-6 lg:p-8">
@@ -164,24 +221,77 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label>Cliente *</Label>
-            <Select
-              value={state.client_id}
-              onValueChange={(v) => {
-                setField("client_id", v);
-                setField("machine_id", null);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {clients?.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.nome_fantasia || c.razao_social}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  role="combobox"
+                  className={cn(
+                    "w-full justify-between font-normal",
+                    !selectedClient && "text-muted-foreground",
+                  )}
+                >
+                  {selectedClient
+                    ? selectedClient.nome_fantasia || selectedClient.razao_social
+                    : "Pesquise o cliente pelo nome..."}
+                  <ChevronsUpDown className="size-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[--radix-popover-trigger-width] p-0"
+                align="start"
+              >
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder="Digite o nome do cliente ou empresa..."
+                    value={clientSearch}
+                    onValueChange={setClientSearch}
+                  />
+                  <CommandList>
+                    {trimmedSearch.length === 0 ? (
+                      <div className="py-6 text-center text-xs text-muted-foreground">
+                        Comece a digitar para pesquisar.
+                      </div>
+                    ) : filteredClients.length === 0 ? (
+                      <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                    ) : (
+                      <CommandGroup>
+                        {filteredClients.slice(0, 30).map((c) => (
+                          <CommandItem
+                            key={c.id}
+                            value={c.id}
+                            onSelect={() => {
+                              setField("client_id", c.id);
+                              setField("machine_id", null);
+                              setClientPickerOpen(false);
+                              setClientSearch("");
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "size-4",
+                                state.client_id === c.id ? "opacity-100" : "opacity-0",
+                              )}
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-medium">
+                                {c.nome_fantasia || c.razao_social}
+                              </span>
+                              {c.nome_fantasia && c.razao_social && (
+                                <span className="text-xs text-muted-foreground">
+                                  {c.razao_social}
+                                </span>
+                              )}
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="space-y-2">
             <Label>Máquina (opcional)</Label>
@@ -211,15 +321,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
           <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
             Itens
           </h2>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addItem}
-            className="rounded-xl"
-          >
-            <Plus className="size-4" /> Adicionar item
-          </Button>
+          <span className="text-xs text-muted-foreground">
+            {state.items.length} {state.items.length === 1 ? "item" : "itens"} · Qtd total:{" "}
+            <span className="font-semibold text-foreground">{totalQtd}</span>
+          </span>
         </div>
 
         {state.items.length === 0 ? (
@@ -231,17 +336,41 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
             {state.items.map((item, idx) => {
               const isConfirmed = !!confirmed[idx];
               return (
-              <div
-                key={idx}
-                className={`grid grid-cols-12 items-end gap-2 rounded-2xl border p-3 transition-colors ${
-                  isConfirmed
-                    ? "border-success/60 bg-success/5"
-                    : "border-border/60"
-                }`}
-              >
-                <div className="col-span-6 md:col-span-2">
-                  <Label className="text-[10px]">Código do produto</Label>
-                  <div className="flex gap-1">
+                <div
+                  key={idx}
+                  className={`grid grid-cols-12 items-end gap-2 rounded-2xl border p-3 transition-colors ${
+                    isConfirmed ? "border-success/60 bg-success/5" : "border-border/60"
+                  }`}
+                >
+                  <div className="col-span-12 flex items-center justify-between md:col-span-12">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      Item {idx + 1}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        title="Mover para cima"
+                        disabled={idx === 0}
+                        onClick={() => moveItem(idx, -1)}
+                      >
+                        <ArrowUp className="size-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        title="Mover para baixo"
+                        disabled={idx === state.items.length - 1}
+                        onClick={() => moveItem(idx, 1)}
+                      >
+                        <ArrowDown className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="col-span-6 md:col-span-2">
+                    <Label className="text-[10px]">Código do produto</Label>
                     <Input
                       placeholder="Buscar código"
                       value={item.codigo ?? ""}
@@ -270,57 +399,76 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       }}
                     />
                   </div>
-                </div>
-                <div className="col-span-6 md:col-span-4">
-                  <Label className="text-[10px]">Item / descrição *</Label>
-                  <Input
-                    placeholder="Ex: Filtro de óleo Mann W1160"
-                    value={item.descricao}
-                    onChange={(e) => updateItem(idx, { descricao: e.target.value })}
-                  />
-                </div>
-                <div className="col-span-4 md:col-span-1">
-                  <Label className="text-[10px]">Qtd</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={item.quantidade}
-                    onChange={(e) => updateItem(idx, { quantidade: Number(e.target.value) })}
-                  />
-                </div>
-                <div className="col-span-4 md:col-span-2">
-                  <Label className="text-[10px]">Preço un. (R$)</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={item.preco_unitario}
-                    onChange={(e) => updateItem(idx, { preco_unitario: Number(e.target.value) })}
-                  />
-                </div>
-                <div className="col-span-3 md:col-span-1 text-right font-mono text-sm font-semibold">
-                  {formatBRL(itemTotal(item))}
-                </div>
-                <div className="col-span-1 flex justify-end gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    title={isConfirmed ? "Item confirmado" : "Confirmar item"}
-                    onClick={() => confirmItem(idx)}
-                  >
-                    <Check
-                      className={`size-4 ${isConfirmed ? "text-success" : "text-muted-foreground"}`}
+                  <div className="col-span-6 md:col-span-4">
+                    <Label className="text-[10px]">Item / descrição *</Label>
+                    <Input
+                      placeholder="Ex: Filtro de óleo Mann W1160"
+                      value={item.descricao}
+                      onChange={(e) => updateItem(idx, { descricao: e.target.value })}
                     />
-                  </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => removeItem(idx)} title="Remover item">
-                    <Trash2 className="size-4 text-destructive" />
-                  </Button>
+                  </div>
+                  <div className="col-span-4 md:col-span-1">
+                    <Label className="text-[10px]">Qtd</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={item.quantidade}
+                      onChange={(e) => updateItem(idx, { quantidade: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div className="col-span-4 md:col-span-2">
+                    <Label className="text-[10px]">Preço un. (R$)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={item.preco_unitario}
+                      onChange={(e) =>
+                        updateItem(idx, { preco_unitario: Number(e.target.value) })
+                      }
+                    />
+                  </div>
+                  <div className="col-span-3 md:col-span-2 text-right font-mono text-sm font-semibold">
+                    {formatBRL(itemTotal(item))}
+                  </div>
+                  <div className="col-span-1 flex justify-end gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      title={isConfirmed ? "Item confirmado" : "Confirmar item"}
+                      onClick={() => confirmItem(idx)}
+                    >
+                      <Check
+                        className={`size-4 ${isConfirmed ? "text-success" : "text-muted-foreground"}`}
+                      />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeItem(idx)}
+                      title="Remover item"
+                    >
+                      <Trash2 className="size-4 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
               );
             })}
           </div>
         )}
+
+        <div className="mt-4 flex justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addItem}
+            className="rounded-xl"
+          >
+            <Plus className="size-4" /> Adicionar item
+          </Button>
+        </div>
       </Card>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -400,6 +548,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
             Totais
           </h2>
           <div className="space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Qtd total de itens</span>
+              <span className="font-mono font-semibold">{totalQtd}</span>
+            </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-mono font-semibold">{formatBRL(subtotal)}</span>
