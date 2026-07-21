@@ -48,6 +48,7 @@ interface Props {
 }
 
 export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
+  const [confirmed, setConfirmed] = useState<Record<number, boolean>>({});
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
     queryFn: async () => {
