@@ -38,7 +38,7 @@ function OrcamentosPage() {
       const { data, error } = await supabase
         .from("quotes")
         .select(
-          "id, numero, status, total, data_emissao, created_at, vendedor_id, client:clients(razao_social, nome_fantasia)",
+          "id, numero, status, total, data_emissao, created_at, vendedor_id, items:quote_items(id), client:clients(razao_social, nome_fantasia)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -50,6 +50,7 @@ function OrcamentosPage() {
       const profileById = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
       return rows.map((q) => ({
         ...q,
+        item_count: Array.isArray(q.items) ? q.items.length : 0,
         vendedor_nome: q.vendedor_id ? (profileById.get(q.vendedor_id) ?? null) : null,
       }));
     },
