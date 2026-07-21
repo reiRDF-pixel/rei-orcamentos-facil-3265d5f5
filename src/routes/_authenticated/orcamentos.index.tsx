@@ -163,6 +163,9 @@ function OrcamentosPage() {
                       <td className="px-6 py-3 text-xs text-muted-foreground">
                         {formatDate(q.data_emissao)}
                       </td>
+                      <td className="px-6 py-3 text-center text-xs font-semibold">
+                        {q.item_count}
+                      </td>
                       <td className="px-6 py-3 text-right font-mono font-semibold">
                         {formatBRL(q.total)}
                       </td>
