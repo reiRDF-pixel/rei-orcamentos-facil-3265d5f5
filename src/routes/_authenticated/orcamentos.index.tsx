@@ -135,6 +135,7 @@ function OrcamentosPage() {
                   <th className="px-6 py-3 font-bold">Cliente</th>
                   <th className="px-6 py-3 font-bold">Vendedor</th>
                   <th className="px-6 py-3 font-bold">Emissão</th>
+                  <th className="px-6 py-3 font-bold text-center">Itens</th>
                   <th className="px-6 py-3 font-bold text-right">Total</th>
                   <th className="px-6 py-3 font-bold">Status</th>
                   <th className="px-6 py-3 font-bold text-right">Ações</th>
