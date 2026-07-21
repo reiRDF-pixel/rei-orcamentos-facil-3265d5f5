@@ -34,6 +34,27 @@ function UsuariosPage() {
   const { isAdmin, loading } = useIsAdmin();
   const qc = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    full_name: "",
+    email: "",
+    password: "",
+    make_admin: false,
+  });
+  const createUserFn = useServerFn(createUserByAdmin);
+
+  const createUser = useMutation({
+    mutationFn: async () => {
+      await createUserFn({ data: newUser });
+    },
+    onSuccess: () => {
+      toast.success("Usuário criado");
+      setCreateOpen(false);
+      setNewUser({ full_name: "", email: "", password: "", make_admin: false });
+      qc.invalidateQueries({ queryKey: ["users-list"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const { data: users, isLoading } = useQuery({
     enabled: isAdmin,
