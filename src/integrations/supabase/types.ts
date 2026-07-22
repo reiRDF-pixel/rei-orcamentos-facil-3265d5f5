@@ -422,6 +422,7 @@ export type Database = {
           observacoes: string | null
           pdf_template: string
           prazo_entrega: string | null
+          sales_rep_id: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["quote_status"]
           subtotal: number
@@ -447,6 +448,7 @@ export type Database = {
           observacoes?: string | null
           pdf_template?: string
           prazo_entrega?: string | null
+          sales_rep_id?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           subtotal?: number
@@ -472,6 +474,7 @@ export type Database = {
           observacoes?: string | null
           pdf_template?: string
           prazo_entrega?: string | null
+          sales_rep_id?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           subtotal?: number
@@ -497,7 +500,101 @@ export type Database = {
             referencedRelation: "machines"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "quotes_sales_rep_id_fkey"
+            columns: ["sales_rep_id"]
+            isOneToOne: false
+            referencedRelation: "sales_reps"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      sales_reps: {
+        Row: {
+          avatar_url: string | null
+          cargo: string | null
+          cep: string | null
+          cidade: string | null
+          created_at: string
+          email: string | null
+          empresa_nome: string | null
+          endereco: string | null
+          estado: string | null
+          facebook: string | null
+          full_name: string | null
+          id: string
+          instagram: string | null
+          is_default: boolean
+          linkedin: string | null
+          logo_url: string | null
+          mensagem_padrao: string | null
+          nome_pdf: string | null
+          owner_id: string
+          phone: string | null
+          phone_comercial: string | null
+          pix_key: string | null
+          signature_url: string | null
+          site: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          cargo?: string | null
+          cep?: string | null
+          cidade?: string | null
+          created_at?: string
+          email?: string | null
+          empresa_nome?: string | null
+          endereco?: string | null
+          estado?: string | null
+          facebook?: string | null
+          full_name?: string | null
+          id?: string
+          instagram?: string | null
+          is_default?: boolean
+          linkedin?: string | null
+          logo_url?: string | null
+          mensagem_padrao?: string | null
+          nome_pdf?: string | null
+          owner_id: string
+          phone?: string | null
+          phone_comercial?: string | null
+          pix_key?: string | null
+          signature_url?: string | null
+          site?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          cargo?: string | null
+          cep?: string | null
+          cidade?: string | null
+          created_at?: string
+          email?: string | null
+          empresa_nome?: string | null
+          endereco?: string | null
+          estado?: string | null
+          facebook?: string | null
+          full_name?: string | null
+          id?: string
+          instagram?: string | null
+          is_default?: boolean
+          linkedin?: string | null
+          logo_url?: string | null
+          mensagem_padrao?: string | null
+          nome_pdf?: string | null
+          owner_id?: string
+          phone?: string | null
+          phone_comercial?: string | null
+          pix_key?: string | null
+          signature_url?: string | null
+          site?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
