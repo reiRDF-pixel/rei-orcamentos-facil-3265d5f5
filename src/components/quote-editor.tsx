@@ -242,6 +242,42 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
 
       <Card className="mb-6 rounded-3xl border-border/60 p-6 shadow-elegant">
         <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
+          Vendedor responsável
+        </h2>
+        {salesReps && salesReps.length > 0 ? (
+          <div className="max-w-md space-y-2">
+            <Label>Quem está fazendo este orçamento?</Label>
+            <Select
+              value={state.sales_rep_id ?? ""}
+              onValueChange={(v) => setField("sales_rep_id", v || null)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o vendedor" />
+              </SelectTrigger>
+              <SelectContent>
+                {salesReps.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.nome_pdf || r.full_name || "(sem nome)"}
+                    {r.is_default ? " · Padrão" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Os dados desta pessoa (nome, telefone, assinatura, PIX) aparecem no PDF e no
+              link enviado ao cliente.
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Nenhum vendedor cadastrado. Vá em <b>Meu perfil</b> para cadastrar os vendedores
+            desta conta. Enquanto isso, os dados do perfil da conta serão usados no PDF.
+          </p>
+        )}
+      </Card>
+
+      <Card className="mb-6 rounded-3xl border-border/60 p-6 shadow-elegant">
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
           Cliente e máquina
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
