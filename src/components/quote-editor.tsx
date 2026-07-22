@@ -83,6 +83,34 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
     },
   });
 
+  const { data: salesReps } = useQuery({
+    queryKey: ["sales_reps-min"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("sales_reps" as never)
+        .select("id, full_name, nome_pdf, is_default")
+        .order("is_default", { ascending: false })
+        .order("full_name");
+      return (data ?? []) as unknown as Array<{
+        id: string;
+        full_name: string | null;
+        nome_pdf: string | null;
+        is_default: boolean;
+      }>;
+    },
+  });
+
+  // Auto-select default rep on new quotes.
+  useState(() => 0);
+  if (!state.sales_rep_id && salesReps && salesReps.length > 0) {
+    const def = salesReps.find((r) => r.is_default) ?? salesReps[0];
+    if (def) {
+      queueMicrotask(() =>
+        setState((s) => (s.sales_rep_id ? s : { ...s, sales_rep_id: def.id })),
+      );
+    }
+  }
+
   const { data: machines } = useQuery({
     queryKey: ["machines-by-client", state.client_id],
     enabled: !!state.client_id,
