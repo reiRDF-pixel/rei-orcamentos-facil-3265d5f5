@@ -56,6 +56,7 @@ function EditarOrcamentoPage() {
           id: i.id,
           product_id: i.product_id,
           codigo: i.codigo,
+          marca: (i as unknown as { marca: string | null }).marca ?? null,
           descricao: i.descricao,
           quantidade: Number(i.quantidade),
           preco_unitario: Number(i.preco_unitario),
