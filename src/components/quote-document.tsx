@@ -285,6 +285,16 @@ export function QuoteDocument({
                   textTransform: "uppercase",
                 }}
               >
+                Marca
+              </th>
+              <th
+                style={{
+                  padding: "8px 10px",
+                  textAlign: "left",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                }}
+              >
                 Item
               </th>
               <th
