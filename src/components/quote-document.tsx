@@ -39,6 +39,7 @@ export interface QuoteDocumentData {
   items: Array<{
     id?: string;
     codigo: string | null;
+    marca?: string | null;
     descricao: string;
     quantidade: number | string;
     preco_unitario: number | string;
@@ -284,6 +285,16 @@ export function QuoteDocument({
                   textTransform: "uppercase",
                 }}
               >
+                Marca
+              </th>
+              <th
+                style={{
+                  padding: "8px 10px",
+                  textAlign: "left",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                }}
+              >
                 Item
               </th>
               <th
@@ -324,6 +335,7 @@ export function QuoteDocument({
                 <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#64748b" }}>
                   {i.codigo || "—"}
                 </td>
+                <td style={{ padding: "8px 10px", color: "#475569" }}>{i.marca || "—"}</td>
                 <td style={{ padding: "8px 10px" }}>{i.descricao}</td>
                 <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace" }}>
                   {i.quantidade}

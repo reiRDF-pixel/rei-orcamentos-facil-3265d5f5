@@ -42,6 +42,7 @@ function normalizeQuotePayload(input: QuotePayload): QuotePayload {
     .map((item, idx) => ({
       product_id: item.product_id || null,
       codigo: item.codigo?.trim() || null,
+      marca: item.marca?.trim() || null,
       descricao: item.descricao?.trim() ?? "",
       quantidade: asFiniteNumber(item.quantidade),
       preco_unitario: asFiniteNumber(item.preco_unitario),

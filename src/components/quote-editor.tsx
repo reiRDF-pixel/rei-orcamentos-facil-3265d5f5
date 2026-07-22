@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { DataPageHeader } from "@/components/data-page-header";
+import { ClientQuickDialog } from "@/components/client-quick-dialog";
 import { formatBRL } from "@/lib/format";
 import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
@@ -71,6 +72,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
   const [confirmed, setConfirmed] = useState<Record<number, boolean>>({});
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
+  const [newClientOpen, setNewClientOpen] = useState(false);
 
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
@@ -141,6 +143,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         {
           product_id: null,
           codigo: null,
+          marca: null,
           descricao: "",
           quantidade: 1,
           preco_unitario: 0,
@@ -282,7 +285,18 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>Cliente *</Label>
+            <div className="flex items-center justify-between">
+              <Label>Cliente *</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1 text-xs text-primary hover:text-primary"
+                onClick={() => setNewClientOpen(true)}
+              >
+                <Plus className="size-3" /> Novo cliente
+              </Button>
+            </div>
             <Popover open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -313,10 +327,24 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                   <CommandList>
                     {trimmedSearch.length === 0 ? (
                       <div className="py-6 text-center text-xs text-muted-foreground">
-                        Comece a digitar para pesquisar.
+                        Comece a digitar para pesquisar ou cadastre um novo cliente.
                       </div>
                     ) : filteredClients.length === 0 ? (
-                      <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                      <CommandEmpty>
+                        Nenhum cliente encontrado.
+                        <Button
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          className="mt-1 h-auto p-0 text-primary"
+                          onClick={() => {
+                            setClientPickerOpen(false);
+                            setNewClientOpen(true);
+                          }}
+                        >
+                          Cadastrar novo cliente
+                        </Button>
+                      </CommandEmpty>
                     ) : (
                       <CommandGroup>
                         {filteredClients.slice(0, 30).map((c) => (
@@ -354,7 +382,16 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 </Command>
               </PopoverContent>
             </Popover>
+            <ClientQuickDialog
+              open={newClientOpen}
+              onOpenChange={setNewClientOpen}
+              onCreated={(c) => {
+                setField("client_id", c.id);
+                setField("machine_id", null);
+              }}
+            />
           </div>
+
           <div className="space-y-2">
             <Label>Máquina (opcional)</Label>
             <Select
@@ -461,12 +498,36 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       }}
                     />
                   </div>
-                  <div className="col-span-6 md:col-span-4">
+                  <div className="col-span-6 md:col-span-1">
+                    <Label className="text-[10px]">Marca</Label>
+                    <Input
+                      placeholder="Marca"
+                      value={item.marca ?? ""}
+                      onChange={(e) => updateItem(idx, { marca: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-6 md:col-span-3">
                     <Label className="text-[10px]">Item / descrição *</Label>
                     <Input
                       placeholder="Ex: Filtro de óleo Mann W1160"
                       value={item.descricao}
                       onChange={(e) => updateItem(idx, { descricao: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
                     />
                   </div>
                   <div className="col-span-4 md:col-span-1">
@@ -476,6 +537,14 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       step="0.01"
                       value={item.quantidade}
                       onChange={(e) => updateItem(idx, { quantidade: Number(e.target.value) })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
                     />
                   </div>
                   <div className="col-span-4 md:col-span-2">
@@ -487,8 +556,17 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onChange={(e) =>
                         updateItem(idx, { preco_unitario: Number(e.target.value) })
                       }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
                     />
                   </div>
+
                   <div className="col-span-3 md:col-span-2 text-right font-mono text-sm font-semibold">
                     {formatBRL(itemTotal(item))}
                   </div>

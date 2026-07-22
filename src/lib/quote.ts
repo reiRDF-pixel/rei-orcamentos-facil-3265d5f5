@@ -7,12 +7,14 @@ export interface QuoteItemDraft {
   id?: string;
   product_id: string | null;
   codigo: string | null;
+  marca: string | null;
   descricao: string;
   quantidade: number;
   preco_unitario: number;
   desconto_percentual: number;
   ordem: number;
 }
+
 
 export function itemTotal(i: QuoteItemDraft): number {
   const gross = i.quantidade * i.preco_unitario;
