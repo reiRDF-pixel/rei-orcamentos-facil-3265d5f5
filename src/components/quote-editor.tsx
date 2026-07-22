@@ -498,12 +498,36 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       }}
                     />
                   </div>
-                  <div className="col-span-6 md:col-span-4">
+                  <div className="col-span-6 md:col-span-1">
+                    <Label className="text-[10px]">Marca</Label>
+                    <Input
+                      placeholder="Marca"
+                      value={item.marca ?? ""}
+                      onChange={(e) => updateItem(idx, { marca: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-6 md:col-span-3">
                     <Label className="text-[10px]">Item / descrição *</Label>
                     <Input
                       placeholder="Ex: Filtro de óleo Mann W1160"
                       value={item.descricao}
                       onChange={(e) => updateItem(idx, { descricao: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
                     />
                   </div>
                   <div className="col-span-4 md:col-span-1">
@@ -513,6 +537,14 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       step="0.01"
                       value={item.quantidade}
                       onChange={(e) => updateItem(idx, { quantidade: Number(e.target.value) })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
                     />
                   </div>
                   <div className="col-span-4 md:col-span-2">
@@ -524,8 +556,17 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onChange={(e) =>
                         updateItem(idx, { preco_unitario: Number(e.target.value) })
                       }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
                     />
                   </div>
+
                   <div className="col-span-3 md:col-span-2 text-right font-mono text-sm font-semibold">
                     {formatBRL(itemTotal(item))}
                   </div>
