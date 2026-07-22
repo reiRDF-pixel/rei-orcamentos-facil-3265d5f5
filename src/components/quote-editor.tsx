@@ -44,6 +44,7 @@ import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
 export interface QuoteFormState {
   client_id: string;
   machine_id: string | null;
+  sales_rep_id: string | null;
   condicao_pagamento: string;
   tipo_frete: string;
   prazo_entrega: string;
