@@ -39,6 +39,7 @@ function NovoOrcamentoPage() {
   const [state, setState] = useState<QuoteFormState>({
     client_id: "",
     machine_id: null,
+    sales_rep_id: null,
     condicao_pagamento: "",
     tipo_frete: "SEM FRETE",
     prazo_entrega: "",
