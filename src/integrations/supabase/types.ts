@@ -358,6 +358,7 @@ export type Database = {
           desconto_percentual: number
           descricao: string
           id: string
+          marca: string | null
           ordem: number
           preco_unitario: number
           product_id: string | null
@@ -370,6 +371,7 @@ export type Database = {
           desconto_percentual?: number
           descricao: string
           id?: string
+          marca?: string | null
           ordem?: number
           preco_unitario?: number
           product_id?: string | null
@@ -382,6 +384,7 @@ export type Database = {
           desconto_percentual?: number
           descricao?: string
           id?: string
+          marca?: string | null
           ordem?: number
           preco_unitario?: number
           product_id?: string | null
