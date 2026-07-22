@@ -285,7 +285,18 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>Cliente *</Label>
+            <div className="flex items-center justify-between">
+              <Label>Cliente *</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1 text-xs text-primary hover:text-primary"
+                onClick={() => setNewClientOpen(true)}
+              >
+                <Plus className="size-3" /> Novo cliente
+              </Button>
+            </div>
             <Popover open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -316,10 +327,24 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                   <CommandList>
                     {trimmedSearch.length === 0 ? (
                       <div className="py-6 text-center text-xs text-muted-foreground">
-                        Comece a digitar para pesquisar.
+                        Comece a digitar para pesquisar ou cadastre um novo cliente.
                       </div>
                     ) : filteredClients.length === 0 ? (
-                      <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                      <CommandEmpty>
+                        Nenhum cliente encontrado.
+                        <Button
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          className="mt-1 h-auto p-0 text-primary"
+                          onClick={() => {
+                            setClientPickerOpen(false);
+                            setNewClientOpen(true);
+                          }}
+                        >
+                          Cadastrar novo cliente
+                        </Button>
+                      </CommandEmpty>
                     ) : (
                       <CommandGroup>
                         {filteredClients.slice(0, 30).map((c) => (
@@ -357,7 +382,16 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 </Command>
               </PopoverContent>
             </Popover>
+            <ClientQuickDialog
+              open={newClientOpen}
+              onOpenChange={setNewClientOpen}
+              onCreated={(c) => {
+                setField("client_id", c.id);
+                setField("machine_id", null);
+              }}
+            />
           </div>
+
           <div className="space-y-2">
             <Label>Máquina (opcional)</Label>
             <Select
