@@ -8,7 +8,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -101,15 +101,12 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
   });
 
   // Auto-select default rep on new quotes.
-  useState(() => 0);
-  if (!state.sales_rep_id && salesReps && salesReps.length > 0) {
+  useEffect(() => {
+    if (state.sales_rep_id) return;
+    if (!salesReps || salesReps.length === 0) return;
     const def = salesReps.find((r) => r.is_default) ?? salesReps[0];
-    if (def) {
-      queueMicrotask(() =>
-        setState((s) => (s.sales_rep_id ? s : { ...s, sales_rep_id: def.id })),
-      );
-    }
-  }
+    if (def) setState((s) => (s.sales_rep_id ? s : { ...s, sales_rep_id: def.id }));
+  }, [salesReps, state.sales_rep_id, setState]);
 
   const { data: machines } = useQuery({
     queryKey: ["machines-by-client", state.client_id],
