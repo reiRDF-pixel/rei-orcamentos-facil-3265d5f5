@@ -15,6 +15,7 @@ type RpcClient = {
 type QuotePayload = {
   client_id: string;
   machine_id: string | null;
+  sales_rep_id: string | null;
   condicao_pagamento: string;
   tipo_frete: string;
   prazo_entrega: string;
@@ -60,6 +61,7 @@ function normalizeQuotePayload(input: QuotePayload): QuotePayload {
   return {
     client_id: input.client_id,
     machine_id: input.machine_id || null,
+    sales_rep_id: input.sales_rep_id || null,
     condicao_pagamento: input.condicao_pagamento?.trim() ?? "",
     tipo_frete: input.tipo_frete?.trim() || "SEM FRETE",
     prazo_entrega: input.prazo_entrega?.trim() ?? "",

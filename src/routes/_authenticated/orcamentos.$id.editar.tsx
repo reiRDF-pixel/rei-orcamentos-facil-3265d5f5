@@ -40,6 +40,7 @@ function EditarOrcamentoPage() {
     setState({
       client_id: data.client_id,
       machine_id: data.machine_id,
+      sales_rep_id: (data as unknown as { sales_rep_id: string | null }).sales_rep_id ?? null,
       condicao_pagamento: data.condicao_pagamento ?? "",
       tipo_frete: data.tipo_frete ?? "SEM FRETE",
       prazo_entrega: data.prazo_entrega ?? "",

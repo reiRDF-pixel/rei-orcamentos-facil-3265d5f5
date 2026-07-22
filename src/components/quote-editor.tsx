@@ -8,7 +8,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -44,6 +44,7 @@ import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
 export interface QuoteFormState {
   client_id: string;
   machine_id: string | null;
+  sales_rep_id: string | null;
   condicao_pagamento: string;
   tipo_frete: string;
   prazo_entrega: string;
@@ -81,6 +82,31 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
       return data ?? [];
     },
   });
+
+  const { data: salesReps } = useQuery({
+    queryKey: ["sales_reps-min"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("sales_reps" as never)
+        .select("id, full_name, nome_pdf, is_default")
+        .order("is_default", { ascending: false })
+        .order("full_name");
+      return (data ?? []) as unknown as Array<{
+        id: string;
+        full_name: string | null;
+        nome_pdf: string | null;
+        is_default: boolean;
+      }>;
+    },
+  });
+
+  // Auto-select default rep on new quotes.
+  useEffect(() => {
+    if (state.sales_rep_id) return;
+    if (!salesReps || salesReps.length === 0) return;
+    const def = salesReps.find((r) => r.is_default) ?? salesReps[0];
+    if (def) setState((s) => (s.sales_rep_id ? s : { ...s, sales_rep_id: def.id }));
+  }, [salesReps, state.sales_rep_id, setState]);
 
   const { data: machines } = useQuery({
     queryKey: ["machines-by-client", state.client_id],
@@ -213,6 +239,42 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
           </Button>
         }
       />
+
+      <Card className="mb-6 rounded-3xl border-border/60 p-6 shadow-elegant">
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
+          Vendedor responsável
+        </h2>
+        {salesReps && salesReps.length > 0 ? (
+          <div className="max-w-md space-y-2">
+            <Label>Quem está fazendo este orçamento?</Label>
+            <Select
+              value={state.sales_rep_id ?? ""}
+              onValueChange={(v) => setField("sales_rep_id", v || null)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o vendedor" />
+              </SelectTrigger>
+              <SelectContent>
+                {salesReps.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.nome_pdf || r.full_name || "(sem nome)"}
+                    {r.is_default ? " · Padrão" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Os dados desta pessoa (nome, telefone, assinatura, PIX) aparecem no PDF e no
+              link enviado ao cliente.
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Nenhum vendedor cadastrado. Vá em <b>Meu perfil</b> para cadastrar os vendedores
+            desta conta. Enquanto isso, os dados do perfil da conta serão usados no PDF.
+          </p>
+        )}
+      </Card>
 
       <Card className="mb-6 rounded-3xl border-border/60 p-6 shadow-elegant">
         <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
