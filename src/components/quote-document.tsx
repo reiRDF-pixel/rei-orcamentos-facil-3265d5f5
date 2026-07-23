@@ -39,6 +39,7 @@ export interface QuoteDocumentData {
   items: Array<{
     id?: string;
     codigo: string | null;
+    codigo_interno?: string | null;
     marca?: string | null;
     descricao: string;
     quantidade: number | string;
