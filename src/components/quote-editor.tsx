@@ -395,14 +395,25 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label>Máquina (opcional)</Label>
+            <div className="flex items-center justify-between">
+              <Label>Máquina (opcional)</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1 text-xs text-primary hover:text-primary"
+                onClick={() => setNewMachineOpen(true)}
+              >
+                <Plus className="size-3" /> Nova máquina
+              </Button>
+            </div>
             <Select
               value={state.machine_id ?? ""}
               onValueChange={(v) => setField("machine_id", v || null)}
               disabled={!state.client_id}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Nenhuma" />
+                <SelectValue placeholder={state.client_id ? "Nenhuma" : "Selecione um cliente primeiro"} />
               </SelectTrigger>
               <SelectContent>
                 {machines?.map((m) => (
@@ -413,6 +424,12 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 ))}
               </SelectContent>
             </Select>
+            <MachineQuickDialog
+              open={newMachineOpen}
+              onOpenChange={setNewMachineOpen}
+              clientId={state.client_id || null}
+              onCreated={(m) => setField("machine_id", m.id)}
+            />
           </div>
         </div>
       </Card>
