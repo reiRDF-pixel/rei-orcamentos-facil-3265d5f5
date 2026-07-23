@@ -38,6 +38,7 @@ import {
 import { cn } from "@/lib/utils";
 import { DataPageHeader } from "@/components/data-page-header";
 import { ClientQuickDialog } from "@/components/client-quick-dialog";
+import { MachineQuickDialog } from "@/components/machine-quick-dialog";
 import { formatBRL } from "@/lib/format";
 import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
@@ -73,6 +74,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [newClientOpen, setNewClientOpen] = useState(false);
+  const [newMachineOpen, setNewMachineOpen] = useState(false);
 
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
@@ -228,20 +230,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         </Link>
       </Button>
 
-      <DataPageHeader
-        eyebrow="Vendas"
-        title={title}
-        actions={
-          <Button
-            size="lg"
-            onClick={onSave}
-            disabled={saving}
-            className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
-          >
-            <Save className="size-4" /> {saving ? "Salvando..." : "Salvar orçamento"}
-          </Button>
-        }
-      />
+      <DataPageHeader eyebrow="Vendas" title={title} />
 
       <Card className="mb-6 rounded-3xl border-border/60 p-6 shadow-elegant">
         <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
@@ -393,14 +382,25 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label>Máquina (opcional)</Label>
+            <div className="flex items-center justify-between">
+              <Label>Máquina (opcional)</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1 text-xs text-primary hover:text-primary"
+                onClick={() => setNewMachineOpen(true)}
+              >
+                <Plus className="size-3" /> Nova máquina
+              </Button>
+            </div>
             <Select
               value={state.machine_id ?? ""}
               onValueChange={(v) => setField("machine_id", v || null)}
               disabled={!state.client_id}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Nenhuma" />
+                <SelectValue placeholder={state.client_id ? "Nenhuma" : "Selecione um cliente primeiro"} />
               </SelectTrigger>
               <SelectContent>
                 {machines?.map((m) => (
@@ -411,6 +411,12 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                 ))}
               </SelectContent>
             </Select>
+            <MachineQuickDialog
+              open={newMachineOpen}
+              onOpenChange={setNewMachineOpen}
+              clientId={state.client_id || null}
+              onCreated={(m) => setField("machine_id", m.id)}
+            />
           </div>
         </div>
       </Card>
@@ -720,6 +726,17 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
             </div>
           </div>
         </Card>
+      </div>
+
+      <div className="mt-8 flex justify-end">
+        <Button
+          size="lg"
+          onClick={onSave}
+          disabled={saving}
+          className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
+        >
+          <Save className="size-4" /> {saving ? "Salvando..." : "Salvar orçamento"}
+        </Button>
       </div>
     </div>
   );
