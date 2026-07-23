@@ -230,20 +230,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         </Link>
       </Button>
 
-      <DataPageHeader
-        eyebrow="Vendas"
-        title={title}
-        actions={
-          <Button
-            size="lg"
-            onClick={onSave}
-            disabled={saving}
-            className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
-          >
-            <Save className="size-4" /> {saving ? "Salvando..." : "Salvar orçamento"}
-          </Button>
-        }
-      />
+      <DataPageHeader eyebrow="Vendas" title={title} />
 
       <Card className="mb-6 rounded-3xl border-border/60 p-6 shadow-elegant">
         <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
