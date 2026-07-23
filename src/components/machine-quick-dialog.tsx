@@ -50,7 +50,6 @@ export function MachineQuickDialog({ open, onOpenChange, clientId, onCreated }: 
           ano: form.ano ? Number(form.ano) : null,
           horimetro: form.horimetro ? Number(form.horimetro) : null,
           km: form.km ? Number(form.km) : null,
-          created_by: user?.id,
         })
         .select("id, marca, modelo, numero_serie")
         .single();
