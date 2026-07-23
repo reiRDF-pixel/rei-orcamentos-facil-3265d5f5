@@ -89,6 +89,7 @@ export interface QuoteDocumentData {
 
 interface Props extends QuoteDocumentData {
   templateId?: PdfTemplateId;
+  variant?: "client" | "internal";
 }
 
 export function QuoteDocument({
@@ -100,10 +101,12 @@ export function QuoteDocument({
   vendedorNome,
   vendedor,
   templateId,
+  variant = "client",
 }: Props) {
   const tpl = getPdfTemplate(templateId ?? (quote.pdf_template as PdfTemplateId | null));
   const logoUrl = vendedor?.logo_url || company?.logo_url || logoAsset.url;
   const displayName = vendedor?.nome_pdf || vendedor?.full_name || vendedorNome;
+  const isInternal = variant === "internal";
 
   return (
     <div
