@@ -145,6 +145,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         {
           product_id: null,
           codigo: null,
+          codigo_interno: null,
           marca: null,
           descricao: "",
           quantidade: 1,
