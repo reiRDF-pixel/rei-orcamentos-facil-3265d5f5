@@ -24,7 +24,6 @@ interface Props {
 
 export function MachineQuickDialog({ open, onOpenChange, clientId, onCreated }: Props) {
   const qc = useQueryClient();
-  const { user } = useAuth();
   const [form, setForm] = useState({
     marca: "",
     modelo: "",
