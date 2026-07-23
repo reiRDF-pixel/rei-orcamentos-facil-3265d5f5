@@ -740,6 +740,17 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
           </div>
         </Card>
       </div>
+
+      <div className="mt-8 flex justify-end">
+        <Button
+          size="lg"
+          onClick={onSave}
+          disabled={saving}
+          className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
+        >
+          <Save className="size-4" /> {saving ? "Salvando..." : "Salvar orçamento"}
+        </Button>
+      </div>
     </div>
   );
 }
