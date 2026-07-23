@@ -6,7 +6,10 @@ export type QuoteItemRow = Tables<"quote_items">;
 export interface QuoteItemDraft {
   id?: string;
   product_id: string | null;
+  /** Código do cliente (impresso no PDF enviado ao cliente). */
   codigo: string | null;
+  /** Nosso código interno do produto (aparece apenas no PDF interno). */
+  codigo_interno: string | null;
   marca: string | null;
   descricao: string;
   quantidade: number;
