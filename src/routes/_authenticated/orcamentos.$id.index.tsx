@@ -144,18 +144,21 @@ function OrcamentoDetailPage() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
-  const handleDownload = async () => {
-    const el = document.getElementById("quote-document-pdf");
+  const handleDownload = async (kind: "client" | "internal") => {
+    const el = document.getElementById(
+      kind === "internal" ? "quote-document-internal-pdf" : "quote-document-pdf",
+    );
     if (!el) return;
-    setDownloading(true);
+    setDownloading(kind);
     try {
-      await downloadPdfFromElement(el, `orcamento-${String(data.numero).padStart(5, "0")}.pdf`);
+      const suffix = kind === "internal" ? "-interno" : "";
+      await downloadPdfFromElement(el, `orcamento-${String(data.numero).padStart(5, "0")}${suffix}.pdf`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erro desconhecido";
       toast.error(`Falha ao gerar PDF: ${msg}`);
       console.error("[pdf]", e);
     } finally {
-      setDownloading(false);
+      setDownloading(null);
     }
   };
 
