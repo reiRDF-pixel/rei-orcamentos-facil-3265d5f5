@@ -40,7 +40,7 @@ function OrcamentoDetailPage() {
   const qc = useQueryClient();
   const { user } = useAuth();
   const [templateOverride, setTemplateOverride] = useState<PdfTemplateId | null>(null);
-  const [downloading, setDownloading] = useState(false);
+  const [downloading, setDownloading] = useState<null | "client" | "internal">(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["quote", id],
