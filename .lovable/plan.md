@@ -1,45 +1,64 @@
 ## Objetivo
 
-Permitir que múltiplas pessoas que compartilham a mesma conta de login escolham, na hora de criar/editar o orçamento, **qual vendedor** aparece no PDF e no link público — sem misturar nomes.
+Gerar dois PDFs a partir do orçamento:
 
-## Como vai funcionar (visão do usuário)
+1. **PDF do cliente** — o atual. Mostra apenas o **código do cliente** de cada item (nada de "nosso código" ou marca interna).
+2. **PDF interno** (separação/faturamento) — inclui **código do cliente + nosso código + marca**, preços, totais e destaca **condição de pagamento + prazo**.
 
-1. Na tela **Meu Perfil**, além do perfil da conta, aparece uma nova seção **"Vendedores desta conta"** com uma lista de perfis de vendedor cadastráveis (nome, cargo, telefone, WhatsApp, e-mail, assinatura, logo, PIX, mensagem padrão, etc. — os mesmos campos que já existem hoje no perfil).
-   - Botões: Adicionar, Editar, Excluir, marcar um como **"padrão"**.
-2. No **editor de orçamentos** (novo e edição de rascunho), no topo aparece um campo **"Vendedor responsável"** com a lista de vendedores da conta. Vem pré-selecionado o padrão; a pessoa troca antes de salvar se for o caso.
-3. Ao salvar, o orçamento grava um **snapshot imutável** dos dados do vendedor escolhido (nome, contatos, assinatura, logo, PIX, mensagem). O **PDF** e o **link público `/q/$id`** passam a mostrar exclusivamente os dados desse vendedor — nunca os do outro.
-4. Orçamentos já aprovados continuam mostrando o vendedor que foi gravado no momento da criação (snapshot preserva histórico).
+## Mudanças
 
-## Escopo
+### 1. Banco de dados (migração)
 
-- **Não** mudamos autenticação nem RLS de posse: quem pode editar/excluir continua sendo definido pelo dono da conta (`vendedor_id = auth.uid()`), como já é hoje.
-- **Não** mexemos em clientes, produtos, máquinas, dashboard nem templates de PDF.
-- Perfis de vendedor pertencem à conta que os criou; só quem está logado nessa conta enxerga e usa.
+Na tabela `quote_items`, o campo atual `codigo` passa a significar "código do cliente". Adicionar:
+
+- `codigo_interno text` — nosso código do produto.
+
+`marca` já existe e continua sendo interno.
+
+Atualizar as RPCs `create_quote_with_items` e `update_quote_with_items` para ler/gravar `codigo_interno`. `get_public_quote` continua retornando os itens, mas o PDF público simplesmente ignora `codigo_interno` e `marca` na renderização.
+
+### 2. Editor de orçamento (`src/components/quote-editor.tsx`)
+
+Na linha de item, hoje temos: **Código | Marca | Item/Descrição | Qtd | Preço**.
+Passa a ser: **Cód. cliente | Nosso cód. | Marca | Item/Descrição | Qtd | Preço**.
+
+- `QuoteItemDraft` em `src/lib/quote.ts` ganha `codigo_interno: string | null`.
+- Enter em qualquer um dos novos campos continua criando nova linha (regra atual).
+- Busca por código de produto preenche `codigo_interno` + `marca` + `descricao` (e deixa `codigo` — código do cliente — vazio para o vendedor digitar).
+
+### 3. Documento PDF
+
+Separar em dois componentes para manter o do cliente inalterado visualmente:
+
+- `src/components/quote-document.tsx` (atual, do cliente): remover a coluna **Marca** e passar a mostrar apenas **Cód. cliente** na coluna Código. Nada muda no layout/cores.
+- `src/components/quote-document-internal.tsx` (novo): mesmo layout, mas com colunas **Cód. cliente | Nosso cód. | Marca | Item | Qtd | Preço un. | Total**, e um bloco destacado no topo/rodapé com **Condição de pagamento** e **Prazo de entrega** (sempre visível, mesmo se em branco marcamos "—"). Marca d'água/etiqueta "USO INTERNO — SEPARAÇÃO / FATURAMENTO" no cabeçalho para não confundir com o do cliente.
+
+### 4. Tela de visualização do orçamento (`src/routes/_authenticated/orcamentos.$id.index.tsx`)
+
+Ao lado do botão atual **Baixar PDF**:
+
+- Renomear para **PDF do cliente**.
+- Adicionar **PDF interno**.
+
+Ambos usam `downloadPdfFromElement` (que já abre o seletor de local do sistema). Os dois documentos ficam renderizados fora da tela em containers separados, cada botão captura o seu.
+
+### 5. Rota pública `/q/$id`
+
+Continua renderizando **apenas** `QuoteDocument` (versão do cliente). O PDF interno **não** é acessível pela rota pública — só por usuários logados dentro do sistema.
+
+### 6. Edição de orçamento existente
+
+`src/routes/_authenticated/orcamentos.$id.editar.tsx` já mapeia os itens; incluir o novo campo `codigo_interno` no mapeamento.
 
 ## Detalhes técnicos
 
-### Banco
-Nova migração:
-- Tabela `public.sales_reps` com os campos de identidade hoje espalhados em `profiles` (full_name/nome_pdf, cargo, phone_comercial, whatsapp, email, signature_url, logo_url, empresa_nome, endereco, cep, cidade, estado, site, instagram, facebook, linkedin, mensagem_padrao, pix_key), `owner_id uuid` referenciando `auth.users`, `is_default boolean`, timestamps + trigger `updated_at`.
-- GRANTs (`authenticated` full, `service_role` all), RLS ligado, políticas: `SELECT/INSERT/UPDATE/DELETE` restritas a `auth.uid() = owner_id`.
-- Coluna nova em `quotes`: `sales_rep_id uuid` referenciando `sales_reps(id)` ON DELETE SET NULL (opcional; snapshot é a fonte de verdade para exibição).
-- Atualizar RPC `create_quote_with_items` e `update_quote_with_items`:
-  - Aceitar `sales_rep_id` no payload.
-  - Se informado, validar que `owner_id = auth.uid()`, montar `vendedor_snapshot` a partir da linha de `sales_reps` e gravar em `quotes.vendedor_snapshot` + `sales_rep_id`.
-  - Fallback: se não informado, manter comportamento atual (snapshot do `profiles`).
-- `get_public_quote` já usa `vendedor_snapshot` — nenhuma mudança necessária.
+- Migração SQL única: `ALTER TABLE quote_items ADD COLUMN codigo_interno text;` + `CREATE OR REPLACE FUNCTION` das duas RPCs para incluir o campo no INSERT.
+- RLS não muda (o PDF interno é gerado no cliente logado a partir dos dados já autorizados por RLS).
+- Sem novas dependências.
+- Sem mudanças em preços, cálculos ou fluxo de aprovação.
 
-### Frontend
-- `src/routes/_authenticated/meu-perfil.tsx`: nova seção "Vendedores desta conta" (lista + diálogo add/edit + marcar padrão + excluir). Reaproveita os campos do `vendor-profile-form`.
-- `src/components/quote-editor.tsx`: novo campo Select "Vendedor responsável" no topo, alimentado por `sales_reps` do usuário. Estado `sales_rep_id` no `QuoteFormState`. Pré-seleciona o `is_default = true` na criação; na edição, pré-seleciona o que estiver salvo no orçamento.
-- `src/routes/_authenticated/orcamentos.novo.tsx` e `orcamentos.$id.editar.tsx`: incluir `sales_rep_id` no payload enviado às server functions.
-- `src/lib/quotes.functions.ts`: passar `sales_rep_id` no payload de create/update.
-- Nada muda em `quote-document.tsx` nem em `/q/$id` — ambos já leem de `vendedor_snapshot`.
+## Fora do escopo
 
-### Migração de dados existentes
-- Para cada usuário atual, criar automaticamente um `sales_reps` "padrão" copiando os campos do `profiles` correspondente, marcado `is_default = true`, para não quebrar o fluxo de quem só quer continuar como está.
-
-## Fora do escopo (posso fazer depois se quiser)
-- Estatísticas por vendedor no dashboard.
-- Lembrar no navegador o último vendedor usado.
-- Permitir que o admin veja/edite vendedores de outras contas.
+- Não altero o design/cores dos templates.
+- Não crio um "modo separação sem preços" — conforme sua resposta, o PDF interno leva preços e totais.
+- Não escondo o botão para vendedores — fica disponível para qualquer usuário logado que já enxerga o orçamento.

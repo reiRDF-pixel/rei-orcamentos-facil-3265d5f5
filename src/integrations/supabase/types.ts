@@ -355,6 +355,7 @@ export type Database = {
       quote_items: {
         Row: {
           codigo: string | null
+          codigo_interno: string | null
           desconto_percentual: number
           descricao: string
           id: string
@@ -368,6 +369,7 @@ export type Database = {
         }
         Insert: {
           codigo?: string | null
+          codigo_interno?: string | null
           desconto_percentual?: number
           descricao: string
           id?: string
@@ -381,6 +383,7 @@ export type Database = {
         }
         Update: {
           codigo?: string | null
+          codigo_interno?: string | null
           desconto_percentual?: number
           descricao?: string
           id?: string

@@ -40,7 +40,7 @@ function OrcamentoDetailPage() {
   const qc = useQueryClient();
   const { user } = useAuth();
   const [templateOverride, setTemplateOverride] = useState<PdfTemplateId | null>(null);
-  const [downloading, setDownloading] = useState(false);
+  const [downloading, setDownloading] = useState<null | "client" | "internal">(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["quote", id],
@@ -144,18 +144,21 @@ function OrcamentoDetailPage() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
-  const handleDownload = async () => {
-    const el = document.getElementById("quote-document-pdf");
+  const handleDownload = async (kind: "client" | "internal") => {
+    const el = document.getElementById(
+      kind === "internal" ? "quote-document-internal-pdf" : "quote-document-pdf",
+    );
     if (!el) return;
-    setDownloading(true);
+    setDownloading(kind);
     try {
-      await downloadPdfFromElement(el, `orcamento-${String(data.numero).padStart(5, "0")}.pdf`);
+      const suffix = kind === "internal" ? "-interno" : "";
+      await downloadPdfFromElement(el, `orcamento-${String(data.numero).padStart(5, "0")}${suffix}.pdf`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erro desconhecido";
       toast.error(`Falha ao gerar PDF: ${msg}`);
       console.error("[pdf]", e);
     } finally {
-      setDownloading(false);
+      setDownloading(null);
     }
   };
 
@@ -197,11 +200,20 @@ function OrcamentoDetailPage() {
             </Button>
           )}
           <Button
-            onClick={handleDownload}
-            disabled={downloading}
+            onClick={() => handleDownload("client")}
+            disabled={downloading !== null}
             className="bg-primary text-primary-foreground hover:bg-primary-hover"
           >
-            <Download className="size-4" /> {downloading ? "Gerando..." : "Baixar PDF"}
+            <Download className="size-4" />{" "}
+            {downloading === "client" ? "Gerando..." : "PDF do cliente"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleDownload("internal")}
+            disabled={downloading !== null}
+          >
+            <Download className="size-4" />{" "}
+            {downloading === "internal" ? "Gerando..." : "PDF interno"}
           </Button>
           <Button variant="outline" onClick={handleWhatsapp}>
             <MessageCircle className="size-4" /> WhatsApp
@@ -241,6 +253,31 @@ function OrcamentoDetailPage() {
           />
         </div>
       </Card>
+
+      {/* Off-screen internal doc used only for PDF capture */}
+      <div
+        style={{
+          position: "absolute",
+          left: -10000,
+          top: 0,
+          width: 900,
+        }}
+        aria-hidden
+      >
+        <div id="quote-document-internal-pdf">
+          <QuoteDocument
+            quote={data}
+            client={client}
+            machine={data.machine}
+            items={items}
+            company={company ?? null}
+            vendedorNome={vendedorNome}
+            vendedor={vendedor as never}
+            templateId={currentTemplateId}
+            variant="internal"
+          />
+        </div>
+      </div>
     </div>
   );
 }

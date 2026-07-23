@@ -39,6 +39,7 @@ export interface QuoteDocumentData {
   items: Array<{
     id?: string;
     codigo: string | null;
+    codigo_interno?: string | null;
     marca?: string | null;
     descricao: string;
     quantidade: number | string;
@@ -88,6 +89,7 @@ export interface QuoteDocumentData {
 
 interface Props extends QuoteDocumentData {
   templateId?: PdfTemplateId;
+  variant?: "client" | "internal";
 }
 
 export function QuoteDocument({
@@ -99,10 +101,12 @@ export function QuoteDocument({
   vendedorNome,
   vendedor,
   templateId,
+  variant = "client",
 }: Props) {
   const tpl = getPdfTemplate(templateId ?? (quote.pdf_template as PdfTemplateId | null));
   const logoUrl = vendedor?.logo_url || company?.logo_url || logoAsset.url;
   const displayName = vendedor?.nome_pdf || vendedor?.full_name || vendedorNome;
+  const isInternal = variant === "internal";
 
   return (
     <div
@@ -146,7 +150,7 @@ export function QuoteDocument({
                 margin: 0,
               }}
             >
-              Orçamento
+              {isInternal ? "Uso interno · Separação / Faturamento" : "Orçamento"}
             </p>
             <h1
               style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 800, margin: "4px 0 0" }}
@@ -262,6 +266,69 @@ export function QuoteDocument({
           )}
         </section>
 
+        {isInternal && (quote.condicao_pagamento || quote.prazo_entrega) && (
+          <div
+            style={{
+              marginBottom: 16,
+              border: `2px solid ${tpl.accent}`,
+              borderRadius: 10,
+              padding: "10px 14px",
+              display: "flex",
+              gap: 24,
+              flexWrap: "wrap",
+              fontSize: 12,
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  color: tpl.accent,
+                  margin: 0,
+                  textTransform: "uppercase",
+                }}
+              >
+                Condição de pagamento
+              </p>
+              <p style={{ margin: "2px 0 0", fontWeight: 600 }}>
+                {quote.condicao_pagamento || "—"}
+              </p>
+            </div>
+            <div>
+              <p
+                style={{
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  color: tpl.accent,
+                  margin: 0,
+                  textTransform: "uppercase",
+                }}
+              >
+                Prazo de entrega
+              </p>
+              <p style={{ margin: "2px 0 0", fontWeight: 600 }}>{quote.prazo_entrega || "—"}</p>
+            </div>
+            <div>
+              <p
+                style={{
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  color: tpl.accent,
+                  margin: 0,
+                  textTransform: "uppercase",
+                }}
+              >
+                Frete
+              </p>
+              <p style={{ margin: "2px 0 0", fontWeight: 600 }}>{quote.tipo_frete || "—"}</p>
+            </div>
+          </div>
+        )}
+
         <table
           style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, marginBottom: 16 }}
         >
@@ -275,18 +342,32 @@ export function QuoteDocument({
                   textTransform: "uppercase",
                 }}
               >
-                Código
+                {isInternal ? "Cód. cliente" : "Código"}
               </th>
-              <th
-                style={{
-                  padding: "8px 10px",
-                  textAlign: "left",
-                  fontSize: 10,
-                  textTransform: "uppercase",
-                }}
-              >
-                Marca
-              </th>
+              {isInternal && (
+                <>
+                  <th
+                    style={{
+                      padding: "8px 10px",
+                      textAlign: "left",
+                      fontSize: 10,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Nosso cód.
+                  </th>
+                  <th
+                    style={{
+                      padding: "8px 10px",
+                      textAlign: "left",
+                      fontSize: 10,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Marca
+                  </th>
+                </>
+              )}
               <th
                 style={{
                   padding: "8px 10px",
@@ -335,7 +416,14 @@ export function QuoteDocument({
                 <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#64748b" }}>
                   {i.codigo || "—"}
                 </td>
-                <td style={{ padding: "8px 10px", color: "#475569" }}>{i.marca || "—"}</td>
+                {isInternal && (
+                  <>
+                    <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#0f172a" }}>
+                      {i.codigo_interno || "—"}
+                    </td>
+                    <td style={{ padding: "8px 10px", color: "#475569" }}>{i.marca || "—"}</td>
+                  </>
+                )}
                 <td style={{ padding: "8px 10px" }}>{i.descricao}</td>
                 <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace" }}>
                   {i.quantidade}
@@ -357,6 +445,7 @@ export function QuoteDocument({
             ))}
           </tbody>
         </table>
+
 
         <div style={{ marginLeft: "auto", maxWidth: 320, fontSize: 12 }}>
           <Row
