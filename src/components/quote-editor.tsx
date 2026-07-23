@@ -476,15 +476,31 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     </div>
                   </div>
                   <div className="col-span-6 md:col-span-2">
-                    <Label className="text-[10px]">Código do produto</Label>
+                    <Label className="text-[10px]">Cód. cliente</Label>
                     <Input
-                      placeholder="Buscar código"
+                      placeholder="Código do cliente"
                       value={item.codigo ?? ""}
                       onChange={(e) => updateItem(idx, { codigo: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                            addItem();
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-6 md:col-span-2">
+                    <Label className="text-[10px]">Nosso código</Label>
+                    <Input
+                      placeholder="Buscar / nosso cód."
+                      value={item.codigo_interno ?? ""}
+                      onChange={(e) => updateItem(idx, { codigo_interno: e.target.value })}
                       onKeyDown={async (e) => {
                         if (e.key !== "Enter") return;
                         e.preventDefault();
-                        const code = (item.codigo ?? "").trim();
+                        const code = (item.codigo_interno ?? "").trim();
                         if (!code) return;
                         const { data } = await supabase
                           .from("products")
@@ -497,7 +513,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                         }
                         updateItem(idx, {
                           product_id: data.id,
-                          codigo: data.codigo,
+                          codigo_interno: data.codigo,
                           preco_unitario: Number(data.preco_venda),
                           descricao: item.descricao || data.descricao,
                         });
@@ -521,7 +537,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       }}
                     />
                   </div>
-                  <div className="col-span-6 md:col-span-3">
+                  <div className="col-span-6 md:col-span-2">
                     <Label className="text-[10px]">Item / descrição *</Label>
                     <Input
                       placeholder="Ex: Filtro de óleo Mann W1160"
@@ -574,7 +590,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     />
                   </div>
 
-                  <div className="col-span-3 md:col-span-2 text-right font-mono text-sm font-semibold">
+                  <div className="col-span-3 md:col-span-1 text-right font-mono text-sm font-semibold">
                     {formatBRL(itemTotal(item))}
                   </div>
                   <div className="col-span-1 flex justify-end gap-1">
