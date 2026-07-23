@@ -74,6 +74,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [newClientOpen, setNewClientOpen] = useState(false);
+  const [newMachineOpen, setNewMachineOpen] = useState(false);
 
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
