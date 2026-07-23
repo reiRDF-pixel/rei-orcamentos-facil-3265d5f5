@@ -150,7 +150,7 @@ export function QuoteDocument({
                 margin: 0,
               }}
             >
-              Orçamento
+              {isInternal ? "Uso interno · Separação / Faturamento" : "Orçamento"}
             </p>
             <h1
               style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 800, margin: "4px 0 0" }}
