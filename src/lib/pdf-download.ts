@@ -85,5 +85,39 @@ export async function downloadPdfFromElement(el: HTMLElement, filename: string) 
     }
   }
 
-  pdf.save(filename);
+  const blob = pdf.output("blob");
+
+  // Try File System Access API (Chrome/Edge) so the user picks where to save.
+  const w = window as unknown as {
+    showSaveFilePicker?: (opts: {
+      suggestedName: string;
+      types: Array<{ description: string; accept: Record<string, string[]> }>;
+    }) => Promise<{ createWritable: () => Promise<{ write: (b: Blob) => Promise<void>; close: () => Promise<void> }> }>;
+  };
+  if (typeof w.showSaveFilePicker === "function") {
+    try {
+      const handle = await w.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{ description: "PDF", accept: { "application/pdf": [".pdf"] } }],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    } catch (err) {
+      // AbortError = user cancelled the dialog; stop silently.
+      if ((err as { name?: string })?.name === "AbortError") return;
+      console.warn("[pdf] showSaveFilePicker failed, falling back to download", err);
+    }
+  }
+
+  // Fallback: trigger a normal browser download to the default folder.
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
