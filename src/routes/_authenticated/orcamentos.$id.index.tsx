@@ -200,11 +200,20 @@ function OrcamentoDetailPage() {
             </Button>
           )}
           <Button
-            onClick={handleDownload}
-            disabled={downloading}
+            onClick={() => handleDownload("client")}
+            disabled={downloading !== null}
             className="bg-primary text-primary-foreground hover:bg-primary-hover"
           >
-            <Download className="size-4" /> {downloading ? "Gerando..." : "Baixar PDF"}
+            <Download className="size-4" />{" "}
+            {downloading === "client" ? "Gerando..." : "PDF do cliente"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleDownload("internal")}
+            disabled={downloading !== null}
+          >
+            <Download className="size-4" />{" "}
+            {downloading === "internal" ? "Gerando..." : "PDF interno"}
           </Button>
           <Button variant="outline" onClick={handleWhatsapp}>
             <MessageCircle className="size-4" /> WhatsApp
@@ -244,6 +253,31 @@ function OrcamentoDetailPage() {
           />
         </div>
       </Card>
+
+      {/* Off-screen internal doc used only for PDF capture */}
+      <div
+        style={{
+          position: "absolute",
+          left: -10000,
+          top: 0,
+          width: 900,
+        }}
+        aria-hidden
+      >
+        <div id="quote-document-internal-pdf">
+          <QuoteDocument
+            quote={data}
+            client={client}
+            machine={data.machine}
+            items={items}
+            company={company ?? null}
+            vendedorNome={vendedorNome}
+            vendedor={vendedor as never}
+            templateId={currentTemplateId}
+            variant="internal"
+          />
+        </div>
+      </div>
     </div>
   );
 }
