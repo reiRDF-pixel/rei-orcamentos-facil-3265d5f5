@@ -38,6 +38,7 @@ import {
 import { cn } from "@/lib/utils";
 import { DataPageHeader } from "@/components/data-page-header";
 import { ClientQuickDialog } from "@/components/client-quick-dialog";
+import { MachineQuickDialog } from "@/components/machine-quick-dialog";
 import { formatBRL } from "@/lib/format";
 import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
