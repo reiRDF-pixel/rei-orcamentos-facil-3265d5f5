@@ -15,6 +15,33 @@ import { getPublicQuote } from "@/lib/quotes.functions";
 export const Route = createFileRoute("/q/$id")({
   ssr: false,
   component: PublicQuotePage,
+  head: ({ params }) => ({
+    meta: [
+      { title: "Orçamento — Rei dos Filtros" },
+      {
+        name: "description",
+        content:
+          "Visualização do orçamento emitido pela Rei dos Filtros. Baixe o PDF ou entre em contato com o vendedor responsável.",
+      },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "Orçamento — Rei dos Filtros" },
+      {
+        property: "og:description",
+        content: "Visualização do orçamento emitido pela Rei dos Filtros.",
+      },
+      {
+        property: "og:url",
+        content: `https://rei-orcamentos-facil.lovable.app/q/${params.id}`,
+      },
+      { property: "og:type", content: "website" },
+    ],
+    links: [
+      {
+        rel: "canonical",
+        href: `https://rei-orcamentos-facil.lovable.app/q/${params.id}`,
+      },
+    ],
+  }),
 });
 
 function PublicQuotePage() {
@@ -77,7 +104,7 @@ function PublicQuotePage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/40 p-4 lg:p-8">
+    <main className="min-h-screen bg-muted/40 p-4 lg:p-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-4 flex justify-end">
           <Button
@@ -111,6 +138,6 @@ function PublicQuotePage() {
           {data.company?.nome_fantasia || data.company?.razao_social || "a empresa"}.
         </p>
       </div>
-    </div>
+    </main>
   );
 }

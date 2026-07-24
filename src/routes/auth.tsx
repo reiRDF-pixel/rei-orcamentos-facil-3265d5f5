@@ -11,6 +11,25 @@ import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
+  head: () => ({
+    meta: [
+      { title: "Entrar — Rei dos Filtros" },
+      {
+        name: "description",
+        content:
+          "Acesso restrito da equipe Rei dos Filtros ao sistema interno de orçamentos. Faça login com seu email e senha da empresa.",
+      },
+      { property: "og:title", content: "Entrar — Rei dos Filtros" },
+      {
+        property: "og:description",
+        content:
+          "Acesso restrito da equipe Rei dos Filtros ao sistema interno de orçamentos.",
+      },
+      { property: "og:url", content: "https://rei-orcamentos-facil.lovable.app/auth" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "https://rei-orcamentos-facil.lovable.app/auth" }],
+  }),
 });
 
 function AuthPage() {
@@ -42,7 +61,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-background p-4">
+    <main className="flex min-h-screen w-full items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center">
           <BrandLogo className="h-16" />
@@ -110,6 +129,6 @@ function AuthPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

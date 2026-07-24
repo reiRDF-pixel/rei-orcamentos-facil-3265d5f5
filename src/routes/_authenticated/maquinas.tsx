@@ -175,6 +175,7 @@ function MaquinasPage() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        aria-label={`Editar máquina ${m.modelo ?? ""}`}
                         onClick={() => {
                           setEditing(m);
                           setDialogOpen(true);
@@ -182,7 +183,12 @@ function MaquinasPage() {
                       >
                         <Pencil className="size-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(m)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Excluir máquina ${m.modelo ?? ""}`}
+                        onClick={() => setDeleteTarget(m)}
+                      >
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
                     </td>

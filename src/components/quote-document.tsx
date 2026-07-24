@@ -155,7 +155,7 @@ export function QuoteDocument({
             <h1
               style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 800, margin: "4px 0 0" }}
             >
-              #{String(quote.numero).padStart(5, "0")}
+              Orçamento #{String(quote.numero).padStart(5, "0")}
             </h1>
             <p style={{ fontSize: 11, opacity: 0.85, margin: "4px 0 0" }}>
               Emissão: {formatDate(quote.data_emissao)} · Validade: {quote.validade_dias} dias

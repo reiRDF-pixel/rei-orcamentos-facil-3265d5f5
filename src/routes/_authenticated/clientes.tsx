@@ -193,6 +193,7 @@ function ClientesPage() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        aria-label={`Editar cliente ${c.nome_fantasia || c.razao_social || ""}`}
                         onClick={() => {
                           setEditing(c);
                           setDialogOpen(true);
@@ -200,7 +201,12 @@ function ClientesPage() {
                       >
                         <Pencil className="size-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(c)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Excluir cliente ${c.nome_fantasia || c.razao_social || ""}`}
+                        onClick={() => setDeleteTarget(c)}
+                      >
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
                     </td>
