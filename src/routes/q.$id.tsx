@@ -138,6 +138,6 @@ function PublicQuotePage() {
           {data.company?.nome_fantasia || data.company?.razao_social || "a empresa"}.
         </p>
       </div>
-    </div>
+    </main>
   );
 }
