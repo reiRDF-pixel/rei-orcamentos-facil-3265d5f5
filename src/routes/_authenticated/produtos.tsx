@@ -170,6 +170,7 @@ function ProdutosPage() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        aria-label={`Editar produto ${p.descricao}`}
                         onClick={() => {
                           setEditing(p);
                           setDialogOpen(true);
@@ -177,7 +178,12 @@ function ProdutosPage() {
                       >
                         <Pencil className="size-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(p)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Excluir produto ${p.descricao}`}
+                        onClick={() => setDeleteTarget(p)}
+                      >
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
                     </td>
