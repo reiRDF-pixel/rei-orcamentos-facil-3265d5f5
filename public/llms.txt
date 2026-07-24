@@ -1,0 +1,7 @@
+# Rei dos Filtros — Sistema de Orçamentos
+
+> Sistema interno da Rei dos Filtros (filtros e lubrificantes) para gerar, salvar e enviar orçamentos aos clientes. Acesso restrito à equipe.
+
+## Pages
+
+- [Entrar](/auth): Tela de login da equipe Rei dos Filtros.

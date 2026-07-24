@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /auth
+Disallow: /dashboard
+Disallow: /clientes
+Disallow: /maquinas
+Disallow: /produtos
+Disallow: /orcamentos
+Disallow: /empresa
+Disallow: /usuarios
+Disallow: /meu-perfil
+Disallow: /q/
+
+Sitemap: https://rei-orcamentos-facil.lovable.app/sitemap.xml
