@@ -61,7 +61,7 @@ function EditarOrcamentoPage() {
           codigo_interno:
             (i as unknown as { codigo_interno: string | null }).codigo_interno ?? null,
           marca: (i as unknown as { marca: string | null }).marca ?? null,
-          descricao: i.descricao,
+          descricao: i.descricao ?? "",
           quantidade: Number(i.quantidade),
           preco_unitario: Number(i.preco_unitario),
           desconto_percentual: Number(i.desconto_percentual),
