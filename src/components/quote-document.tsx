@@ -364,7 +364,7 @@ export function QuoteDocument({
                   textTransform: "uppercase",
                 }}
               >
-                Marca
+                Item
               </th>
               <th
                 style={{
@@ -374,7 +374,7 @@ export function QuoteDocument({
                   textTransform: "uppercase",
                 }}
               >
-                Item
+                Marca
               </th>
               <th
                 style={{
