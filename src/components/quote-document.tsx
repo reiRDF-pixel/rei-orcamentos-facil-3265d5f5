@@ -41,7 +41,7 @@ export interface QuoteDocumentData {
     codigo: string | null;
     codigo_interno?: string | null;
     marca?: string | null;
-    descricao: string;
+    descricao: string | null;
     quantidade: number | string;
     preco_unitario: number | string;
     total: number | string;
