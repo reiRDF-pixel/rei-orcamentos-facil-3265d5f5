@@ -219,11 +219,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
 
   const confirmItem = (idx: number) => {
     const item = state.items[idx];
-    if (!item?.descricao?.trim()) {
-      toast.error("Informe o nome do item antes de confirmar");
-      return;
-    }
-    if (!(item.quantidade > 0)) {
+    if (!(item?.quantidade > 0)) {
       toast.error("A quantidade deve ser maior que zero");
       return;
     }
@@ -500,7 +496,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
@@ -538,7 +534,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     />
                   </div>
                   <div className="col-span-12 md:col-span-4">
-                    <Label className="text-[10px]">Item / descrição *</Label>
+                    <Label className="text-[10px]">Item / descrição</Label>
                     <Input
                       ref={(el) => {
                         descRefs.current[idx] = el;
@@ -549,7 +545,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
@@ -565,7 +561,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
@@ -582,7 +578,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
@@ -601,7 +597,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
