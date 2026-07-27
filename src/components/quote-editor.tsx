@@ -496,7 +496,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
@@ -545,7 +545,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
@@ -561,7 +561,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
@@ -578,7 +578,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
@@ -597,7 +597,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.descricao.trim() && item.quantidade > 0) {
+                          if (idx === state.items.length - 1 && item.quantidade > 0) {
                             addItem();
                           }
                         }
