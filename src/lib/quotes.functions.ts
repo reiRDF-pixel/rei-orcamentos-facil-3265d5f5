@@ -50,7 +50,15 @@ function normalizeQuotePayload(input: QuotePayload): QuotePayload {
       desconto_percentual: asFiniteNumber(item.desconto_percentual),
       ordem: idx,
     }))
-    .filter((item) => item.descricao.length > 0);
+    .filter(
+      (item) =>
+        item.descricao.length > 0 ||
+        !!item.codigo ||
+        !!item.codigo_interno ||
+        !!item.marca ||
+        item.quantidade > 0 ||
+        item.preco_unitario > 0,
+    );
 
   if (items.length === 0) throw new Error("Adicione ao menos um item");
   if (items.some((item) => item.quantidade <= 0)) {
