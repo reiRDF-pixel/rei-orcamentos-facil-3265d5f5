@@ -415,13 +415,11 @@ export function QuoteDocument({
                   {i.codigo || "—"}
                 </td>
                 {isInternal && (
-                  <>
-                    <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#0f172a" }}>
-                      {i.codigo_interno || "—"}
-                    </td>
-                    <td style={{ padding: "8px 10px", color: "#475569" }}>{i.marca || "—"}</td>
-                  </>
+                  <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#0f172a" }}>
+                    {i.codigo_interno || "—"}
+                  </td>
                 )}
+                <td style={{ padding: "8px 10px", color: "#475569" }}>{i.marca || "—"}</td>
                 <td style={{ padding: "8px 10px" }}>{i.descricao}</td>
                 <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace" }}>
                   {i.quantidade}
