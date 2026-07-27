@@ -345,29 +345,27 @@ export function QuoteDocument({
                 {isInternal ? "Cód. cliente" : "Código"}
               </th>
               {isInternal && (
-                <>
-                  <th
-                    style={{
-                      padding: "8px 10px",
-                      textAlign: "left",
-                      fontSize: 10,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Nosso cód.
-                  </th>
-                  <th
-                    style={{
-                      padding: "8px 10px",
-                      textAlign: "left",
-                      fontSize: 10,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Marca
-                  </th>
-                </>
+                <th
+                  style={{
+                    padding: "8px 10px",
+                    textAlign: "left",
+                    fontSize: 10,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Nosso cód.
+                </th>
               )}
+              <th
+                style={{
+                  padding: "8px 10px",
+                  textAlign: "left",
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                }}
+              >
+                Marca
+              </th>
               <th
                 style={{
                   padding: "8px 10px",
