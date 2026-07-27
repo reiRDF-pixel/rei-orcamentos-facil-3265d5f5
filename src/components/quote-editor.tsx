@@ -219,11 +219,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
 
   const confirmItem = (idx: number) => {
     const item = state.items[idx];
-    if (!item?.descricao?.trim()) {
-      toast.error("Informe o nome do item antes de confirmar");
-      return;
-    }
-    if (!(item.quantidade > 0)) {
+    if (!(item?.quantidade > 0)) {
       toast.error("A quantidade deve ser maior que zero");
       return;
     }
