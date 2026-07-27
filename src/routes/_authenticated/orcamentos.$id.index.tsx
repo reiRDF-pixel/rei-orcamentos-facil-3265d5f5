@@ -53,6 +53,8 @@ function OrcamentoDetailPage() {
       if (error) throw error;
       return q;
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const { data: company } = useQuery({
