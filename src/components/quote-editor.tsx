@@ -491,10 +491,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       </Button>
                     </div>
                   </div>
-                  <div className="col-span-6 md:col-span-2">
+                  <div className="col-span-6 md:col-span-1">
                     <Label className="text-[10px]">Cód. cliente</Label>
                     <Input
-                      placeholder="Código do cliente"
+                      placeholder="Código"
                       value={item.codigo ?? ""}
                       onChange={(e) => updateItem(idx, { codigo: e.target.value })}
                       onKeyDown={(e) => {
@@ -507,10 +507,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       }}
                     />
                   </div>
-                  <div className="col-span-6 md:col-span-2">
+                  <div className="col-span-6 md:col-span-1">
                     <Label className="text-[10px]">Nosso código</Label>
                     <Input
-                      placeholder="Buscar / nosso cód."
+                      placeholder="Buscar"
                       value={item.codigo_interno ?? ""}
                       onChange={(e) => updateItem(idx, { codigo_interno: e.target.value })}
                       onKeyDown={async (e) => {
@@ -537,12 +537,15 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       }}
                     />
                   </div>
-                  <div className="col-span-6 md:col-span-1">
-                    <Label className="text-[10px]">Marca</Label>
+                  <div className="col-span-12 md:col-span-4">
+                    <Label className="text-[10px]">Item / descrição *</Label>
                     <Input
-                      placeholder="Marca"
-                      value={item.marca ?? ""}
-                      onChange={(e) => updateItem(idx, { marca: e.target.value })}
+                      ref={(el) => {
+                        descRefs.current[idx] = el;
+                      }}
+                      placeholder="Ex: Filtro de óleo Mann W1160"
+                      value={item.descricao}
+                      onChange={(e) => updateItem(idx, { descricao: e.target.value })}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
@@ -553,12 +556,12 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       }}
                     />
                   </div>
-                  <div className="col-span-6 md:col-span-2">
-                    <Label className="text-[10px]">Item / descrição *</Label>
+                  <div className="col-span-6 md:col-span-1">
+                    <Label className="text-[10px]">Marca</Label>
                     <Input
-                      placeholder="Ex: Filtro de óleo Mann W1160"
-                      value={item.descricao}
-                      onChange={(e) => updateItem(idx, { descricao: e.target.value })}
+                      placeholder="Marca"
+                      value={item.marca ?? ""}
+                      onChange={(e) => updateItem(idx, { marca: e.target.value })}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
@@ -586,8 +589,8 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       }}
                     />
                   </div>
-                  <div className="col-span-4 md:col-span-2">
-                    <Label className="text-[10px]">Preço un. (R$)</Label>
+                  <div className="col-span-4 md:col-span-1">
+                    <Label className="text-[10px]">Preço un.</Label>
                     <Input
                       type="number"
                       step="0.01"
@@ -606,10 +609,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     />
                   </div>
 
-                  <div className="col-span-3 md:col-span-1 text-right font-mono text-sm font-semibold">
+                  <div className="col-span-4 md:col-span-1 text-right font-mono text-sm font-semibold">
                     {formatBRL(itemTotal(item))}
                   </div>
-                  <div className="col-span-1 flex justify-end gap-1">
+                  <div className="col-span-12 md:col-span-2 flex justify-end gap-1">
                     <Button
                       type="button"
                       variant="ghost"
@@ -631,6 +634,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                       <Trash2 className="size-4 text-destructive" />
                     </Button>
                   </div>
+
                 </div>
               );
             })}
