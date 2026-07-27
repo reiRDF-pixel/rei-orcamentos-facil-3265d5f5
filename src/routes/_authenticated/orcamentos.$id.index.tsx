@@ -52,6 +52,7 @@ function OrcamentoDetailPage() {
         .single();
       if (error) throw error;
       return q;
+    },
     staleTime: 0,
     refetchOnMount: "always",
   });
