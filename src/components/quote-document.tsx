@@ -419,8 +419,8 @@ export function QuoteDocument({
                     {i.codigo_interno || "—"}
                   </td>
                 )}
+                <td style={{ padding: "8px 10px" }}>{i.descricao || "—"}</td>
                 <td style={{ padding: "8px 10px", color: "#475569" }}>{i.marca || "—"}</td>
-                <td style={{ padding: "8px 10px" }}>{i.descricao}</td>
                 <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace" }}>
                   {i.quantidade}
                 </td>
