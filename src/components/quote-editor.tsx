@@ -75,6 +75,18 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
   const [clientSearch, setClientSearch] = useState("");
   const [newClientOpen, setNewClientOpen] = useState(false);
   const [newMachineOpen, setNewMachineOpen] = useState(false);
+  const descRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const pendingFocusRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (pendingFocusRef.current === null) return;
+    const idx = pendingFocusRef.current;
+    const el = descRefs.current[idx];
+    if (el) {
+      el.focus();
+      pendingFocusRef.current = null;
+    }
+  });
 
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
