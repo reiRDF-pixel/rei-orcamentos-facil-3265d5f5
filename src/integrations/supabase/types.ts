@@ -357,7 +357,7 @@ export type Database = {
           codigo: string | null
           codigo_interno: string | null
           desconto_percentual: number
-          descricao: string
+          descricao: string | null
           id: string
           marca: string | null
           ordem: number
@@ -371,7 +371,7 @@ export type Database = {
           codigo?: string | null
           codigo_interno?: string | null
           desconto_percentual?: number
-          descricao: string
+          descricao?: string | null
           id?: string
           marca?: string | null
           ordem?: number
@@ -385,7 +385,7 @@ export type Database = {
           codigo?: string | null
           codigo_interno?: string | null
           desconto_percentual?: number
-          descricao?: string
+          descricao?: string | null
           id?: string
           marca?: string | null
           ordem?: number
