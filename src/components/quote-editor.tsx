@@ -150,23 +150,27 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
     setState((s) => ({ ...s, [k]: v }));
 
   const addItem = () =>
-    setState((s) => ({
-      ...s,
-      items: [
-        ...s.items,
-        {
-          product_id: null,
-          codigo: null,
-          codigo_interno: null,
-          marca: null,
-          descricao: "",
-          quantidade: 1,
-          preco_unitario: 0,
-          desconto_percentual: 0,
-          ordem: s.items.length,
-        },
-      ],
-    }));
+    setState((s) => {
+      const newIdx = s.items.length;
+      pendingFocusRef.current = newIdx;
+      return {
+        ...s,
+        items: [
+          ...s.items,
+          {
+            product_id: null,
+            codigo: null,
+            codigo_interno: null,
+            marca: null,
+            descricao: "",
+            quantidade: 1,
+            preco_unitario: 0,
+            desconto_percentual: 0,
+            ordem: newIdx,
+          },
+        ],
+      };
+    });
 
   const removeItem = (idx: number) => {
     setState((s) => ({
