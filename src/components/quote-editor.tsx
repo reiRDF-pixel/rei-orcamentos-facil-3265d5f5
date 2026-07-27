@@ -538,7 +538,7 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
                     />
                   </div>
                   <div className="col-span-12 md:col-span-4">
-                    <Label className="text-[10px]">Item / descrição *</Label>
+                    <Label className="text-[10px]">Item / descrição</Label>
                     <Input
                       ref={(el) => {
                         descRefs.current[idx] = el;
