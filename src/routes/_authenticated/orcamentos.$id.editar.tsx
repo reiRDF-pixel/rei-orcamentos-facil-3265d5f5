@@ -75,10 +75,13 @@ function EditarOrcamentoPage() {
       if (!state) throw new Error("Carregando...");
       await updateQuoteFn({ data: { id, ...state } });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Orçamento atualizado");
-      qc.invalidateQueries({ queryKey: ["quote", id] });
-      qc.invalidateQueries({ queryKey: ["quotes"] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["quote", id] }),
+        qc.invalidateQueries({ queryKey: ["quote-edit", id] }),
+        qc.invalidateQueries({ queryKey: ["quotes"] }),
+      ]);
       navigate({ to: "/orcamentos/$id", params: { id } });
     },
     onError: (e: Error) => toast.error(e.message),
