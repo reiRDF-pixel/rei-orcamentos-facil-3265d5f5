@@ -53,6 +53,8 @@ function ClientesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null);
+  const [historyTarget, setHistoryTarget] = useState<Client | null>(null);
+
 
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients"],
