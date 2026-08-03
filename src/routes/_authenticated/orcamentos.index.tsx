@@ -208,6 +208,16 @@ function OrcamentosPage() {
                             </Link>
                           </Button>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title="Duplicar orçamento"
+                          disabled={duplicate.isPending}
+                          onClick={() => duplicate.mutate(q.id)}
+                        >
+                          <Copy className="size-4" />
+                        </Button>
+
                         {isOwner && (
                           <Button
                             variant="ghost"
