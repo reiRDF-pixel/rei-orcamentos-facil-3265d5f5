@@ -116,7 +116,24 @@ export const updateQuote = createServerFn({ method: "POST" })
     return { id: String(quoteId ?? id) };
   });
 
+export const duplicateQuote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    if (!input?.id) throw new Error("Orçamento inválido");
+    return { id: input.id };
+  })
+  .handler(async ({ data, context }) => {
+    const { data: newId, error } = await (context.supabase as unknown as RpcClient).rpc(
+      "duplicate_quote",
+      { _quote_id: data.id },
+    );
+    if (error) throw new Error(error.message);
+    if (!newId) throw new Error("Não foi possível duplicar o orçamento");
+    return { id: String(newId) };
+  });
+
 export const getPublicQuote = createServerFn({ method: "GET" })
+
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
