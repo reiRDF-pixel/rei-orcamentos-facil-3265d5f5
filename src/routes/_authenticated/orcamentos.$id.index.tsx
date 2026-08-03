@@ -280,6 +280,9 @@ function OrcamentoDetailPage() {
           />
         </div>
       </div>
+
+      <QuoteAuditList quoteId={id} />
     </div>
+
   );
 }
