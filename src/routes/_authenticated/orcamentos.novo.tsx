@@ -81,6 +81,7 @@ function NovoOrcamentoPage() {
     },
     onSuccess: (id) => {
       toast.success("Orçamento criado");
+      clearQuoteDraft("novo");
       navigate({ to: "/orcamentos/$id", params: { id } });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -93,6 +94,8 @@ function NovoOrcamentoPage() {
       setState={setState}
       onSave={() => save.mutate()}
       saving={save.isPending}
+      draftKey="novo"
     />
   );
 }
+
