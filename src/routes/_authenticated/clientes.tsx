@@ -193,6 +193,16 @@ function ClientesPage() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        aria-label={`Histórico do cliente ${c.nome_fantasia || c.razao_social || ""}`}
+                        title="Histórico"
+                        onClick={() => setHistoryTarget(c)}
+                      >
+                        <History className="size-4" />
+                      </Button>
+                      <Button
+
+                        variant="ghost"
+                        size="sm"
                         aria-label={`Editar cliente ${c.nome_fantasia || c.razao_social || ""}`}
                         onClick={() => {
                           setEditing(c);
