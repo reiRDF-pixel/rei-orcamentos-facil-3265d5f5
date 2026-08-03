@@ -234,8 +234,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
         ],
       };
     });
+  addItemRef.current = addItem;
 
   const removeItem = (idx: number) => {
+
     setState((s) => ({
       ...s,
       items: s.items.filter((_, i) => i !== idx).map((it, i) => ({ ...it, ordem: i })),
