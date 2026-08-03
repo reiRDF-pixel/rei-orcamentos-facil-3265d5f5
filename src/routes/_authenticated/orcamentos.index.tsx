@@ -92,6 +92,17 @@ function OrcamentosPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const duplicate = useMutation({
+    mutationFn: async (id: string) => (await duplicateQuoteFn({ data: { id } })).id,
+    onSuccess: async (newId) => {
+      toast.success("Orçamento duplicado como rascunho");
+      await qc.invalidateQueries({ queryKey: ["quotes"] });
+      navigate({ to: "/orcamentos/$id/editar", params: { id: newId } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   return (
     <div className="mx-auto max-w-7xl p-6 lg:p-8">
       <DataPageHeader
