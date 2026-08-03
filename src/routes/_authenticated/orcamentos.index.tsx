@@ -32,8 +32,11 @@ export const Route = createFileRoute("/_authenticated/orcamentos/")({
 function OrcamentosPage() {
   const qc = useQueryClient();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const duplicateQuoteFn = useServerFn(duplicateQuote);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
 
   const { data: quotes, isLoading } = useQuery({
     queryKey: ["quotes"],
