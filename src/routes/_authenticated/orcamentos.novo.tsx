@@ -9,6 +9,8 @@ import { QuoteEditor, type QuoteFormState } from "@/components/quote-editor";
 import { type QuoteItemDraft } from "@/lib/quote";
 import { createQuote } from "@/lib/quotes.functions";
 import { useAuth } from "@/hooks/use-auth";
+import { clearQuoteDraft } from "@/lib/quote-draft";
+
 
 export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
   component: NovoOrcamentoPage,
