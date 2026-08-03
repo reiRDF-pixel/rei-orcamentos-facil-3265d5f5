@@ -39,6 +39,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
+import { ClientHistoryDialog } from "@/components/client-history-dialog";
+
 
 type Client = Tables<"clients">;
 
