@@ -85,6 +85,8 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
   const descRefs = useRef<Array<HTMLInputElement | null>>([]);
   const pendingFocusRef = useRef<number | null>(null);
   const restoreCheckedRef = useRef(false);
+  const addItemRef = useRef<() => void>(() => {});
+
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
 
