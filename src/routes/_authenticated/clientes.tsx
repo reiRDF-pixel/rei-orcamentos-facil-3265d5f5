@@ -230,7 +230,14 @@ function ClientesPage() {
         )}
       </Card>
 
+      <ClientHistoryDialog
+        clientId={historyTarget?.id ?? null}
+        clientName={historyTarget?.nome_fantasia || historyTarget?.razao_social || ""}
+        onOpenChange={(o) => !o && setHistoryTarget(null)}
+      />
+
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remover cliente?</AlertDialogTitle>
