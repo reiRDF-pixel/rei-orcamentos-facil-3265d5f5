@@ -10,6 +10,8 @@ import { type QuoteItemDraft } from "@/lib/quote";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PdfTemplateId } from "@/lib/pdf-templates";
 import { updateQuote } from "@/lib/quotes.functions";
+import { clearQuoteDraft } from "@/lib/quote-draft";
+
 
 export const Route = createFileRoute("/_authenticated/orcamentos/$id/editar")({
   component: EditarOrcamentoPage,
