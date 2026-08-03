@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Trash2, ExternalLink, Pencil } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Plus, Search, Trash2, ExternalLink, Pencil, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -21,16 +22,21 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatBRL, formatDate, QUOTE_STATUS_CLASS, QUOTE_STATUS_LABEL } from "@/lib/format";
 import { useAuth } from "@/hooks/use-auth";
+import { duplicateQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/")({
   component: OrcamentosPage,
 });
 
+
 function OrcamentosPage() {
   const qc = useQueryClient();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const duplicateQuoteFn = useServerFn(duplicateQuote);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
 
   const { data: quotes, isLoading } = useQuery({
     queryKey: ["quotes"],
@@ -85,6 +91,17 @@ function OrcamentosPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const duplicate = useMutation({
+    mutationFn: async (id: string) => (await duplicateQuoteFn({ data: { id } })).id,
+    onSuccess: async (newId) => {
+      toast.success("Orçamento duplicado como rascunho");
+      await qc.invalidateQueries({ queryKey: ["quotes"] });
+      navigate({ to: "/orcamentos/$id/editar", params: { id: newId } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   return (
     <div className="mx-auto max-w-7xl p-6 lg:p-8">
@@ -191,6 +208,16 @@ function OrcamentosPage() {
                             </Link>
                           </Button>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title="Duplicar orçamento"
+                          disabled={duplicate.isPending}
+                          onClick={() => duplicate.mutate(q.id)}
+                        >
+                          <Copy className="size-4" />
+                        </Button>
+
                         {isOwner && (
                           <Button
                             variant="ghost"

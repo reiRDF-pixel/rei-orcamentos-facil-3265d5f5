@@ -10,6 +10,8 @@ import { type QuoteItemDraft } from "@/lib/quote";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PdfTemplateId } from "@/lib/pdf-templates";
 import { updateQuote } from "@/lib/quotes.functions";
+import { clearQuoteDraft } from "@/lib/quote-draft";
+
 
 export const Route = createFileRoute("/_authenticated/orcamentos/$id/editar")({
   component: EditarOrcamentoPage,
@@ -77,9 +79,11 @@ function EditarOrcamentoPage() {
     },
     onSuccess: async () => {
       toast.success("Orçamento atualizado");
+      clearQuoteDraft(id);
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["quote", id] }),
         qc.invalidateQueries({ queryKey: ["quote-edit", id] }),
+        qc.invalidateQueries({ queryKey: ["quote-audit", id] }),
         qc.invalidateQueries({ queryKey: ["quotes"] }),
       ]);
       navigate({ to: "/orcamentos/$id", params: { id } });
@@ -102,6 +106,8 @@ function EditarOrcamentoPage() {
       setState={setState as React.Dispatch<React.SetStateAction<QuoteFormState>>}
       onSave={() => save.mutate()}
       saving={save.isPending}
+      draftKey={id}
     />
   );
 }
+

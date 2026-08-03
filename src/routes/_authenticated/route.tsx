@@ -5,6 +5,8 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NotificationsBell } from "@/components/notifications-bell";
+
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -49,7 +51,11 @@ function AuthenticatedLayout() {
             <SidebarTrigger />
             <Separator orientation="vertical" className="h-5" />
             <span className="text-sm font-semibold text-foreground">Rei dos Filtros</span>
+            <div className="ml-auto">
+              <NotificationsBell />
+            </div>
           </header>
+
           <main className="flex-1 overflow-y-auto">
             <Outlet />
           </main>

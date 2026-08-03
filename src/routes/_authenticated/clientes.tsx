@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Pencil, Trash2, Phone, MapPin } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Phone, MapPin, History } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +39,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
+import { ClientHistoryDialog } from "@/components/client-history-dialog";
+
 
 type Client = Tables<"clients">;
 
@@ -53,6 +55,8 @@ function ClientesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null);
+  const [historyTarget, setHistoryTarget] = useState<Client | null>(null);
+
 
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients"],
@@ -193,6 +197,16 @@ function ClientesPage() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        aria-label={`Histórico do cliente ${c.nome_fantasia || c.razao_social || ""}`}
+                        title="Histórico"
+                        onClick={() => setHistoryTarget(c)}
+                      >
+                        <History className="size-4" />
+                      </Button>
+                      <Button
+
+                        variant="ghost"
+                        size="sm"
                         aria-label={`Editar cliente ${c.nome_fantasia || c.razao_social || ""}`}
                         onClick={() => {
                           setEditing(c);
@@ -218,7 +232,14 @@ function ClientesPage() {
         )}
       </Card>
 
+      <ClientHistoryDialog
+        clientId={historyTarget?.id ?? null}
+        clientName={historyTarget?.nome_fantasia || historyTarget?.razao_social || ""}
+        onOpenChange={(o) => !o && setHistoryTarget(null)}
+      />
+
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remover cliente?</AlertDialogTitle>

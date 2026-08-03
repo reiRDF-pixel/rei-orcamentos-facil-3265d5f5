@@ -7,6 +7,8 @@ import {
   ChevronsUpDown,
   ArrowUp,
   ArrowDown,
+  FileSpreadsheet,
+
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -42,6 +44,9 @@ import { MachineQuickDialog } from "@/components/machine-quick-dialog";
 import { formatBRL } from "@/lib/format";
 import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
+import { clearQuoteDraft, loadQuoteDraft, saveQuoteDraft } from "@/lib/quote-draft";
+import { QuoteCsvImportDialog } from "@/components/quote-csv-import-dialog";
+
 
 export interface QuoteFormState {
   client_id: string;
@@ -67,16 +72,25 @@ interface Props {
   setState: React.Dispatch<React.SetStateAction<QuoteFormState>>;
   onSave: () => void;
   saving: boolean;
+  /** Enables local auto-save of the draft (e.g. "novo" or the quote id). */
+  draftKey?: string;
 }
 
-export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
+export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }: Props) {
   const [confirmed, setConfirmed] = useState<Record<number, boolean>>({});
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [newClientOpen, setNewClientOpen] = useState(false);
   const [newMachineOpen, setNewMachineOpen] = useState(false);
+  const [csvOpen, setCsvOpen] = useState(false);
+  const [autoSavedAt, setAutoSavedAt] = useState<string | null>(null);
   const descRefs = useRef<Array<HTMLInputElement | null>>([]);
   const pendingFocusRef = useRef<number | null>(null);
+  const restoreCheckedRef = useRef(false);
+  const addItemRef = useRef<() => void>(() => {});
+
+  const onSaveRef = useRef(onSave);
+  onSaveRef.current = onSave;
 
   useEffect(() => {
     if (pendingFocusRef.current === null) return;
@@ -87,6 +101,57 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
       pendingFocusRef.current = null;
     }
   });
+
+  // Offer to restore an auto-saved draft (once per mount).
+  useEffect(() => {
+    if (!draftKey || restoreCheckedRef.current) return;
+    restoreCheckedRef.current = true;
+    const draft = loadQuoteDraft(draftKey);
+    if (!draft || draft.state.items.length === 0) return;
+    toast("Rascunho não salvo encontrado", {
+      description: "Deseja restaurar o que você estava digitando?",
+      duration: 12000,
+      action: {
+        label: "Restaurar",
+        onClick: () => {
+          setState(draft.state);
+          toast.success("Rascunho restaurado");
+        },
+      },
+      cancel: {
+        label: "Descartar",
+        onClick: () => clearQuoteDraft(draftKey),
+      },
+    });
+  }, [draftKey, setState]);
+
+  // Auto-save while typing (debounced).
+  useEffect(() => {
+    if (!draftKey) return;
+    const t = setTimeout(() => {
+      saveQuoteDraft(draftKey, state);
+      setAutoSavedAt(new Date().toLocaleTimeString("pt-BR"));
+    }, 800);
+    return () => clearTimeout(t);
+  }, [draftKey, state]);
+
+  // Keyboard shortcuts: Ctrl+S salva, Ctrl+Enter adiciona item.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      if (e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        onSaveRef.current();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        addItemRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
 
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
@@ -171,8 +236,10 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         ],
       };
     });
+  addItemRef.current = addItem;
 
   const removeItem = (idx: number) => {
+
     setState((s) => ({
       ...s,
       items: s.items.filter((_, i) => i !== idx).map((it, i) => ({ ...it, ordem: i })),
@@ -435,15 +502,38 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
       </Card>
 
       <Card className="mb-6 rounded-3xl border-border/60 p-6 shadow-elegant">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
             Itens
           </h2>
-          <span className="text-xs text-muted-foreground">
-            {state.items.length} {state.items.length === 1 ? "item" : "itens"} · Qtd total:{" "}
-            <span className="font-semibold text-foreground">{totalQtd}</span>
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs text-muted-foreground">
+              {state.items.length} {state.items.length === 1 ? "item" : "itens"} · Qtd total:{" "}
+              <span className="font-semibold text-foreground">{totalQtd}</span>
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl"
+              onClick={() => setCsvOpen(true)}
+            >
+              <FileSpreadsheet className="size-4" /> Importar CSV/Excel
+            </Button>
+          </div>
         </div>
+        <QuoteCsvImportDialog
+          open={csvOpen}
+          onOpenChange={setCsvOpen}
+          startOrdem={state.items.length}
+          onImport={(imported) =>
+            setState((s) => ({
+              ...s,
+              items: [...s.items, ...imported].map((it, i) => ({ ...it, ordem: i })),
+            }))
+          }
+        />
+
 
         {state.items.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
@@ -761,7 +851,12 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
         </Card>
       </div>
 
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
+        <span className="text-xs text-muted-foreground">
+          Atalhos: <b>Ctrl+S</b> salvar · <b>Ctrl+Enter</b> novo item
+          {draftKey && autoSavedAt ? ` · rascunho salvo às ${autoSavedAt}` : ""}
+        </span>
+
         <Button
           size="lg"
           onClick={onSave}
