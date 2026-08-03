@@ -42,6 +42,9 @@ import { MachineQuickDialog } from "@/components/machine-quick-dialog";
 import { formatBRL } from "@/lib/format";
 import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
+import { clearQuoteDraft, loadQuoteDraft, saveQuoteDraft } from "@/lib/quote-draft";
+import { QuoteCsvImportDialog } from "@/components/quote-csv-import-dialog";
+
 
 export interface QuoteFormState {
   client_id: string;
