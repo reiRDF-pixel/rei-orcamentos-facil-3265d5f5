@@ -851,7 +851,12 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
         </Card>
       </div>
 
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
+        <span className="text-xs text-muted-foreground">
+          Atalhos: <b>Ctrl+S</b> salvar · <b>Ctrl+Enter</b> novo item
+          {draftKey && autoSavedAt ? ` · rascunho salvo às ${autoSavedAt}` : ""}
+        </span>
+
         <Button
           size="lg"
           onClick={onSave}
