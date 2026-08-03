@@ -67,16 +67,23 @@ interface Props {
   setState: React.Dispatch<React.SetStateAction<QuoteFormState>>;
   onSave: () => void;
   saving: boolean;
+  /** Enables local auto-save of the draft (e.g. "novo" or the quote id). */
+  draftKey?: string;
 }
 
-export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
+export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }: Props) {
   const [confirmed, setConfirmed] = useState<Record<number, boolean>>({});
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [newClientOpen, setNewClientOpen] = useState(false);
   const [newMachineOpen, setNewMachineOpen] = useState(false);
+  const [csvOpen, setCsvOpen] = useState(false);
+  const [autoSavedAt, setAutoSavedAt] = useState<string | null>(null);
   const descRefs = useRef<Array<HTMLInputElement | null>>([]);
   const pendingFocusRef = useRef<number | null>(null);
+  const restoreCheckedRef = useRef(false);
+  const onSaveRef = useRef(onSave);
+  onSaveRef.current = onSave;
 
   useEffect(() => {
     if (pendingFocusRef.current === null) return;
@@ -87,6 +94,57 @@ export function QuoteEditor({ title, state, setState, onSave, saving }: Props) {
       pendingFocusRef.current = null;
     }
   });
+
+  // Offer to restore an auto-saved draft (once per mount).
+  useEffect(() => {
+    if (!draftKey || restoreCheckedRef.current) return;
+    restoreCheckedRef.current = true;
+    const draft = loadQuoteDraft(draftKey);
+    if (!draft || draft.state.items.length === 0) return;
+    toast("Rascunho não salvo encontrado", {
+      description: "Deseja restaurar o que você estava digitando?",
+      duration: 12000,
+      action: {
+        label: "Restaurar",
+        onClick: () => {
+          setState(draft.state);
+          toast.success("Rascunho restaurado");
+        },
+      },
+      cancel: {
+        label: "Descartar",
+        onClick: () => clearQuoteDraft(draftKey),
+      },
+    });
+  }, [draftKey, setState]);
+
+  // Auto-save while typing (debounced).
+  useEffect(() => {
+    if (!draftKey) return;
+    const t = setTimeout(() => {
+      saveQuoteDraft(draftKey, state);
+      setAutoSavedAt(new Date().toLocaleTimeString("pt-BR"));
+    }, 800);
+    return () => clearTimeout(t);
+  }, [draftKey, state]);
+
+  // Keyboard shortcuts: Ctrl+S salva, Ctrl+Enter adiciona item.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      if (e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        onSaveRef.current();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        addItemRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
 
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
