@@ -208,6 +208,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          quote_id: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          quote_id?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          quote_id?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           ativo: boolean
@@ -349,6 +382,39 @@ export type Database = {
           updated_at?: string
           validade_padrao_dias?: number | null
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      quote_audit_log: {
+        Row: {
+          action: string
+          changes: Json
+          created_at: string
+          id: string
+          quote_id: string
+          quote_numero: number | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          action: string
+          changes?: Json
+          created_at?: string
+          id?: string
+          quote_id: string
+          quote_numero?: number | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          action?: string
+          changes?: Json
+          created_at?: string
+          id?: string
+          quote_id?: string
+          quote_numero?: number | null
+          user_id?: string | null
+          user_name?: string | null
         }
         Relationships: []
       }
@@ -629,6 +695,7 @@ export type Database = {
     }
     Functions: {
       create_quote_with_items: { Args: { _payload: Json }; Returns: string }
+      duplicate_quote: { Args: { _quote_id: string }; Returns: string }
       get_public_quote: { Args: { _quote_id: string }; Returns: Json }
       update_quote_with_items: {
         Args: { _payload: Json; _quote_id: string }
