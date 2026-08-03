@@ -500,15 +500,38 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
       </Card>
 
       <Card className="mb-6 rounded-3xl border-border/60 p-6 shadow-elegant">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
             Itens
           </h2>
-          <span className="text-xs text-muted-foreground">
-            {state.items.length} {state.items.length === 1 ? "item" : "itens"} · Qtd total:{" "}
-            <span className="font-semibold text-foreground">{totalQtd}</span>
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs text-muted-foreground">
+              {state.items.length} {state.items.length === 1 ? "item" : "itens"} · Qtd total:{" "}
+              <span className="font-semibold text-foreground">{totalQtd}</span>
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl"
+              onClick={() => setCsvOpen(true)}
+            >
+              <FileSpreadsheet className="size-4" /> Importar CSV/Excel
+            </Button>
+          </div>
         </div>
+        <QuoteCsvImportDialog
+          open={csvOpen}
+          onOpenChange={setCsvOpen}
+          startOrdem={state.items.length}
+          onImport={(imported) =>
+            setState((s) => ({
+              ...s,
+              items: [...s.items, ...imported].map((it, i) => ({ ...it, ordem: i })),
+            }))
+          }
+        />
+
 
         {state.items.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
