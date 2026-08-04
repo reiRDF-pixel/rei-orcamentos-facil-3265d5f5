@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { type QuoteItemDraft } from "@/lib/quote";
+import type { QuoteItemDraft } from "@/lib/quote";
 import type { PdfTemplateId } from "@/lib/pdf-templates";
 
 type RpcError = { message: string };
@@ -30,70 +30,12 @@ type QuotePayload = {
 
 type UpdateQuotePayload = QuotePayload & { id: string };
 
-function asFiniteNumber(value: unknown, fallback = 0) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
-}
-
-function normalizeQuotePayload(input: QuotePayload): QuotePayload {
-  if (!input.client_id) throw new Error("Selecione um cliente");
-
-  const items = (input.items ?? [])
-    .map((item, idx) => ({
-      product_id: item.product_id || null,
-      codigo: item.codigo?.trim() || null,
-      codigo_interno: item.codigo_interno?.trim() || null,
-      marca: item.marca?.trim() || null,
-      descricao: item.descricao?.trim() ?? "",
-      quantidade: asFiniteNumber(item.quantidade),
-      preco_unitario: asFiniteNumber(item.preco_unitario),
-      desconto_percentual: asFiniteNumber(item.desconto_percentual),
-      ordem: idx,
-    }))
-    .filter(
-      (item) =>
-        item.descricao.length > 0 ||
-        !!item.codigo ||
-        !!item.codigo_interno ||
-        !!item.marca ||
-        item.quantidade > 0 ||
-        item.preco_unitario > 0,
-    );
-
-  if (items.length === 0) throw new Error("Adicione ao menos um item");
-  if (items.some((item) => item.quantidade <= 0)) {
-    throw new Error("A quantidade dos itens deve ser maior que zero");
-  }
-  if (items.some((item) => item.preco_unitario < 0)) {
-    throw new Error("O preço unitário não pode ser negativo");
-  }
-
-  return {
-    client_id: input.client_id,
-    machine_id: input.machine_id || null,
-    sales_rep_id: input.sales_rep_id || null,
-    condicao_pagamento: input.condicao_pagamento?.trim() ?? "",
-    tipo_frete: input.tipo_frete?.trim() || "SEM FRETE",
-    prazo_entrega: input.prazo_entrega?.trim() ?? "",
-    validade_dias: asFiniteNumber(input.validade_dias, 7),
-    desconto_percentual: asFiniteNumber(input.desconto_percentual),
-    desconto_valor: asFiniteNumber(input.desconto_valor),
-    frete: asFiniteNumber(input.frete),
-    observacoes: input.observacoes?.trim() ?? "",
-    pdf_template: input.pdf_template || "azul",
-    items,
-  };
-}
-
-function normalizeUpdatePayload(input: UpdateQuotePayload): UpdateQuotePayload {
-  if (!input.id) throw new Error("Orçamento inválido");
-  return { id: input.id, ...normalizeQuotePayload(input) };
-}
-
 export const createQuote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: QuotePayload) => normalizeQuotePayload(input))
+  .inputValidator((input: QuotePayload) => input)
   .handler(async ({ data, context }) => {
+    if (!data.client_id) throw new Error("Selecione um cliente");
+    if (!data.items?.length) throw new Error("Adicione ao menos um item");
     const { data: quoteId, error } = await (context.supabase as unknown as RpcClient).rpc(
       "create_quote_with_items",
       { _payload: data },
@@ -105,8 +47,9 @@ export const createQuote = createServerFn({ method: "POST" })
 
 export const updateQuote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: UpdateQuotePayload) => normalizeUpdatePayload(input))
+  .inputValidator((input: UpdateQuotePayload) => input)
   .handler(async ({ data, context }) => {
+    if (!data.id) throw new Error("Orçamento inválido");
     const { id, ...payload } = data;
     const { data: quoteId, error } = await (context.supabase as unknown as RpcClient).rpc(
       "update_quote_with_items",
@@ -133,13 +76,67 @@ export const duplicateQuote = createServerFn({ method: "POST" })
   });
 
 export const getPublicQuote = createServerFn({ method: "GET" })
-
-  .inputValidator((input: { id: string }) => input)
+  .inputValidator((input: { token: string }) => {
+    if (!input?.token) throw new Error("Link inválido");
+    return input;
+  })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: quote, error } = await supabaseAdmin.rpc("get_public_quote", {
-      _quote_id: data.id,
+    const { data: quote, error } = await supabaseAdmin.rpc("get_public_quote_by_token", {
+      _token: data.token,
     });
     if (error) throw new Error(error.message);
     return quote;
+  });
+
+export const respondPublicQuote = createServerFn({ method: "POST" })
+  .inputValidator((input: {
+    token: string;
+    decision: "aprovado" | "recusado";
+    name?: string;
+    note?: string;
+  }) => {
+    if (!input?.token) throw new Error("Link inválido");
+    if (input.decision !== "aprovado" && input.decision !== "recusado") {
+      throw new Error("Resposta inválida");
+    }
+    return {
+      token: input.token,
+      decision: input.decision,
+      name: input.name?.trim().slice(0, 120) || null,
+      note: input.note?.trim().slice(0, 1000) || null,
+    };
+  })
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: quote, error: readError } = await supabaseAdmin
+      .from("quotes")
+      .select("id,status,data_emissao,validade_dias,public_token_revoked_at")
+      .eq("public_token", data.token)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!quote || quote.public_token_revoked_at) throw new Error("Link inválido ou revogado");
+    if (quote.status !== "enviado") throw new Error("Este orçamento já recebeu uma resposta");
+
+    const expiresAt = new Date(`${quote.data_emissao}T23:59:59`);
+    expiresAt.setDate(expiresAt.getDate() + quote.validade_dias);
+    if (expiresAt.getTime() < Date.now()) {
+      await supabaseAdmin.from("quotes").update({ status: "expirado" }).eq("id", quote.id);
+      throw new Error("Este orçamento expirou");
+    }
+
+    const now = new Date().toISOString();
+    const { error } = await supabaseAdmin
+      .from("quotes")
+      .update({
+        status: data.decision,
+        approved_at: data.decision === "aprovado" ? now : null,
+        client_decision_at: now,
+        client_decision_by: data.name,
+        client_decision_note: data.note,
+      })
+      .eq("id", quote.id)
+      .eq("status", "enviado");
+    if (error) throw new Error(error.message);
+    return { status: data.decision, decidedAt: now };
   });

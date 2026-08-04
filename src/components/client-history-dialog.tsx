@@ -35,8 +35,10 @@ export function ClientHistoryDialog({ clientId, clientName, onOpenChange }: Prop
 
   const quotes = data ?? [];
   const count = quotes.length;
-  const revenue = quotes.reduce((s, q) => s + Number(q.total ?? 0), 0);
-  const ticket = count > 0 ? revenue / count : 0;
+  const approved = quotes.filter((q) => q.status === "aprovado");
+  const quotedValue = quotes.reduce((s, q) => s + Number(q.total ?? 0), 0);
+  const approvedValue = approved.reduce((s, q) => s + Number(q.total ?? 0), 0);
+  const ticket = approved.length > 0 ? approvedValue / approved.length : 0;
 
   const topItems = (() => {
     const map = new Map<string, number>();
@@ -58,7 +60,7 @@ export function ClientHistoryDialog({ clientId, clientName, onOpenChange }: Prop
         <DialogHeader>
           <DialogTitle>Histórico · {clientName}</DialogTitle>
           <DialogDescription>
-            Orçamentos, ticket médio e itens mais cotados deste cliente.
+            Valores cotados, vendas aprovadas e itens mais cotados deste cliente.
           </DialogDescription>
         </DialogHeader>
 
@@ -66,11 +68,12 @@ export function ClientHistoryDialog({ clientId, clientName, onOpenChange }: Prop
           <Skeleton className="h-40 w-full rounded-2xl" />
         ) : (
           <div className="space-y-5">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
                 { label: "Orçamentos", value: String(count) },
-                { label: "Valor total", value: formatBRL(revenue) },
-                { label: "Ticket médio", value: formatBRL(ticket) },
+                { label: "Valor cotado", value: formatBRL(quotedValue) },
+                { label: "Valor aprovado", value: formatBRL(approvedValue) },
+                { label: "Ticket aprovado", value: formatBRL(ticket) },
               ].map((m) => (
                 <div
                   key={m.label}

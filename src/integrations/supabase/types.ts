@@ -481,6 +481,9 @@ export type Database = {
       quotes: {
         Row: {
           approved_at: string | null
+          client_decision_at: string | null
+          client_decision_by: string | null
+          client_decision_note: string | null
           client_id: string
           condicao_pagamento: string | null
           created_at: string
@@ -494,6 +497,8 @@ export type Database = {
           observacoes: string | null
           pdf_template: string
           prazo_entrega: string | null
+          public_token: string
+          public_token_revoked_at: string | null
           sales_rep_id: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["quote_status"]
@@ -507,6 +512,9 @@ export type Database = {
         }
         Insert: {
           approved_at?: string | null
+          client_decision_at?: string | null
+          client_decision_by?: string | null
+          client_decision_note?: string | null
           client_id: string
           condicao_pagamento?: string | null
           created_at?: string
@@ -520,6 +528,8 @@ export type Database = {
           observacoes?: string | null
           pdf_template?: string
           prazo_entrega?: string | null
+          public_token?: string
+          public_token_revoked_at?: string | null
           sales_rep_id?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
@@ -533,6 +543,9 @@ export type Database = {
         }
         Update: {
           approved_at?: string | null
+          client_decision_at?: string | null
+          client_decision_by?: string | null
+          client_decision_note?: string | null
           client_id?: string
           condicao_pagamento?: string | null
           created_at?: string
@@ -546,6 +559,8 @@ export type Database = {
           observacoes?: string | null
           pdf_template?: string
           prazo_entrega?: string | null
+          public_token?: string
+          public_token_revoked_at?: string | null
           sales_rep_id?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
@@ -697,6 +712,7 @@ export type Database = {
       create_quote_with_items: { Args: { _payload: Json }; Returns: string }
       duplicate_quote: { Args: { _quote_id: string }; Returns: string }
       get_public_quote: { Args: { _quote_id: string }; Returns: Json }
+      get_public_quote_by_token: { Args: { _token: string }; Returns: Json }
       update_quote_with_items: {
         Args: { _payload: Json; _quote_id: string }
         Returns: string

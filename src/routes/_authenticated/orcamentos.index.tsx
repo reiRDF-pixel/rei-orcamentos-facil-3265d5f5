@@ -26,6 +26,16 @@ import { duplicateQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/")({
   component: OrcamentosPage,
+  head: () => ({
+    meta: [
+      { title: "Orçamentos — Rei dos Filtros" },
+      { name: "description", content: "Crie, edite e acompanhe os orçamentos da equipe Rei dos Filtros." },
+      { property: "og:title", content: "Orçamentos — Rei dos Filtros" },
+      { property: "og:description", content: "Gestão de orçamentos comerciais da equipe." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 
 

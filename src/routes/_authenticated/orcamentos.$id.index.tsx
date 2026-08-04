@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   Download,
@@ -117,6 +117,23 @@ function OrcamentoDetailPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  useEffect(() => {
+    const channel = supabase
+      .channel(`quote-detail-${id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "quotes", filter: `id=eq.${id}` },
+        () => {
+          void qc.invalidateQueries({ queryKey: ["quote", id] });
+          void qc.invalidateQueries({ queryKey: ["quotes"] });
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [id, qc]);
+
   if (isLoading || !data) {
     return (
       <div className="p-8">
@@ -143,7 +160,7 @@ function OrcamentoDetailPage() {
       toast.error("Cliente sem WhatsApp cadastrado");
       return;
     }
-    const url = `${window.location.origin}/q/${id}`;
+    const url = `${window.location.origin}/q/${data.public_token}`;
     const text = `Olá ${client?.contato_nome ?? client?.razao_social ?? ""}, segue o orçamento #${String(data.numero).padStart(5, "0")} no valor de ${Number(data.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}.\n\n${url}`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
   };
@@ -242,6 +259,18 @@ function OrcamentoDetailPage() {
           )}
         </div>
       </div>
+
+      {(data.client_decision_by || data.client_decision_note) && (
+        <Card className="mb-6 border-border/60 p-4 shadow-elegant">
+          <p className="text-xs font-bold uppercase text-muted-foreground">Resposta do cliente</p>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {data.client_decision_by || "Responsável não informado"}
+          </p>
+          {data.client_decision_note && (
+            <p className="mt-2 text-sm text-muted-foreground">{data.client_decision_note}</p>
+          )}
+        </Card>
+      )}
 
       <Card className="overflow-hidden rounded-3xl border-border/60 p-0 shadow-elegant">
         <div id="quote-document-pdf">

@@ -24,11 +24,28 @@ interface Props {
 
 export function QuoteCsvImportDialog({ open, onOpenChange, startOrdem, onImport }: Props) {
   const [text, setText] = useState("");
+  const [reading, setReading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const handleFile = async (file: File) => {
-    const content = await file.text();
-    setText(content);
+    setReading(true);
+    try {
+      if (file.name.toLowerCase().endsWith(".xlsx")) {
+        const XLSX = await import("xlsx");
+        const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
+        const firstSheet = workbook.SheetNames[0];
+        if (!firstSheet) throw new Error("A planilha não possui abas");
+        const sheet = workbook.Sheets[firstSheet];
+        if (!sheet) throw new Error("Não foi possível abrir a primeira aba");
+        setText(XLSX.utils.sheet_to_csv(sheet, { FS: ";" }));
+      } else {
+        setText(await file.text());
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível ler o arquivo");
+    } finally {
+      setReading(false);
+    }
   };
 
   const handleImport = () => {
@@ -49,7 +66,7 @@ export function QuoteCsvImportDialog({ open, onOpenChange, startOrdem, onImport 
         <DialogHeader>
           <DialogTitle>Importar itens de CSV / Excel</DialogTitle>
           <DialogDescription>
-            Cole as linhas copiadas do Excel ou envie um arquivo .csv. Colunas aceitas:
+            Cole as linhas copiadas do Excel ou envie um arquivo .xlsx, .csv ou .tsv. Colunas aceitas:
             <b> Código, Nosso código, Marca, Descrição, Quantidade, Preço</b>. Se não houver
             cabeçalho, essa ordem é assumida.
           </DialogDescription>
@@ -59,7 +76,7 @@ export function QuoteCsvImportDialog({ open, onOpenChange, startOrdem, onImport 
           <input
             ref={fileRef}
             type="file"
-            accept=".csv,.txt,.tsv"
+            accept=".xlsx,.csv,.txt,.tsv"
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
@@ -71,9 +88,10 @@ export function QuoteCsvImportDialog({ open, onOpenChange, startOrdem, onImport 
             type="button"
             variant="outline"
             className="rounded-xl"
+            disabled={reading}
             onClick={() => fileRef.current?.click()}
           >
-            <FileSpreadsheet className="size-4" /> Escolher arquivo CSV
+            <FileSpreadsheet className="size-4" /> {reading ? "Lendo planilha..." : "Escolher arquivo"}
           </Button>
           <Textarea
             rows={10}

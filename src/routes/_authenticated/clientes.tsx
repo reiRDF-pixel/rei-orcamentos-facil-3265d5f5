@@ -46,6 +46,16 @@ type Client = Tables<"clients">;
 
 export const Route = createFileRoute("/_authenticated/clientes")({
   component: ClientesPage,
+  head: () => ({
+    meta: [
+      { title: "Clientes — Rei dos Filtros" },
+      { name: "description", content: "Cadastro e histórico comercial dos clientes da Rei dos Filtros." },
+      { property: "og:title", content: "Clientes — Rei dos Filtros" },
+      { property: "og:description", content: "Cadastro e histórico comercial de clientes." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 
 function ClientesPage() {

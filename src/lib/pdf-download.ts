@@ -58,31 +58,55 @@ export async function downloadPdfFromElement(el: HTMLElement, filename: string) 
     import("jspdf"),
   ]);
 
-  const canvas = await html2canvas(el, {
+  const sourceCanvas = await html2canvas(el, {
     scale: 2,
     useCORS: true,
     backgroundColor: "#ffffff",
     logging: false,
   });
 
-  const imgData = canvas.toDataURL("image/jpeg", 0.95);
   const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
-  const imgH = (canvas.height * pageW) / canvas.width;
+  const pageHeightPx = Math.floor((pageH * sourceCanvas.width) / pageW);
+  const rowBreaks = Array.from(el.querySelectorAll("tbody tr"))
+    .map((row) => {
+      const rowRect = row.getBoundingClientRect();
+      const rootRect = el.getBoundingClientRect();
+      return Math.round(((rowRect.bottom - rootRect.top) / rootRect.height) * sourceCanvas.height);
+    })
+    .filter((value) => value > 0 && value < sourceCanvas.height);
 
-  if (imgH <= pageH) {
-    pdf.addImage(imgData, "JPEG", 0, 0, pageW, imgH);
-  } else {
-    // Multi-page: slice the tall image across A4 pages.
-    let remaining = imgH;
-    let position = 0;
-    while (remaining > 0) {
-      pdf.addImage(imgData, "JPEG", 0, position, pageW, imgH);
-      remaining -= pageH;
-      position -= pageH;
-      if (remaining > 0) pdf.addPage();
-    }
+  let top = 0;
+  let pageIndex = 0;
+  while (top < sourceCanvas.height) {
+    const target = Math.min(top + pageHeightPx, sourceCanvas.height);
+    const safeBreak = rowBreaks.filter((value) => value > top + pageHeightPx * 0.55 && value <= target).pop();
+    const bottom = target === sourceCanvas.height ? target : (safeBreak ?? target);
+    const sliceHeight = Math.max(1, bottom - top);
+    const pageCanvas = document.createElement("canvas");
+    pageCanvas.width = sourceCanvas.width;
+    pageCanvas.height = sliceHeight;
+    const context = pageCanvas.getContext("2d");
+    if (!context) throw new Error("Não foi possível preparar as páginas do PDF");
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+    context.drawImage(
+      sourceCanvas,
+      0,
+      top,
+      sourceCanvas.width,
+      sliceHeight,
+      0,
+      0,
+      sourceCanvas.width,
+      sliceHeight,
+    );
+    if (pageIndex > 0) pdf.addPage();
+    const renderedHeight = (sliceHeight * pageW) / sourceCanvas.width;
+    pdf.addImage(pageCanvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, pageW, renderedHeight);
+    top = bottom;
+    pageIndex += 1;
   }
 
   const blob = pdf.output("blob");

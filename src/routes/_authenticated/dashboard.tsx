@@ -9,6 +9,16 @@ import { FileText, TrendingUp, CheckCircle2, DollarSign, Plus, ArrowRight } from
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
+  head: () => ({
+    meta: [
+      { title: "Painel de Controle — Rei dos Filtros" },
+      { name: "description", content: "Indicadores comerciais e orçamentos recentes da Rei dos Filtros." },
+      { property: "og:title", content: "Painel de Controle — Rei dos Filtros" },
+      { property: "og:description", content: "Indicadores comerciais e orçamentos recentes." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 
 function DashboardPage() {
@@ -24,8 +34,9 @@ function DashboardPage() {
       ]);
 
       const monthQuotes = monthQuotesRes.data ?? [];
-      const totalMonth = monthQuotes.reduce((sum, q) => sum + Number(q.total ?? 0), 0);
+      const quotedMonth = monthQuotes.reduce((sum, q) => sum + Number(q.total ?? 0), 0);
       const approvedMonth = monthQuotes.filter((q) => q.status === "aprovado");
+      const approvedValue = approvedMonth.reduce((s, q) => s + Number(q.total ?? 0), 0);
       const conversion =
         monthQuotes.length > 0 ? (approvedMonth.length / monthQuotes.length) * 100 : 0;
       const ticket =
@@ -35,7 +46,8 @@ function DashboardPage() {
 
       return {
         countMonth: monthQuotes.length,
-        totalMonth,
+        quotedMonth,
+        approvedValue,
         conversion,
         ticket,
         totalAll: quotesRes.count ?? 0,
@@ -88,10 +100,10 @@ function DashboardPage() {
           hint={`${stats?.totalAll ?? 0} no total`}
         />
         <StatCard
-          label="Valor total (mês)"
-          value={isLoading ? undefined : formatBRL(stats?.totalMonth)}
+           label="Valor aprovado (mês)"
+           value={isLoading ? undefined : formatBRL(stats?.approvedValue)}
           icon={DollarSign}
-          hint="Soma de todos os orçamentos"
+           hint={`Cotado: ${formatBRL(stats?.quotedMonth)}`}
           highlight
         />
         <StatCard
