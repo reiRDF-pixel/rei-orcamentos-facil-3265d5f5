@@ -24,8 +24,9 @@ function DashboardPage() {
       ]);
 
       const monthQuotes = monthQuotesRes.data ?? [];
-      const totalMonth = monthQuotes.reduce((sum, q) => sum + Number(q.total ?? 0), 0);
+      const quotedMonth = monthQuotes.reduce((sum, q) => sum + Number(q.total ?? 0), 0);
       const approvedMonth = monthQuotes.filter((q) => q.status === "aprovado");
+      const approvedValue = approvedMonth.reduce((s, q) => s + Number(q.total ?? 0), 0);
       const conversion =
         monthQuotes.length > 0 ? (approvedMonth.length / monthQuotes.length) * 100 : 0;
       const ticket =
@@ -35,7 +36,8 @@ function DashboardPage() {
 
       return {
         countMonth: monthQuotes.length,
-        totalMonth,
+        quotedMonth,
+        approvedValue,
         conversion,
         ticket,
         totalAll: quotesRes.count ?? 0,
@@ -88,10 +90,10 @@ function DashboardPage() {
           hint={`${stats?.totalAll ?? 0} no total`}
         />
         <StatCard
-          label="Valor total (mês)"
-          value={isLoading ? undefined : formatBRL(stats?.totalMonth)}
+           label="Valor aprovado (mês)"
+           value={isLoading ? undefined : formatBRL(stats?.approvedValue)}
           icon={DollarSign}
-          hint="Soma de todos os orçamentos"
+           hint={`Cotado: ${formatBRL(stats?.quotedMonth)}`}
           highlight
         />
         <StatCard

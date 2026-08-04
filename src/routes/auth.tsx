@@ -37,6 +37,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -58,6 +59,20 @@ function AuthPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email.trim()) {
+      toast.error("Informe seu email para recuperar a senha");
+      return;
+    }
+    setResetting(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+    setResetting(false);
+    if (error) toast.error(error.message);
+    else toast.success("Enviamos as instruções de recuperação para seu email");
   };
 
   return (
@@ -113,6 +128,16 @@ function AuthPage() {
             >
               {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
               Entrar
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              disabled={resetting}
+              onClick={handleResetPassword}
+            >
+              {resetting && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Esqueci minha senha
             </Button>
           </form>
         </Card>
