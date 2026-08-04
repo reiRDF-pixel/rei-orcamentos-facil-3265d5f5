@@ -37,6 +37,7 @@ export const Route = createFileRoute("/q/$id")({
         content: `https://rei-orcamentos-facil.lovable.app/q/${params.id}`,
       },
       { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [
       {

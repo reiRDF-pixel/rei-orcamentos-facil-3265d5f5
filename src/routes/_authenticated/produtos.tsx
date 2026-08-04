@@ -37,6 +37,16 @@ type Product = Tables<"products">;
 
 export const Route = createFileRoute("/_authenticated/produtos")({
   component: ProdutosPage,
+  head: () => ({
+    meta: [
+      { title: "Produtos — Rei dos Filtros" },
+      { name: "description", content: "Catálogo interno de produtos, códigos, marcas e preços." },
+      { property: "og:title", content: "Produtos — Rei dos Filtros" },
+      { property: "og:description", content: "Catálogo interno de produtos da Rei dos Filtros." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 
 function ProdutosPage() {

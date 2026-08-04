@@ -27,6 +27,7 @@ export const Route = createFileRoute("/auth")({
       },
       { property: "og:url", content: "https://rei-orcamentos-facil.lovable.app/auth" },
       { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "canonical", href: "https://rei-orcamentos-facil.lovable.app/auth" }],
   }),

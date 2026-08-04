@@ -9,6 +9,16 @@ import { FileText, TrendingUp, CheckCircle2, DollarSign, Plus, ArrowRight } from
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
+  head: () => ({
+    meta: [
+      { title: "Painel de Controle — Rei dos Filtros" },
+      { name: "description", content: "Indicadores comerciais e orçamentos recentes da Rei dos Filtros." },
+      { property: "og:title", content: "Painel de Controle — Rei dos Filtros" },
+      { property: "og:description", content: "Indicadores comerciais e orçamentos recentes." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 
 function DashboardPage() {

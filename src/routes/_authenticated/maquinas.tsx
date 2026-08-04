@@ -44,6 +44,16 @@ type Machine = Tables<"machines"> & {
 
 export const Route = createFileRoute("/_authenticated/maquinas")({
   component: MaquinasPage,
+  head: () => ({
+    meta: [
+      { title: "Máquinas — Rei dos Filtros" },
+      { name: "description", content: "Cadastro de máquinas e equipamentos atendidos pela Rei dos Filtros." },
+      { property: "og:title", content: "Máquinas — Rei dos Filtros" },
+      { property: "og:description", content: "Cadastro interno de máquinas e equipamentos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 
 function MaquinasPage() {
