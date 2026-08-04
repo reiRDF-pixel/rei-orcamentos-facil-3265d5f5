@@ -1,64 +1,64 @@
-## Objetivo
+# Aprovação online do cliente
 
-Gerar dois PDFs a partir do orçamento:
+O cliente recebe o orçamento pelo WhatsApp (link `/q/$id` já existe). Hoje essa
+página é só visualização. Vamos transformá-la em uma resposta ativa: o cliente
+clica em **Aprovar** ou **Recusar**, o status muda sozinho, o vendedor é notificado
+e o log de auditoria registra a decisão — sem nenhuma ação manual.
 
-1. **PDF do cliente** — o atual. Mostra apenas o **código do cliente** de cada item (nada de "nosso código" ou marca interna).
-2. **PDF interno** (separação/faturamento) — inclui **código do cliente + nosso código + marca**, preços, totais e destaca **condição de pagamento + prazo**.
+Tudo já está preparado para isso: a página pública já usa `supabaseAdmin`
+(sem expor RLS ao público), já existe uma trigger que notifica o vendedor quando
+o status vira `aprovado`/`recusado`, e o log de auditoria já captura mudanças de
+status automaticamente. A aprovação do cliente só precisa alterar o status no
+servidor — notificação e auditoria acontecem de graça.
 
-## Mudanças
+## Escopo
 
-### 1. Banco de dados (migração)
+1. **Migração de banco** — adicionar 2 colunas opcionais em `quotes`:
+   - `client_decision_by TEXT` (nome de quem decidiu, preenchido pelo cliente)
+   - `client_decision_note TEXT` (observação/justificativa opcional)
+   - Sem nova tabela, sem novas triggers (as existentes cobrem notificação + auditoria).
 
-Na tabela `quote_items`, o campo atual `codigo` passa a significar "código do cliente". Adicionar:
+2. **Nova função de servidor pública** `respondPublicQuote` em
+   `src/lib/quotes.functions.ts`:
+   - Entrada: `{ id, decision: 'aprovado'|'recusado', name?, note? }`
+   - Usa `supabaseAdmin` (bypass de RLS) — endpoint público, sem auth.
+   - Valida que o status atual é `enviado` (senão erro).
+   - Valida que não expirou (`data_emissao + validade_dias` > agora) — senão erro
+     "Orçamento expirado".
+   - Atualiza `status`, `approved_at` (quando aprovado), `client_decision_by`,
+     `client_decision_note`.
+   - A trigger existente cria a notificação para o vendedor e o log de auditoria
+     automaticamente.
 
-- `codigo_interno text` — nosso código do produto.
+3. **Página pública** `src/routes/q.$id.tsx` — abaixo do documento:
+   - Quando `status === 'enviado'`: card de decisão com campo opcional "Seu nome",
+     campo opcional "Mensagem", botão verde **Aprovar orçamento** e botão
+     **Recusar**. Após responder, mostra tela de confirmação e recarrega.
+   - Quando `status === 'aprovado'`: selo verde "Orçamento aprovado em <data>".
+   - Quando `status === 'recusado'`: selo neutro "Orçamento recusado — entre em
+     contato com o vendedor".
+   - `rascunho`/`expirado`: sem ação.
 
-`marca` já existe e continua sendo interno.
+4. **Tela interna do orçamento** `src/routes/_authenticated/orcamentos.$id.index.tsx`:
+   - Mostrar "Decidido pelo cliente: <nome>" quando `client_decision_by` existir.
+   - Adicionar assinatura Realtime na linha do orçamento para invalidar o cache
+     quando o cliente responde — assim a aba aberta do vendedor atualiza sozinha
+     no momento da aprovação.
 
-Atualizar as RPCs `create_quote_with_items` e `update_quote_with_items` para ler/gravar `codigo_interno`. `get_public_quote` continua retornando os itens, mas o PDF público simplesmente ignora `codigo_interno` e `marca` na renderização.
+## Segurança
 
-### 2. Editor de orçamento (`src/components/quote-editor.tsx`)
+- O endpoint é público, mas só aceita decisão quando o status é `enviado` e a
+  validade não venceu — não permite reabrir orçamentos já decididos ou editar
+  dados do orçamento.
+- O `id` do orçamento é um UUID não adivinhável (mesmo modelo do link de
+  WhatsApp já em uso), então não há exposição adicional além da visualização que
+  já existe hoje.
+- Nenhuma política RLS de escrita pública é criada; a atualização passa só pelo
+  `supabaseAdmin` dentro da função de servidor.
 
-Na linha de item, hoje temos: **Código | Marca | Item/Descrição | Qtd | Preço**.
-Passa a ser: **Cód. cliente | Nosso cód. | Marca | Item/Descrição | Qtd | Preço**.
+## Verificação
 
-- `QuoteItemDraft` em `src/lib/quote.ts` ganha `codigo_interno: string | null`.
-- Enter em qualquer um dos novos campos continua criando nova linha (regra atual).
-- Busca por código de produto preenche `codigo_interno` + `marca` + `descricao` (e deixa `codigo` — código do cliente — vazio para o vendedor digitar).
-
-### 3. Documento PDF
-
-Separar em dois componentes para manter o do cliente inalterado visualmente:
-
-- `src/components/quote-document.tsx` (atual, do cliente): remover a coluna **Marca** e passar a mostrar apenas **Cód. cliente** na coluna Código. Nada muda no layout/cores.
-- `src/components/quote-document-internal.tsx` (novo): mesmo layout, mas com colunas **Cód. cliente | Nosso cód. | Marca | Item | Qtd | Preço un. | Total**, e um bloco destacado no topo/rodapé com **Condição de pagamento** e **Prazo de entrega** (sempre visível, mesmo se em branco marcamos "—"). Marca d'água/etiqueta "USO INTERNO — SEPARAÇÃO / FATURAMENTO" no cabeçalho para não confundir com o do cliente.
-
-### 4. Tela de visualização do orçamento (`src/routes/_authenticated/orcamentos.$id.index.tsx`)
-
-Ao lado do botão atual **Baixar PDF**:
-
-- Renomear para **PDF do cliente**.
-- Adicionar **PDF interno**.
-
-Ambos usam `downloadPdfFromElement` (que já abre o seletor de local do sistema). Os dois documentos ficam renderizados fora da tela em containers separados, cada botão captura o seu.
-
-### 5. Rota pública `/q/$id`
-
-Continua renderizando **apenas** `QuoteDocument` (versão do cliente). O PDF interno **não** é acessível pela rota pública — só por usuários logados dentro do sistema.
-
-### 6. Edição de orçamento existente
-
-`src/routes/_authenticated/orcamentos.$id.editar.tsx` já mapeia os itens; incluir o novo campo `codigo_interno` no mapeamento.
-
-## Detalhes técnicos
-
-- Migração SQL única: `ALTER TABLE quote_items ADD COLUMN codigo_interno text;` + `CREATE OR REPLACE FUNCTION` das duas RPCs para incluir o campo no INSERT.
-- RLS não muda (o PDF interno é gerado no cliente logado a partir dos dados já autorizados por RLS).
-- Sem novas dependências.
-- Sem mudanças em preços, cálculos ou fluxo de aprovação.
-
-## Fora do escopo
-
-- Não altero o design/cores dos templates.
-- Não crio um "modo separação sem preços" — conforme sua resposta, o PDF interno leva preços e totais.
-- Não escondo o botão para vendedores — fica disponível para qualquer usuário logado que já enxerga o orçamento.
+- Build e testes existentes (`bun run test`).
+- Teste no navegador: abrir o link público de um orçamento `enviado`, clicar em
+  Aprovar/Recusar e confirmar o selo de confirmação.
+- Confirmar que a aba interna do vendedor (logado) reflete o novo status ao vivo.
