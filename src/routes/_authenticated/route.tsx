@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { GlobalSearch } from "@/components/global-search";
 
 
 export const Route = createFileRoute("/_authenticated")({
@@ -51,7 +52,8 @@ function AuthenticatedLayout() {
             <SidebarTrigger />
             <Separator orientation="vertical" className="h-5" />
             <span className="text-sm font-semibold text-foreground">Rei dos Filtros</span>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              <GlobalSearch />
               <NotificationsBell />
             </div>
           </header>
