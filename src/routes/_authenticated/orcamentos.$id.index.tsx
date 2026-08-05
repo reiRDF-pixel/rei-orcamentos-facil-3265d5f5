@@ -26,6 +26,8 @@ import {
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
 import { QuoteDocument } from "@/components/quote-document";
 import { downloadPdfFromElement } from "@/lib/pdf-download";
+import { quotePdfFileName } from "@/lib/pdf-filename";
+
 import { QuoteAuditList } from "@/components/quote-audit-list";
 
 import { useAuth } from "@/hooks/use-auth";
