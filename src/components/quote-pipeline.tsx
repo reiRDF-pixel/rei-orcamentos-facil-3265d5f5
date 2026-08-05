@@ -11,6 +11,7 @@ export type PipelineQuote = {
   status: string;
   total: number;
   data_emissao: string;
+  vendedor_id: string | null;
   vendedor_nome: string | null;
   client: { razao_social?: string; nome_fantasia?: string } | null;
 };
