@@ -851,20 +851,38 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
         </Card>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
-        <span className="text-xs text-muted-foreground">
-          Atalhos: <b>Ctrl+S</b> salvar · <b>Ctrl+Enter</b> novo item
-          {draftKey && autoSavedAt ? ` · rascunho salvo às ${autoSavedAt}` : ""}
-        </span>
+      <div className="sticky bottom-0 z-20 -mx-4 mt-8 border-t border-border/60 bg-background/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
+            <span>
+              Itens: <b className="text-foreground">{state.items.length}</b>
+            </span>
+            <span>
+              Qtd: <b className="text-foreground">{totalQtd}</b>
+            </span>
+            <span>
+              Subtotal: <b className="font-mono text-foreground">{formatBRL(subtotal)}</b>
+            </span>
+            <span className="text-sm">
+              Total: <b className="font-mono text-primary">{formatBRL(total)}</b>
+            </span>
+          </div>
 
-        <Button
-          size="lg"
-          onClick={onSave}
-          disabled={saving}
-          className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
-        >
-          <Save className="size-4" /> {saving ? "Salvando..." : "Salvar orçamento"}
-        </Button>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-[11px] text-muted-foreground sm:inline">
+              <b>Ctrl+S</b> salvar · <b>Ctrl+Enter</b> novo item
+              {draftKey && autoSavedAt ? ` · rascunho ${autoSavedAt}` : ""}
+            </span>
+            <Button
+              size="lg"
+              onClick={onSave}
+              disabled={saving}
+              className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
+            >
+              <Save className="size-4" /> {saving ? "Salvando..." : "Salvar orçamento"}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
