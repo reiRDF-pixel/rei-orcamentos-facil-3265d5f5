@@ -44,11 +44,11 @@ export const Route = createFileRoute("/_authenticated/relatorios")({
 
 const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const PIE_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--accent))",
-  "hsl(var(--info))",
-  "hsl(var(--success))",
-  "hsl(var(--warning))",
+  "var(--primary)",
+  "var(--accent)",
+  "var(--info)",
+  "var(--success)",
+  "var(--warning)",
 ];
 
 type Range = "90" | "180" | "365";
@@ -263,14 +263,14 @@ function RelatoriosPage() {
                       formatter={(v: number) => formatBRL(v)}
                       contentStyle={{
                         borderRadius: 12,
-                        border: "1px solid hsl(var(--border))",
-                        background: "hsl(var(--card))",
-                        color: "hsl(var(--card-foreground))",
+                        border: "1px solid var(--border)",
+                        background: "var(--card)",
+                        color: "var(--card-foreground)",
                       }}
                     />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Bar dataKey="cotado" name="Cotado" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
-                    <Bar dataKey="aprovado" name="Aprovado" fill="hsl(var(--accent))" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="cotado" name="Cotado" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="aprovado" name="Aprovado" fill="var(--accent)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -298,9 +298,9 @@ function RelatoriosPage() {
                     <Tooltip
                       contentStyle={{
                         borderRadius: 12,
-                        border: "1px solid hsl(var(--border))",
-                        background: "hsl(var(--card))",
-                        color: "hsl(var(--card-foreground))",
+                        border: "1px solid var(--border)",
+                        background: "var(--card)",
+                        color: "var(--card-foreground)",
                       }}
                     />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
