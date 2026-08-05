@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { QuoteDocument, type QuoteDocumentData } from "@/components/quote-document";
 import { downloadPdfFromElement } from "@/lib/pdf-download";
+import { quotePdfFileName } from "@/lib/pdf-filename";
+
 import { toast } from "sonner";
 import { getPublicQuote, respondPublicQuote } from "@/lib/quotes.functions";
 
