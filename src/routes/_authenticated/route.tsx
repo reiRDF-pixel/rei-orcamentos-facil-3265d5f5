@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { GlobalSearch } from "@/components/global-search";
 
 
 export const Route = createFileRoute("/_authenticated")({
