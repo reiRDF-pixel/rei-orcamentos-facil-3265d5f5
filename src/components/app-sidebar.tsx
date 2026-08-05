@@ -9,6 +9,7 @@ import {
   UserCog,
   LogOut,
   User,
+  BarChart3,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
