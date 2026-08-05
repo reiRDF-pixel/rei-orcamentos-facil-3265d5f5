@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { QuoteDocument, type QuoteDocumentData } from "@/components/quote-document";
 import { downloadPdfFromElement } from "@/lib/pdf-download";
+import { quotePdfFileName } from "@/lib/pdf-filename";
+
 import { toast } from "sonner";
 import { getPublicQuote, respondPublicQuote } from "@/lib/quotes.functions";
 
@@ -116,8 +118,15 @@ function PublicQuotePage() {
     try {
       await downloadPdfFromElement(
         el,
-        `orcamento-${String(data.quote.numero).padStart(5, "0")}.pdf`,
+        quotePdfFileName({
+          numero: data.quote.numero,
+          clientName:
+            (data.client?.nome_fantasia as string | null) ??
+            (data.client?.razao_social as string | null) ??
+            null,
+        }),
       );
+
     } catch (e) {
       toast.error("Falha ao gerar PDF");
       console.error(e);

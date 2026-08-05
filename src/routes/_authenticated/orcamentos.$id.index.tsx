@@ -26,6 +26,8 @@ import {
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
 import { QuoteDocument } from "@/components/quote-document";
 import { downloadPdfFromElement } from "@/lib/pdf-download";
+import { quotePdfFileName } from "@/lib/pdf-filename";
+
 import { QuoteAuditList } from "@/components/quote-audit-list";
 
 import { useAuth } from "@/hooks/use-auth";
@@ -173,7 +175,15 @@ function OrcamentoDetailPage() {
     setDownloading(kind);
     try {
       const suffix = kind === "internal" ? "-interno" : "";
-      await downloadPdfFromElement(el, `orcamento-${String(data.numero).padStart(5, "0")}${suffix}.pdf`);
+      await downloadPdfFromElement(
+        el,
+        quotePdfFileName({
+          numero: data.numero,
+          clientName: client?.nome_fantasia ?? client?.razao_social ?? null,
+          suffix,
+        }),
+      );
+
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erro desconhecido";
       toast.error(`Falha ao gerar PDF: ${msg}`);
