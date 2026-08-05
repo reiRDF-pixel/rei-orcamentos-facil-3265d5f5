@@ -116,8 +116,15 @@ function PublicQuotePage() {
     try {
       await downloadPdfFromElement(
         el,
-        `orcamento-${String(data.quote.numero).padStart(5, "0")}.pdf`,
+        quotePdfFileName({
+          numero: data.quote.numero,
+          clientName:
+            (data.client?.nome_fantasia as string | null) ??
+            (data.client?.razao_social as string | null) ??
+            null,
+        }),
       );
+
     } catch (e) {
       toast.error("Falha ao gerar PDF");
       console.error(e);
