@@ -52,6 +52,8 @@ export interface QuoteFormState {
   client_id: string;
   machine_id: string | null;
   sales_rep_id: string | null;
+  /** Nome da pessoa que solicitou o orçamento no cliente (opcional). */
+  solicitante: string;
   condicao_pagamento: string;
   tipo_frete: string;
   prazo_entrega: string;
@@ -64,7 +66,6 @@ export interface QuoteFormState {
   items: QuoteItemDraft[];
 }
 
-const TIPO_FRETE_OPTIONS = ["FRETE FOB", "FRETE CIF", "SEM FRETE"];
 
 interface Props {
   title: string;
