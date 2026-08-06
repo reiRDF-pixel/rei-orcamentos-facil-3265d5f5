@@ -15,6 +15,7 @@ export interface QuoteDocumentData {
     total: number | string;
     condicao_pagamento: string | null;
     tipo_frete: string | null;
+    solicitante?: string | null;
     prazo_entrega: string | null;
     observacoes: string | null;
     pdf_template: string | null;
@@ -236,6 +237,11 @@ export function QuoteDocument({
             )}
             {client?.phone && (
               <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>{client.phone}</p>
+            )}
+            {quote.solicitante && (
+              <p style={{ fontSize: 11, color: "#64748b", margin: "2px 0 0" }}>
+                <b style={{ color: tpl.accent }}>Solicitante:</b> {quote.solicitante}
+              </p>
             )}
           </div>
           {machine && (machine.marca || machine.modelo) && (

@@ -16,6 +16,7 @@ type QuotePayload = {
   client_id: string;
   machine_id: string | null;
   sales_rep_id: string | null;
+  solicitante: string;
   condicao_pagamento: string;
   tipo_frete: string;
   prazo_entrega: string;
