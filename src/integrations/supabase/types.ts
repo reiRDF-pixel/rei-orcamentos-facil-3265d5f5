@@ -34,6 +34,7 @@ export type Database = {
           observacoes: string | null
           phone: string | null
           razao_social: string
+          tags: string[]
           tipo: Database["public"]["Enums"]["client_type"]
           updated_at: string
           whatsapp: string | null
@@ -57,6 +58,7 @@ export type Database = {
           observacoes?: string | null
           phone?: string | null
           razao_social: string
+          tags?: string[]
           tipo?: Database["public"]["Enums"]["client_type"]
           updated_at?: string
           whatsapp?: string | null
@@ -80,6 +82,7 @@ export type Database = {
           observacoes?: string | null
           phone?: string | null
           razao_social?: string
+          tags?: string[]
           tipo?: Database["public"]["Enums"]["client_type"]
           updated_at?: string
           whatsapp?: string | null
@@ -501,6 +504,7 @@ export type Database = {
           public_token_revoked_at: string | null
           sales_rep_id: string | null
           sent_at: string | null
+          solicitante: string | null
           status: Database["public"]["Enums"]["quote_status"]
           subtotal: number
           tipo_frete: string | null
@@ -532,6 +536,7 @@ export type Database = {
           public_token_revoked_at?: string | null
           sales_rep_id?: string | null
           sent_at?: string | null
+          solicitante?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           subtotal?: number
           tipo_frete?: string | null
@@ -563,6 +568,7 @@ export type Database = {
           public_token_revoked_at?: string | null
           sales_rep_id?: string | null
           sent_at?: string | null
+          solicitante?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           subtotal?: number
           tipo_frete?: string | null
@@ -711,6 +717,7 @@ export type Database = {
     Functions: {
       create_quote_with_items: { Args: { _payload: Json }; Returns: string }
       duplicate_quote: { Args: { _quote_id: string }; Returns: string }
+      expire_overdue_quotes: { Args: never; Returns: number }
       get_public_quote: { Args: { _quote_id: string }; Returns: Json }
       get_public_quote_by_token: { Args: { _token: string }; Returns: Json }
       update_quote_with_items: {
