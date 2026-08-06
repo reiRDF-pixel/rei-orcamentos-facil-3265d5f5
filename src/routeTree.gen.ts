@@ -22,6 +22,7 @@ import { Route as AuthenticatedMaquinasRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedEmpresaRouteImport } from './routes/_authenticated/empresa'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
+import { Route as AuthenticatedBalcaoRouteImport } from './routes/_authenticated/balcao'
 import { Route as AuthenticatedOrcamentosIndexRouteImport } from './routes/_authenticated/orcamentos.index'
 import { Route as AuthenticatedOrcamentosNovoRouteImport } from './routes/_authenticated/orcamentos.novo'
 import { Route as AuthenticatedOrcamentosIdIndexRouteImport } from './routes/_authenticated/orcamentos.$id.index'
@@ -91,6 +92,11 @@ const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBalcaoRoute = AuthenticatedBalcaoRouteImport.update({
+  id: '/balcao',
+  path: '/balcao',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOrcamentosIndexRoute =
   AuthenticatedOrcamentosIndexRouteImport.update({
     id: '/orcamentos/',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/balcao': typeof AuthenticatedBalcaoRoute
   '/clientes': typeof AuthenticatedClientesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/balcao': typeof AuthenticatedBalcaoRoute
   '/clientes': typeof AuthenticatedClientesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/balcao': typeof AuthenticatedBalcaoRoute
   '/_authenticated/clientes': typeof AuthenticatedClientesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/empresa': typeof AuthenticatedEmpresaRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sitemap.xml'
+    | '/balcao'
     | '/clientes'
     | '/dashboard'
     | '/empresa'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sitemap.xml'
+    | '/balcao'
     | '/clientes'
     | '/dashboard'
     | '/empresa'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/sitemap.xml'
+    | '/_authenticated/balcao'
     | '/_authenticated/clientes'
     | '/_authenticated/dashboard'
     | '/_authenticated/empresa'
@@ -331,6 +343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/balcao': {
+      id: '/_authenticated/balcao'
+      path: '/balcao'
+      fullPath: '/balcao'
+      preLoaderRoute: typeof AuthenticatedBalcaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/orcamentos/': {
       id: '/_authenticated/orcamentos/'
       path: '/orcamentos'
@@ -363,6 +382,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBalcaoRoute: typeof AuthenticatedBalcaoRoute
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEmpresaRoute: typeof AuthenticatedEmpresaRoute
@@ -378,6 +398,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBalcaoRoute: AuthenticatedBalcaoRoute,
   AuthenticatedClientesRoute: AuthenticatedClientesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEmpresaRoute: AuthenticatedEmpresaRoute,
