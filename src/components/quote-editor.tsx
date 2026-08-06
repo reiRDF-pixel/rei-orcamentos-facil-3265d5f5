@@ -46,6 +46,7 @@ import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
 import { clearQuoteDraft, loadQuoteDraft, saveQuoteDraft } from "@/lib/quote-draft";
 import { QuoteCsvImportDialog } from "@/components/quote-csv-import-dialog";
+import { TIPO_FRETE_OPTIONS, normalizeTipoFrete } from "@/lib/quote-options";
 
 
 export interface QuoteFormState {
@@ -499,6 +500,18 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
               onCreated={(m) => setField("machine_id", m.id)}
             />
           </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label>Solicitante (opcional)</Label>
+            <Input
+              placeholder="Nome da pessoa que pediu o orçamento"
+              value={state.solicitante}
+              onChange={(e) => setField("solicitante", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Quem solicitou este orçamento dentro da empresa do cliente. Aparece no PDF.
+            </p>
+          </div>
         </div>
       </Card>
 
@@ -756,14 +769,17 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
             </div>
             <div className="space-y-2">
               <Label>Frete</Label>
-              <Select value={state.tipo_frete} onValueChange={(v) => setField("tipo_frete", v)}>
+              <Select
+                value={normalizeTipoFrete(state.tipo_frete)}
+                onValueChange={(v) => setField("tipo_frete", v)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
                   {TIPO_FRETE_OPTIONS.map((f) => (
-                    <SelectItem key={f} value={f}>
-                      {f}
+                    <SelectItem key={f.value} value={f.value}>
+                      {f.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
