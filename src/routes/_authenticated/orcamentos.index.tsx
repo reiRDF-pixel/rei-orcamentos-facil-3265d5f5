@@ -12,6 +12,9 @@ import {
   FileText,
   LayoutList,
   Columns3,
+  Send,
+  Check,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,6 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatBRL, formatDate, QUOTE_STATUS_CLASS, QUOTE_STATUS_LABEL } from "@/lib/format";
 import { useAuth } from "@/hooks/use-auth";
 import { duplicateQuote } from "@/lib/quotes.functions";
@@ -59,6 +63,7 @@ function OrcamentosPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [view, setView] = useState<"lista" | "pipeline">("lista");
+  const [selected, setSelected] = useState<string[]>([]);
 
   const { data: quotes, isLoading } = useQuery({
     queryKey: ["quotes"],
@@ -143,6 +148,102 @@ function OrcamentosPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const bulkStatus = useMutation({
+    mutationFn: async ({ ids, status }: { ids: string[]; status: string }) => {
+      const { error } = await supabase
+        .from("quotes")
+        .update({
+          status: status as "rascunho",
+          ...(status === "aprovado" ? { approved_at: new Date().toISOString() } : {}),
+          ...(status === "enviado" ? { sent_at: new Date().toISOString() } : {}),
+        })
+        .in("id", ids);
+      if (error) throw error;
+      return ids.length;
+    },
+    onSuccess: (count) => {
+      toast.success(`${count} ${count === 1 ? "orçamento" : "orçamentos"} atualizados`);
+      setSelected([]);
+      qc.invalidateQueries({ queryKey: ["quotes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkDuplicate = useMutation({
+    mutationFn: async (ids: string[]) => {
+      for (const id of ids) await duplicateQuoteFn({ data: { id } });
+      return ids.length;
+    },
+    onSuccess: (count) => {
+      toast.success(`${count} ${count === 1 ? "cópia" : "cópias"} criadas como rascunho`);
+      setSelected([]);
+      qc.invalidateQueries({ queryKey: ["quotes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const toggleSelected = (id: string) =>
+    setSelected((s) => (s.includes(id) ? s.filter((v) => v !== id) : [...s, id]));
+
+  const ownedSelected = selected.filter(
+    (id) => filtered.find((q) => q.id === id)?.vendedor_id === user?.id,
+  );
+
+  const applyBulkStatus = (status: string) => {
+    if (ownedSelected.length === 0) {
+      toast.error("Somente o vendedor responsável pode mudar o status");
+      return;
+    }
+    bulkStatus.mutate({ ids: ownedSelected, status });
+  };
+
+  const bulkBar = selected.length > 0 && (
+    <Card className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border-primary/40 bg-primary/5 p-3 shadow-elegant">
+      <span className="mr-2 text-sm font-semibold">
+        {selected.length} selecionado{selected.length === 1 ? "" : "s"}
+      </span>
+      <Button
+        size="sm"
+        variant="outline"
+        className="rounded-xl"
+        disabled={bulkStatus.isPending}
+        onClick={() => applyBulkStatus("enviado")}
+      >
+        <Send className="size-4" /> Marcar enviado
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="rounded-xl"
+        disabled={bulkStatus.isPending}
+        onClick={() => applyBulkStatus("aprovado")}
+      >
+        <Check className="size-4" /> Aprovado
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="rounded-xl"
+        disabled={bulkStatus.isPending}
+        onClick={() => applyBulkStatus("recusado")}
+      >
+        <X className="size-4" /> Recusado
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="rounded-xl"
+        disabled={bulkDuplicate.isPending}
+        onClick={() => bulkDuplicate.mutate(selected)}
+      >
+        <Copy className="size-4" /> Duplicar
+      </Button>
+      <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setSelected([])}>
+        Limpar seleção
+      </Button>
+    </Card>
+  );
+
   const newQuoteButton = (
     <Button
       asChild
@@ -202,6 +303,8 @@ function OrcamentosPage() {
         </ToggleGroup>
       </div>
 
+      {view === "lista" && bulkBar}
+
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -235,7 +338,13 @@ function OrcamentosPage() {
               return (
                 <Card key={q.id} className="rounded-2xl border-border/60 p-4 shadow-elegant">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
+                    <Checkbox
+                      className="mt-1"
+                      checked={selected.includes(q.id)}
+                      onCheckedChange={() => toggleSelected(q.id)}
+                      aria-label={`Selecionar orçamento ${q.numero}`}
+                    />
+                    <div className="min-w-0 flex-1">
                       <p className="font-mono text-xs font-bold text-primary">
                         #{String(q.numero).padStart(5, "0")}
                       </p>
@@ -298,6 +407,15 @@ function OrcamentosPage() {
               <table className="w-full text-left text-sm">
                 <thead className="bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
                   <tr>
+                    <th className="w-10 px-4 py-3">
+                      <Checkbox
+                        aria-label="Selecionar todos"
+                        checked={selected.length > 0 && selected.length === filtered.length}
+                        onCheckedChange={(v) =>
+                          setSelected(v ? filtered.map((q) => q.id) : [])
+                        }
+                      />
+                    </th>
                     <th className="px-6 py-3 font-bold">Nº</th>
                     <th className="px-6 py-3 font-bold">Cliente</th>
                     <th className="px-6 py-3 font-bold">Vendedor</th>
@@ -318,6 +436,13 @@ function OrcamentosPage() {
                     const canEdit = isOwner && q.status !== "aprovado";
                     return (
                       <tr key={q.id} className="hover:bg-muted/30">
+                        <td className="px-4 py-3">
+                          <Checkbox
+                            aria-label={`Selecionar orçamento ${q.numero}`}
+                            checked={selected.includes(q.id)}
+                            onCheckedChange={() => toggleSelected(q.id)}
+                          />
+                        </td>
                         <td className="px-6 py-3 font-mono text-xs font-semibold">
                           #{String(q.numero).padStart(5, "0")}
                         </td>

@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { PdfTemplateId } from "@/lib/pdf-templates";
 import { updateQuote } from "@/lib/quotes.functions";
 import { clearQuoteDraft } from "@/lib/quote-draft";
+import { normalizeTipoFrete } from "@/lib/quote-options";
 
 
 export const Route = createFileRoute("/_authenticated/orcamentos/$id/editar")({
@@ -45,8 +46,9 @@ function EditarOrcamentoPage() {
       client_id: data.client_id,
       machine_id: data.machine_id,
       sales_rep_id: (data as unknown as { sales_rep_id: string | null }).sales_rep_id ?? null,
+      solicitante: (data as unknown as { solicitante: string | null }).solicitante ?? "",
       condicao_pagamento: data.condicao_pagamento ?? "",
-      tipo_frete: data.tipo_frete ?? "SEM FRETE",
+      tipo_frete: normalizeTipoFrete(data.tipo_frete),
       prazo_entrega: data.prazo_entrega ?? "",
       validade_dias: data.validade_dias,
       desconto_percentual: Number(data.desconto_percentual),

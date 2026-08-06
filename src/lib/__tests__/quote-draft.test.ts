@@ -8,6 +8,7 @@ const state: QuoteFormState = {
   machine_id: null,
   sales_rep_id: null,
   condicao_pagamento: "30 dias",
+  solicitante: "",
   tipo_frete: "SEM FRETE",
   prazo_entrega: "",
   validade_dias: 7,

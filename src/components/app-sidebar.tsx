@@ -10,6 +10,7 @@ import {
   LogOut,
   User,
   BarChart3,
+  Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -35,6 +36,7 @@ import { toast } from "sonner";
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Orçamentos", url: "/orcamentos", icon: FileText },
+  { title: "Balcão rápido", url: "/balcao", icon: Zap },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Máquinas", url: "/maquinas", icon: Wrench },
