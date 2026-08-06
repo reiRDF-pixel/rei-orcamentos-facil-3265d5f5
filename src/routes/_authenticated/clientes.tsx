@@ -40,6 +40,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { ClientHistoryDialog } from "@/components/client-history-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Toggle } from "@/components/ui/toggle";
+import { CLIENT_TAGS, clientTagLabel } from "@/lib/client-tags";
 
 
 type Client = Tables<"clients">;
@@ -66,6 +69,7 @@ function ClientesPage() {
   const [editing, setEditing] = useState<Client | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null);
   const [historyTarget, setHistoryTarget] = useState<Client | null>(null);
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
 
 
   const { data: clients, isLoading } = useQuery({
@@ -80,15 +84,20 @@ function ClientesPage() {
   const filtered = useMemo(() => {
     if (!clients) return [];
     const t = search.trim().toLowerCase();
-    if (!t) return clients;
-    return clients.filter(
-      (c) =>
+    return clients.filter((c) => {
+      const tags = ((c as unknown as { tags: string[] | null }).tags ?? []) as string[];
+      const matchesTags =
+        tagFilter.length === 0 || tagFilter.every((tag) => tags.includes(tag));
+      if (!matchesTags) return false;
+      if (!t) return true;
+      return Boolean(
         c.razao_social?.toLowerCase().includes(t) ||
-        c.nome_fantasia?.toLowerCase().includes(t) ||
-        c.cnpj_cpf?.toLowerCase().includes(t) ||
-        c.cidade?.toLowerCase().includes(t),
-    );
-  }, [clients, search]);
+          c.nome_fantasia?.toLowerCase().includes(t) ||
+          c.cnpj_cpf?.toLowerCase().includes(t) ||
+          c.cidade?.toLowerCase().includes(t),
+      );
+    });
+  }, [clients, search, tagFilter]);
 
   const deleteMut = useMutation({
     mutationFn: async (id: string) => {
@@ -146,6 +155,33 @@ function ClientesPage() {
         />
       </Card>
 
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Etiquetas
+        </span>
+        {CLIENT_TAGS.map((tag) => (
+          <Toggle
+            key={tag.value}
+            size="sm"
+            variant="outline"
+            className="h-7 rounded-full px-3 text-xs"
+            pressed={tagFilter.includes(tag.value)}
+            onPressedChange={(on) =>
+              setTagFilter((f) =>
+                on ? [...f, tag.value] : f.filter((v) => v !== tag.value),
+              )
+            }
+          >
+            {tag.label}
+          </Toggle>
+        ))}
+        {tagFilter.length > 0 && (
+          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setTagFilter([])}>
+            Limpar
+          </Button>
+        )}
+      </div>
+
       <Card className="overflow-hidden rounded-3xl border-border/60 shadow-elegant">
         {isLoading ? (
           <div className="space-y-3 p-6">
@@ -180,6 +216,18 @@ function ClientesPage() {
                       </p>
                       {c.nome_fantasia && (
                         <p className="text-xs text-muted-foreground">{c.razao_social}</p>
+                      )}
+                      {(((c as unknown as { tags: string[] | null }).tags ?? []) as string[])
+                        .length > 0 && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {(((c as unknown as { tags: string[] | null }).tags ?? []) as string[]).map(
+                            (tag) => (
+                              <Badge key={tag} variant="secondary" className="text-[10px]">
+                                {clientTagLabel(tag)}
+                              </Badge>
+                            ),
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="px-6 py-3 font-mono text-xs text-muted-foreground">
@@ -301,6 +349,7 @@ function ClientDialog({
     cidade: editing?.cidade ?? "",
     estado: editing?.estado ?? "",
     observacoes: editing?.observacoes ?? "",
+    tags: ((editing as unknown as { tags: string[] | null } | null)?.tags ?? []) as string[],
   });
 
   const setField = <K extends keyof TablesInsert<"clients">>(k: K, v: TablesInsert<"clients">[K]) =>
@@ -445,6 +494,35 @@ function ClientDialog({
             value={form.estado ?? ""}
             onChange={(e) => setField("estado", e.target.value.toUpperCase())}
           />
+        </div>
+        <div className="space-y-2 md:col-span-2">
+          <Label>Etiquetas</Label>
+          <div className="flex flex-wrap gap-2">
+            {CLIENT_TAGS.map((tag) => {
+              const current = (form.tags ?? []) as string[];
+              const active = current.includes(tag.value);
+              return (
+                <Toggle
+                  key={tag.value}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-full px-3 text-xs"
+                  pressed={active}
+                  onPressedChange={(on) =>
+                    setField(
+                      "tags",
+                      on
+                        ? [...current, tag.value]
+                        : current.filter((v) => v !== tag.value),
+                    )
+                  }
+                >
+                  {tag.label}
+                </Toggle>
+              );
+            })}
+          </div>
         </div>
         <div className="space-y-2 md:col-span-2">
           <Label>Observações</Label>
