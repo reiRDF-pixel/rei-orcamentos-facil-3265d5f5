@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { PdfTemplateId } from "@/lib/pdf-templates";
 import { updateQuote } from "@/lib/quotes.functions";
 import { clearQuoteDraft } from "@/lib/quote-draft";
+import { useQuoteAutosave } from "@/hooks/use-quote-autosave";
 import { normalizeTipoFrete } from "@/lib/quote-options";
 
 
@@ -74,18 +75,32 @@ function EditarOrcamentoPage() {
     });
   }, [data, state]);
 
+  const persist = useCallback(
+    async (s: QuoteFormState) => {
+      await updateQuoteFn({ data: { id, ...s } });
+      clearQuoteDraft(id);
+      await qc.invalidateQueries({ queryKey: ["quotes"] });
+    },
+    [id, qc, updateQuoteFn],
+  );
+
+  const autosave = useQuoteAutosave({
+    state: state as QuoteFormState,
+    enabled: !!state,
+    save: persist,
+  });
+
   const save = useMutation({
     mutationFn: async () => {
       if (!state) throw new Error("Carregando...");
-      await updateQuoteFn({ data: { id, ...state } });
+      await persist(state);
+      autosave.markSaved(state);
     },
     onSuccess: async () => {
       toast.success("Orçamento atualizado");
-      clearQuoteDraft(id);
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["quote", id] }),
         qc.invalidateQueries({ queryKey: ["quote-edit", id] }),
-        qc.invalidateQueries({ queryKey: ["quotes"] }),
       ]);
       navigate({ to: "/orcamentos/$id", params: { id } });
     },
@@ -108,7 +123,15 @@ function EditarOrcamentoPage() {
       onSave={() => save.mutate()}
       saving={save.isPending}
       draftKey={id}
+      autoSaveStatus={
+        autosave.saving
+          ? "Salvando automaticamente..."
+          : autosave.savedAt
+            ? `Salvo automaticamente às ${autosave.savedAt}`
+            : "Salvamento automático ativo"
+      }
     />
   );
 }
+
 

@@ -43,6 +43,10 @@ import { duplicateQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/")({
   component: OrcamentosPage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: typeof search.q === "string" ? search.q : undefined,
+    mes: typeof search.mes === "string" ? search.mes : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Orçamentos — Rei dos Filtros" },
@@ -60,7 +64,9 @@ function OrcamentosPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const duplicateQuoteFn = useServerFn(duplicateQuote);
-  const [search, setSearch] = useState("");
+  const { q: initialQ, mes: initialMes } = Route.useSearch();
+  const [search, setSearch] = useState(initialQ ?? "");
+  const [mes, setMes] = useState(initialMes ?? "");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [view, setView] = useState<"lista" | "pipeline">("lista");
   const [selected, setSelected] = useState<string[]>([]);
@@ -91,9 +97,10 @@ function OrcamentosPage() {
 
   const filtered = useMemo(() => {
     if (!quotes) return [];
+    const base = mes ? quotes.filter((q) => (q.data_emissao ?? "").startsWith(mes)) : quotes;
     const t = search.trim().toLowerCase();
-    if (!t) return quotes;
-    return quotes.filter((q) => {
+    if (!t) return base;
+    return base.filter((q) => {
       const client = q.client as {
         razao_social?: string;
         nome_fantasia?: string;
@@ -105,7 +112,7 @@ function OrcamentosPage() {
         q.vendedor_nome?.toLowerCase().includes(t)
       );
     });
-  }, [quotes, search]);
+  }, [quotes, search, mes]);
 
   const del = useMutation({
     mutationFn: async (id: string) => {
@@ -288,6 +295,23 @@ function OrcamentosPage() {
             placeholder="Buscar por número, cliente ou vendedor..."
             className="border-0 shadow-none focus-visible:ring-0"
           />
+        </Card>
+        <Card className="flex items-center gap-2 rounded-2xl border-border/60 p-3 shadow-elegant">
+          <label htmlFor="filtro-mes" className="text-xs text-muted-foreground">
+            Mês
+          </label>
+          <Input
+            id="filtro-mes"
+            type="month"
+            value={mes}
+            onChange={(e) => setMes(e.target.value)}
+            className="w-[9.5rem] border-0 shadow-none focus-visible:ring-0"
+          />
+          {mes && (
+            <Button variant="ghost" size="sm" onClick={() => setMes("")}>
+              <X className="size-4" />
+            </Button>
+          )}
         </Card>
         <ToggleGroup
           type="single"

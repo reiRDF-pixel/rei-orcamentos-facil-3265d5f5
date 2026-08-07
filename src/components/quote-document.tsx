@@ -156,7 +156,7 @@ export function QuoteDocument({
               {isInternal ? "Uso interno · Separação / Faturamento" : "Orçamento"}
             </p>
             <h1
-              style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 800, margin: "4px 0 0" }}
+              style={{ fontSize: 28, fontWeight: 800, margin: "4px 0 0" }}
             >
               Orçamento #{String(quote.numero).padStart(5, "0")}
             </h1>
@@ -228,20 +228,20 @@ export function QuoteDocument({
               {client?.nome_fantasia || client?.razao_social || "—"}
             </p>
             {client?.cnpj_cpf && (
-              <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>{client.cnpj_cpf}</p>
+              <p style={{ fontSize: 11, color: "#0f172a", margin: 0 }}>{client.cnpj_cpf}</p>
             )}
             {client?.endereco && (
-              <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>
+              <p style={{ fontSize: 11, color: "#0f172a", margin: 0 }}>
                 {client.endereco}
                 {client.numero ? `, ${client.numero}` : ""} - {client.cidade}
                 {client.estado ? `/${client.estado}` : ""}
               </p>
             )}
             {client?.phone && (
-              <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>{client.phone}</p>
+              <p style={{ fontSize: 11, color: "#0f172a", margin: 0 }}>{client.phone}</p>
             )}
             {quote.solicitante && (
-              <p style={{ fontSize: 11, color: "#334155", margin: "2px 0 0" }}>
+              <p style={{ fontSize: 11, color: "#0f172a", margin: "2px 0 0" }}>
                 <b style={{ color: tpl.accent }}>Solicitante:</b> {quote.solicitante}
               </p>
             )}
@@ -263,12 +263,12 @@ export function QuoteDocument({
                 {machine.marca} {machine.modelo}
               </p>
               {machine.numero_serie && (
-                <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>
+                <p style={{ fontSize: 11, color: "#0f172a", margin: 0 }}>
                   Série: {machine.numero_serie}
                 </p>
               )}
               {machine.ano && (
-                <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>Ano: {machine.ano}</p>
+                <p style={{ fontSize: 11, color: "#0f172a", margin: 0 }}>Ano: {machine.ano}</p>
               )}
             </div>
           )}
@@ -419,27 +419,27 @@ export function QuoteDocument({
           <tbody>
             {items.map((i, idx) => (
               <tr key={i.id ?? idx} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#334155" }}>
+                <td style={{ padding: "8px 10px", color: "#0f172a" }}>
                   {i.codigo || "—"}
                 </td>
                 {isInternal && (
-                  <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#0f172a" }}>
+                  <td style={{ padding: "8px 10px", color: "#0f172a" }}>
                     {i.codigo_interno || "—"}
                   </td>
                 )}
                 <td style={{ padding: "8px 10px" }}>{i.descricao || "—"}</td>
-                <td style={{ padding: "8px 10px", color: "#1f2937" }}>{i.marca || "—"}</td>
-                <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace" }}>
+                <td style={{ padding: "8px 10px", color: "#0f172a" }}>{i.marca || "—"}</td>
+                <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "inherit" }}>
                   {i.quantidade}
                 </td>
-                <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace" }}>
+                <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "inherit" }}>
                   {formatBRL(Number(i.preco_unitario))}
                 </td>
                 <td
                   style={{
                     padding: "8px 10px",
                     textAlign: "right",
-                    fontFamily: "monospace",
+                   
                     fontWeight: 600,
                   }}
                 >
@@ -483,7 +483,7 @@ export function QuoteDocument({
             }}
           >
             <span>TOTAL</span>
-            <span style={{ fontFamily: "monospace" }}>{formatBRL(Number(quote.total))}</span>
+            <span style={{ fontFamily: "inherit" }}>{formatBRL(Number(quote.total))}</span>
           </div>
         </div>
 
@@ -513,7 +513,7 @@ export function QuoteDocument({
             {quote.observacoes && (
               <div style={{ marginTop: 8 }}>
                 <p style={{ fontWeight: 700, color: tpl.accent, margin: 0 }}>Observações</p>
-                <p style={{ whiteSpace: "pre-wrap", color: "#1f2937", margin: "4px 0 0" }}>
+                <p style={{ whiteSpace: "pre-wrap", color: "#0f172a", margin: "4px 0 0" }}>
                   {quote.observacoes}
                 </p>
               </div>
@@ -526,7 +526,7 @@ export function QuoteDocument({
             style={{ marginTop: 24, borderTop: "1px solid #e2e8f0", paddingTop: 16, fontSize: 12 }}
           >
             {vendedor.mensagem_padrao && (
-              <p style={{ margin: "4px 0", whiteSpace: "pre-wrap", color: "#1f2937" }}>
+              <p style={{ margin: "4px 0", whiteSpace: "pre-wrap", color: "#0f172a" }}>
                 {vendedor.mensagem_padrao}
               </p>
             )}
@@ -547,7 +547,7 @@ export function QuoteDocument({
             gridTemplateColumns: "1fr 1fr",
             gap: 16,
             fontSize: 11,
-            color: "#1f2937",
+            color: "#0f172a",
           }}
         >
           <div>
@@ -606,12 +606,12 @@ function Row({ label, value }: { label: string; value: string }) {
       style={{
         display: "flex",
         justifyContent: "space-between",
-        color: "#334155",
+        color: "#0f172a",
         padding: "2px 0",
       }}
     >
       <span>{label}</span>
-      <span style={{ fontFamily: "monospace", color: "#0f172a" }}>{value}</span>
+      <span style={{ color: "#0f172a" }}>{value}</span>
     </div>
   );
 }
