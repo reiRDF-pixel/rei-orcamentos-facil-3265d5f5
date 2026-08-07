@@ -77,14 +77,37 @@ function NovoOrcamentoPage() {
     });
   }, [company, profile]);
 
+  // Auto-save no servidor: cria o rascunho na primeira vez e depois atualiza.
+  const createdIdRef = useRef<string | null>(null);
+  const persist = useCallback(
+    async (s: QuoteFormState) => {
+      if (createdIdRef.current) {
+        await updateQuoteFn({ data: { id: createdIdRef.current, ...s } });
+      } else {
+        const quote = await createQuoteFn({ data: s });
+        createdIdRef.current = quote.id;
+      }
+      clearQuoteDraft("novo");
+    },
+    [createQuoteFn, updateQuoteFn],
+  );
+
+  const autosave = useQuoteAutosave({
+    state,
+    enabled: !!state.client_id && state.items.length > 0,
+    save: persist,
+  });
+
   const save = useMutation({
     mutationFn: async () => {
-      const quote = await createQuoteFn({ data: state });
-      return quote.id;
+      await persist(state);
+      autosave.markSaved(state);
+      return createdIdRef.current!;
     },
-    onSuccess: (id) => {
-      toast.success("Orçamento criado");
+    onSuccess: async (id) => {
+      toast.success("Orçamento salvo");
       clearQuoteDraft("novo");
+      await qc.invalidateQueries({ queryKey: ["quotes"] });
       navigate({ to: "/orcamentos/$id", params: { id } });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -98,7 +121,15 @@ function NovoOrcamentoPage() {
       onSave={() => save.mutate()}
       saving={save.isPending}
       draftKey="novo"
+      autoSaveStatus={
+        autosave.saving
+          ? "Salvando automaticamente..."
+          : autosave.savedAt
+            ? `Salvo automaticamente às ${autosave.savedAt}`
+            : "Salvamento automático ativo"
+      }
     />
   );
 }
+
 
