@@ -38,6 +38,7 @@ const mainItems = [
   { title: "Orçamentos", url: "/orcamentos", icon: FileText },
   { title: "Balcão rápido", url: "/balcao", icon: Zap },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
+  { title: "Vendedores", url: "/vendedores", icon: UserCog },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Máquinas", url: "/maquinas", icon: Wrench },
   { title: "Meu perfil", url: "/meu-perfil", icon: User },

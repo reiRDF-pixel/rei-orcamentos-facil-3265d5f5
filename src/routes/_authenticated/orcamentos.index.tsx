@@ -101,7 +101,8 @@ function OrcamentosPage() {
       return (
         String(q.numero).includes(t) ||
         client?.razao_social?.toLowerCase().includes(t) ||
-        client?.nome_fantasia?.toLowerCase().includes(t)
+        client?.nome_fantasia?.toLowerCase().includes(t) ||
+        q.vendedor_nome?.toLowerCase().includes(t)
       );
     });
   }, [quotes, search]);
@@ -284,7 +285,7 @@ function OrcamentosPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por número ou cliente..."
+            placeholder="Buscar por número, cliente ou vendedor..."
             className="border-0 shadow-none focus-visible:ring-0"
           />
         </Card>

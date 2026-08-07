@@ -115,6 +115,8 @@ export function QuoteDocument({
         background: "#ffffff",
         color: "#0f172a",
         fontFamily: "Inter, system-ui, sans-serif",
+        WebkitPrintColorAdjust: "exact",
+        printColorAdjust: "exact",
       }}
     >
       <header
@@ -147,7 +149,7 @@ export function QuoteDocument({
                 fontSize: 10,
                 textTransform: "uppercase",
                 letterSpacing: 2,
-                opacity: 0.85,
+                opacity: 1,
                 margin: 0,
               }}
             >
@@ -158,7 +160,7 @@ export function QuoteDocument({
             >
               Orçamento #{String(quote.numero).padStart(5, "0")}
             </h1>
-            <p style={{ fontSize: 11, opacity: 0.85, margin: "4px 0 0" }}>
+            <p style={{ fontSize: 11, opacity: 1, margin: "4px 0 0" }}>
               Emissão: {formatDate(quote.data_emissao)} · Validade: {quote.validade_dias} dias
             </p>
             <span
@@ -181,23 +183,23 @@ export function QuoteDocument({
           <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>
             {company?.nome_fantasia || company?.razao_social || "Rei dos Filtros"}
           </p>
-          {company?.cnpj && <p style={{ margin: 0, opacity: 0.9 }}>CNPJ {company.cnpj}</p>}
+          {company?.cnpj && <p style={{ margin: 0, opacity: 1 }}>CNPJ {company.cnpj}</p>}
           {company?.endereco && (
-            <p style={{ margin: 0, opacity: 0.9 }}>
+            <p style={{ margin: 0, opacity: 1 }}>
               {company.endereco}
               {company.numero ? `, ${company.numero}` : ""}
             </p>
           )}
           {(company?.bairro || company?.cidade) && (
-            <p style={{ margin: 0, opacity: 0.9 }}>
+            <p style={{ margin: 0, opacity: 1 }}>
               {company.bairro ? `${company.bairro} - ` : ""}
               {company.cidade}
               {company.estado ? `/${company.estado}` : ""}
               {company.cep ? ` · ${company.cep}` : ""}
             </p>
           )}
-          {company?.phone && <p style={{ margin: 0, opacity: 0.9 }}>Tel: {company.phone}</p>}
-          {company?.email && <p style={{ margin: 0, opacity: 0.9 }}>{company.email}</p>}
+          {company?.phone && <p style={{ margin: 0, opacity: 1 }}>Tel: {company.phone}</p>}
+          {company?.email && <p style={{ margin: 0, opacity: 1 }}>{company.email}</p>}
         </div>
       </header>
 
@@ -226,20 +228,20 @@ export function QuoteDocument({
               {client?.nome_fantasia || client?.razao_social || "—"}
             </p>
             {client?.cnpj_cpf && (
-              <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>{client.cnpj_cpf}</p>
+              <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>{client.cnpj_cpf}</p>
             )}
             {client?.endereco && (
-              <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>
+              <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>
                 {client.endereco}
                 {client.numero ? `, ${client.numero}` : ""} - {client.cidade}
                 {client.estado ? `/${client.estado}` : ""}
               </p>
             )}
             {client?.phone && (
-              <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>{client.phone}</p>
+              <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>{client.phone}</p>
             )}
             {quote.solicitante && (
-              <p style={{ fontSize: 11, color: "#64748b", margin: "2px 0 0" }}>
+              <p style={{ fontSize: 11, color: "#334155", margin: "2px 0 0" }}>
                 <b style={{ color: tpl.accent }}>Solicitante:</b> {quote.solicitante}
               </p>
             )}
@@ -261,12 +263,12 @@ export function QuoteDocument({
                 {machine.marca} {machine.modelo}
               </p>
               {machine.numero_serie && (
-                <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>
+                <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>
                   Série: {machine.numero_serie}
                 </p>
               )}
               {machine.ano && (
-                <p style={{ fontSize: 11, color: "#64748b", margin: 0 }}>Ano: {machine.ano}</p>
+                <p style={{ fontSize: 11, color: "#334155", margin: 0 }}>Ano: {machine.ano}</p>
               )}
             </div>
           )}
@@ -417,7 +419,7 @@ export function QuoteDocument({
           <tbody>
             {items.map((i, idx) => (
               <tr key={i.id ?? idx} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#64748b" }}>
+                <td style={{ padding: "8px 10px", fontFamily: "monospace", color: "#334155" }}>
                   {i.codigo || "—"}
                 </td>
                 {isInternal && (
@@ -426,7 +428,7 @@ export function QuoteDocument({
                   </td>
                 )}
                 <td style={{ padding: "8px 10px" }}>{i.descricao || "—"}</td>
-                <td style={{ padding: "8px 10px", color: "#475569" }}>{i.marca || "—"}</td>
+                <td style={{ padding: "8px 10px", color: "#1f2937" }}>{i.marca || "—"}</td>
                 <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: "monospace" }}>
                   {i.quantidade}
                 </td>
@@ -511,7 +513,7 @@ export function QuoteDocument({
             {quote.observacoes && (
               <div style={{ marginTop: 8 }}>
                 <p style={{ fontWeight: 700, color: tpl.accent, margin: 0 }}>Observações</p>
-                <p style={{ whiteSpace: "pre-wrap", color: "#475569", margin: "4px 0 0" }}>
+                <p style={{ whiteSpace: "pre-wrap", color: "#1f2937", margin: "4px 0 0" }}>
                   {quote.observacoes}
                 </p>
               </div>
@@ -524,7 +526,7 @@ export function QuoteDocument({
             style={{ marginTop: 24, borderTop: "1px solid #e2e8f0", paddingTop: 16, fontSize: 12 }}
           >
             {vendedor.mensagem_padrao && (
-              <p style={{ margin: "4px 0", whiteSpace: "pre-wrap", color: "#475569" }}>
+              <p style={{ margin: "4px 0", whiteSpace: "pre-wrap", color: "#1f2937" }}>
                 {vendedor.mensagem_padrao}
               </p>
             )}
@@ -545,7 +547,7 @@ export function QuoteDocument({
             gridTemplateColumns: "1fr 1fr",
             gap: 16,
             fontSize: 11,
-            color: "#475569",
+            color: "#1f2937",
           }}
         >
           <div>
@@ -604,7 +606,7 @@ function Row({ label, value }: { label: string; value: string }) {
       style={{
         display: "flex",
         justifyContent: "space-between",
-        color: "#64748b",
+        color: "#334155",
         padding: "2px 0",
       }}
     >
