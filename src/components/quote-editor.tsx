@@ -127,7 +127,9 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
     });
   }, [draftKey, setState]);
 
-  // Auto-save while typing (debounced).
+  // Auto-save while typing (debounced) + flush imediato ao sair/fechar a página.
+  const stateRef = useRef(state);
+  stateRef.current = state;
   useEffect(() => {
     if (!draftKey) return;
     const t = setTimeout(() => {
@@ -136,6 +138,26 @@ export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }
     }, 800);
     return () => clearTimeout(t);
   }, [draftKey, state]);
+
+  useEffect(() => {
+    if (!draftKey) return;
+    const flush = () => saveQuoteDraft(draftKey, stateRef.current);
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    window.addEventListener("beforeunload", flush);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibility);
+    const interval = window.setInterval(flush, 5000);
+    return () => {
+      flush();
+      window.removeEventListener("beforeunload", flush);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.clearInterval(interval);
+    };
+  }, [draftKey]);
+
 
   // Keyboard shortcuts: Ctrl+S salva, Ctrl+Enter adiciona item.
   useEffect(() => {
