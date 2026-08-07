@@ -85,7 +85,6 @@ function EditarOrcamentoPage() {
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["quote", id] }),
         qc.invalidateQueries({ queryKey: ["quote-edit", id] }),
-        qc.invalidateQueries({ queryKey: ["quote-audit", id] }),
         qc.invalidateQueries({ queryKey: ["quotes"] }),
       ]);
       navigate({ to: "/orcamentos/$id", params: { id } });

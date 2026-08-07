@@ -101,7 +101,8 @@ function OrcamentosPage() {
       return (
         String(q.numero).includes(t) ||
         client?.razao_social?.toLowerCase().includes(t) ||
-        client?.nome_fantasia?.toLowerCase().includes(t)
+        client?.nome_fantasia?.toLowerCase().includes(t) ||
+        q.vendedor_nome?.toLowerCase().includes(t)
       );
     });
   }, [quotes, search]);

@@ -28,7 +28,6 @@ import { QuoteDocument } from "@/components/quote-document";
 import { downloadPdfFromElement } from "@/lib/pdf-download";
 import { quotePdfFileName } from "@/lib/pdf-filename";
 
-import { QuoteAuditList } from "@/components/quote-audit-list";
 
 import { useAuth } from "@/hooks/use-auth";
 import type { Database } from "@/integrations/supabase/types";
@@ -321,8 +320,6 @@ function OrcamentoDetailPage() {
           />
         </div>
       </div>
-
-      <QuoteAuditList quoteId={id} />
     </div>
 
   );
