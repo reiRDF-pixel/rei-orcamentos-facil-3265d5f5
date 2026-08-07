@@ -919,7 +919,7 @@ export function QuoteEditor({
 
           <div className="flex items-center gap-3">
             <span className="hidden text-[11px] text-muted-foreground sm:inline">
-              <b>Ctrl+S</b> salvar · <b>Ctrl+Enter</b> novo item
+              {autoSaveStatus ?? "Salvamento automático ativo"}
               {draftKey && autoSavedAt ? ` · rascunho ${autoSavedAt}` : ""}
             </span>
             <Button
