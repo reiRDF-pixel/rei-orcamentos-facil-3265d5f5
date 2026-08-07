@@ -296,6 +296,23 @@ function OrcamentosPage() {
             className="border-0 shadow-none focus-visible:ring-0"
           />
         </Card>
+        <Card className="flex items-center gap-2 rounded-2xl border-border/60 p-3 shadow-elegant">
+          <label htmlFor="filtro-mes" className="text-xs text-muted-foreground">
+            Mês
+          </label>
+          <Input
+            id="filtro-mes"
+            type="month"
+            value={mes}
+            onChange={(e) => setMes(e.target.value)}
+            className="w-[9.5rem] border-0 shadow-none focus-visible:ring-0"
+          />
+          {mes && (
+            <Button variant="ghost" size="sm" onClick={() => setMes("")}>
+              <X className="size-4" />
+            </Button>
+          )}
+        </Card>
         <ToggleGroup
           type="single"
           value={view}
