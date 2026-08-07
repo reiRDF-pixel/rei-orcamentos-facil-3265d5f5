@@ -115,6 +115,8 @@ export function QuoteDocument({
         background: "#ffffff",
         color: "#0f172a",
         fontFamily: "Inter, system-ui, sans-serif",
+        WebkitPrintColorAdjust: "exact",
+        printColorAdjust: "exact",
       }}
     >
       <header
