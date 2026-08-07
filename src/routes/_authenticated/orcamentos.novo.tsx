@@ -1,13 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { QuoteEditor, type QuoteFormState } from "@/components/quote-editor";
 import { type QuoteItemDraft } from "@/lib/quote";
-import { createQuote } from "@/lib/quotes.functions";
+import { createQuote, updateQuote } from "@/lib/quotes.functions";
+import { useQuoteAutosave } from "@/hooks/use-quote-autosave";
 import { useAuth } from "@/hooks/use-auth";
 import { clearQuoteDraft } from "@/lib/quote-draft";
 
@@ -18,7 +19,9 @@ export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
 
 function NovoOrcamentoPage() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const createQuoteFn = useServerFn(createQuote);
+  const updateQuoteFn = useServerFn(updateQuote);
   const { user } = useAuth();
 
   const { data: company } = useQuery({
