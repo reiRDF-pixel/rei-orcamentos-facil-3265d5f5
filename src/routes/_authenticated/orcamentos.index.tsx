@@ -285,7 +285,7 @@ function OrcamentosPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por número ou cliente..."
+            placeholder="Buscar por número, cliente ou vendedor..."
             className="border-0 shadow-none focus-visible:ring-0"
           />
         </Card>
