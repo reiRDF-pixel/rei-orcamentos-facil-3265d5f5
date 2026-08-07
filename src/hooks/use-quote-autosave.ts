@@ -58,9 +58,9 @@ export function useQuoteAutosave<T>({ state, enabled, save, intervalMs = 1500 }:
 
     const id = window.setInterval(flush, intervalMs);
     return () => {
+      void flush();
       cancelled = true;
       window.clearInterval(id);
-      void flush();
     };
   }, [enabled, intervalMs]);
 
