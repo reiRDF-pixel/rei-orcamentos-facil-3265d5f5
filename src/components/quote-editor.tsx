@@ -76,9 +76,19 @@ interface Props {
   saving: boolean;
   /** Enables local auto-save of the draft (e.g. "novo" or the quote id). */
   draftKey?: string;
+  /** Status text of the server-side auto-save (e.g. "salvo 10:32"). */
+  autoSaveStatus?: string;
 }
 
-export function QuoteEditor({ title, state, setState, onSave, saving, draftKey }: Props) {
+export function QuoteEditor({
+  title,
+  state,
+  setState,
+  onSave,
+  saving,
+  draftKey,
+  autoSaveStatus,
+}: Props) {
   const [confirmed, setConfirmed] = useState<Record<number, boolean>>({});
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
