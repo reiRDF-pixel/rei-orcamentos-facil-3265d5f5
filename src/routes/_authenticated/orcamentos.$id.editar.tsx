@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { PdfTemplateId } from "@/lib/pdf-templates";
 import { updateQuote } from "@/lib/quotes.functions";
 import { clearQuoteDraft } from "@/lib/quote-draft";
+import { useQuoteAutosave } from "@/hooks/use-quote-autosave";
 import { normalizeTipoFrete } from "@/lib/quote-options";
 
 
