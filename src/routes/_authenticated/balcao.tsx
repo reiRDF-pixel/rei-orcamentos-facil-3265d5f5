@@ -23,6 +23,7 @@ import { ClientQuickDialog } from "@/components/client-quick-dialog";
 import { DataPageHeader } from "@/components/data-page-header";
 import { cn } from "@/lib/utils";
 import { formatBRL } from "@/lib/format";
+import { parseQuantity } from "@/lib/quote";
 import { createQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/_authenticated/balcao")({
