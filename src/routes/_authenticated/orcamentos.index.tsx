@@ -113,11 +113,17 @@ function OrcamentosPage() {
     },
   });
 
+  const prefixo =
+    periodo === "dia" ? dia : periodo === "mes" ? mes : periodo === "ano" ? ano : "";
+
   const filtered = useMemo(() => {
     if (!quotes) return [];
-    const base = mes ? quotes.filter((q) => (q.data_emissao ?? "").startsWith(mes)) : quotes;
+    const base = prefixo
+      ? quotes.filter((q) => (q.data_emissao ?? "").startsWith(prefixo))
+      : quotes;
     const t = search.trim().toLowerCase();
     if (!t) return base;
+
     return base.filter((q) => {
       const client = q.client as {
         razao_social?: string;
