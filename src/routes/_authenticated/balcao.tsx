@@ -232,7 +232,8 @@ function BalcaoPage() {
               inputMode="decimal"
               step="1"
               value={quantidade}
-              onChange={(e) => setQuantidade(Number(e.target.value))}
+              onWheel={(e) => e.currentTarget.blur()}
+              onChange={(e) => setQuantidade(parseQuantity(e.target.value))}
             />
           </div>
           <div className="space-y-2">
