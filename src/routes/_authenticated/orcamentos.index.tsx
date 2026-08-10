@@ -320,23 +320,73 @@ function OrcamentosPage() {
             className="border-0 shadow-none focus-visible:ring-0"
           />
         </Card>
-        <Card className="flex items-center gap-2 rounded-2xl border-border/60 p-3 shadow-elegant">
-          <label htmlFor="filtro-mes" className="text-xs text-muted-foreground">
-            Mês
-          </label>
-          <Input
-            id="filtro-mes"
-            type="month"
-            value={mes}
-            onChange={(e) => setMes(e.target.value)}
-            className="w-[9.5rem] border-0 shadow-none focus-visible:ring-0"
-          />
-          {mes && (
-            <Button variant="ghost" size="sm" onClick={() => setMes("")}>
+        <Card className="flex flex-wrap items-center gap-2 rounded-2xl border-border/60 p-3 shadow-elegant">
+          <ToggleGroup
+            type="single"
+            value={periodo}
+            onValueChange={(v) => v && setPeriodo(v as typeof periodo)}
+            className="rounded-xl border border-border/60 p-1"
+          >
+            <ToggleGroupItem value="todos" className="rounded-lg px-2 text-xs">
+              Todos
+            </ToggleGroupItem>
+            <ToggleGroupItem value="dia" className="rounded-lg px-2 text-xs">
+              Dia
+            </ToggleGroupItem>
+            <ToggleGroupItem value="mes" className="rounded-lg px-2 text-xs">
+              Mês
+            </ToggleGroupItem>
+            <ToggleGroupItem value="ano" className="rounded-lg px-2 text-xs">
+              Ano
+            </ToggleGroupItem>
+          </ToggleGroup>
+
+          {periodo === "dia" && (
+            <Input
+              aria-label="Filtrar por dia"
+              type="date"
+              value={dia}
+              onChange={(e) => setDia(e.target.value)}
+              className="w-[10.5rem] border-0 shadow-none focus-visible:ring-0"
+            />
+          )}
+          {periodo === "mes" && (
+            <Input
+              aria-label="Filtrar por mês"
+              type="month"
+              value={mes}
+              onChange={(e) => setMes(e.target.value)}
+              className="w-[9.5rem] border-0 shadow-none focus-visible:ring-0"
+            />
+          )}
+          {periodo === "ano" && (
+            <Input
+              aria-label="Filtrar por ano"
+              type="number"
+              inputMode="numeric"
+              placeholder="2026"
+              value={ano}
+              onChange={(e) => setAno(e.target.value.slice(0, 4))}
+              className="w-[6rem] border-0 shadow-none focus-visible:ring-0"
+            />
+          )}
+          {periodo !== "todos" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              title="Limpar período"
+              onClick={() => {
+                setPeriodo("todos");
+                setDia("");
+                setMes("");
+                setAno("");
+              }}
+            >
               <X className="size-4" />
             </Button>
           )}
         </Card>
+
         <ToggleGroup
           type="single"
           value={view}
