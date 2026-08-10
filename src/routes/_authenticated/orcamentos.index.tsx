@@ -71,9 +71,20 @@ function OrcamentosPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const duplicateQuoteFn = useServerFn(duplicateQuote);
-  const { q: initialQ, mes: initialMes } = Route.useSearch();
+  const {
+    q: initialQ,
+    mes: initialMes,
+    dia: initialDia,
+    ano: initialAno,
+  } = Route.useSearch();
   const [search, setSearch] = useState(initialQ ?? "");
   const [mes, setMes] = useState(initialMes ?? "");
+  const [dia, setDia] = useState(initialDia ?? "");
+  const [ano, setAno] = useState(initialAno ?? "");
+  const [periodo, setPeriodo] = useState<"todos" | "dia" | "mes" | "ano">(
+    initialDia ? "dia" : initialMes ? "mes" : initialAno ? "ano" : "todos",
+  );
+
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [view, setView] = useState<"lista" | "pipeline">("lista");
   const [selected, setSelected] = useState<string[]>([]);
