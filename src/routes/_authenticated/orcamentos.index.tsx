@@ -136,7 +136,7 @@ function OrcamentosPage() {
         q.vendedor_nome?.toLowerCase().includes(t)
       );
     });
-  }, [quotes, search, mes]);
+  }, [quotes, search, prefixo]);
 
   const del = useMutation({
     mutationFn: async (id: string) => {
