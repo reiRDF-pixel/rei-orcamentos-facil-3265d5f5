@@ -22,6 +22,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function DashboardPage() {
+  const mesAtual = new Date().toISOString().slice(0, 7);
+
   const { data: stats, isLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
@@ -30,7 +32,10 @@ function DashboardPage() {
 
       const [quotesRes, monthQuotesRes] = await Promise.all([
         supabase.from("quotes").select("id, total, status", { count: "exact" }),
-        supabase.from("quotes").select("id, total, status").gte("created_at", start),
+        supabase
+          .from("quotes")
+          .select("id, total, status, vendedor_id")
+          .gte("created_at", start),
       ]);
 
       const monthQuotes = monthQuotesRes.data ?? [];
@@ -44,6 +49,29 @@ function DashboardPage() {
           ? approvedMonth.reduce((s, q) => s + Number(q.total ?? 0), 0) / approvedMonth.length
           : 0;
 
+      const vendedorIds = Array.from(
+        new Set(monthQuotes.map((q) => q.vendedor_id).filter(Boolean) as string[]),
+      );
+      const { data: profiles } = vendedorIds.length
+        ? await supabase.from("profiles").select("id, full_name").in("id", vendedorIds)
+        : { data: [] };
+      const nameById = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
+
+      const byVendor = new Map<
+        string,
+        { nome: string; count: number; quoted: number; approved: number }
+      >();
+      for (const q of monthQuotes) {
+        const id = q.vendedor_id ?? "sem-vendedor";
+        const entry =
+          byVendor.get(id) ??
+          { nome: nameById.get(id) || "Sem vendedor", count: 0, quoted: 0, approved: 0 };
+        entry.count += 1;
+        entry.quoted += Number(q.total ?? 0);
+        if (q.status === "aprovado") entry.approved += Number(q.total ?? 0);
+        byVendor.set(id, entry);
+      }
+
       return {
         countMonth: monthQuotes.length,
         quotedMonth,
@@ -51,9 +79,11 @@ function DashboardPage() {
         conversion,
         ticket,
         totalAll: quotesRes.count ?? 0,
+        vendors: Array.from(byVendor.values()).sort((a, b) => b.quoted - a.quoted),
       };
     },
   });
+
 
   const { data: recentQuotes, isLoading: loadingRecent } = useQuery({
     queryKey: ["dashboard-recent-quotes"],
