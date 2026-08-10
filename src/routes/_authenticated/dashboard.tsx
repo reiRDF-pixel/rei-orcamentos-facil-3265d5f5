@@ -150,6 +150,83 @@ function DashboardPage() {
         />
       </section>
 
+      <section className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-foreground">Orçamentos do mês por vendedor</h2>
+          <Button asChild variant="ghost" size="sm" className="text-primary">
+            <Link to="/vendedores">
+              Relatório completo <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
+        <Card className="overflow-hidden rounded-3xl border-border/60 shadow-elegant">
+          {isLoading ? (
+            <div className="space-y-3 p-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full rounded-xl" />
+              ))}
+            </div>
+          ) : stats && stats.vendors.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-muted/40">
+                  <tr>
+                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Vendedor
+                    </th>
+                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Orçamentos
+                    </th>
+                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Valor cotado
+                    </th>
+                    <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Valor aprovado
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {stats.vendors.map((v) => (
+                    <tr key={v.nome} className="hover:bg-muted/30">
+                      <td className="px-6 py-4 text-sm font-semibold text-foreground">{v.nome}</td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">{v.count}</td>
+                      <td className="px-6 py-4 text-sm font-semibold text-foreground">
+                        {formatBRL(v.quoted)}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-semibold text-primary">
+                        {formatBRL(v.approved)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-muted/30">
+                  <tr>
+                    <td className="px-6 py-3 text-xs font-bold text-foreground">
+                      Total ({mesAtual.split("-").reverse().join("/")})
+                    </td>
+                    <td className="px-6 py-3 text-xs font-bold text-foreground">
+                      {stats.countMonth}
+                    </td>
+                    <td className="px-6 py-3 text-xs font-bold text-foreground">
+                      {formatBRL(stats.quotedMonth)}
+                    </td>
+                    <td className="px-6 py-3 text-xs font-bold text-primary">
+                      {formatBRL(stats.approvedValue)}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          ) : (
+            <p className="px-6 py-10 text-center text-sm text-muted-foreground">
+              Nenhum orçamento neste mês ainda.
+            </p>
+          )}
+        </Card>
+      </section>
+
+
+
       <section>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-foreground">Últimos orçamentos</h2>
