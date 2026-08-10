@@ -18,6 +18,20 @@ export interface QuoteItemDraft {
   ordem: number;
 }
 
+/** Converte texto digitado em quantidade exata (aceita vírgula, sem lixo de ponto flutuante). */
+export function parseQuantity(raw: string | number): number {
+  const n = typeof raw === "number" ? raw : Number(String(raw).replace(",", "."));
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.round(n * 1000) / 1000;
+}
+
+/** Converte texto digitado em valor monetário com 2 casas exatas. */
+export function parseMoney(raw: string | number): number {
+  const n = typeof raw === "number" ? raw : Number(String(raw).replace(",", "."));
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.round(n * 100) / 100;
+}
+
 
 export function itemTotal(i: QuoteItemDraft): number {
   const gross = i.quantidade * i.preco_unitario;

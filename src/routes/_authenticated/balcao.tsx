@@ -23,6 +23,7 @@ import { ClientQuickDialog } from "@/components/client-quick-dialog";
 import { DataPageHeader } from "@/components/data-page-header";
 import { cn } from "@/lib/utils";
 import { formatBRL } from "@/lib/format";
+import { parseQuantity } from "@/lib/quote";
 import { createQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/_authenticated/balcao")({
@@ -232,7 +233,8 @@ function BalcaoPage() {
               inputMode="decimal"
               step="1"
               value={quantidade}
-              onChange={(e) => setQuantidade(Number(e.target.value))}
+              onWheel={(e) => e.currentTarget.blur()}
+              onChange={(e) => setQuantidade(parseQuantity(e.target.value))}
             />
           </div>
           <div className="space-y-2">

@@ -42,7 +42,14 @@ import { DataPageHeader } from "@/components/data-page-header";
 import { ClientQuickDialog } from "@/components/client-quick-dialog";
 import { MachineQuickDialog } from "@/components/machine-quick-dialog";
 import { formatBRL } from "@/lib/format";
-import { itemTotal, quoteTotals, type QuoteItemDraft } from "@/lib/quote";
+import {
+  itemTotal,
+  quoteTotals,
+  parseQuantity,
+  parseMoney,
+  type QuoteItemDraft,
+} from "@/lib/quote";
+
 import { PDF_TEMPLATES, type PdfTemplateId } from "@/lib/pdf-templates";
 import { clearQuoteDraft, loadQuoteDraft, saveQuoteDraft } from "@/lib/quote-draft";
 import { QuoteCsvImportDialog } from "@/components/quote-csv-import-dialog";
@@ -708,9 +715,14 @@ export function QuoteEditor({
                     <Label className="text-[10px]">Qtd</Label>
                     <Input
                       type="number"
-                      step="0.01"
+                      step="1"
+                      min="0"
+                      inputMode="decimal"
+                      onWheel={(e) => e.currentTarget.blur()}
                       value={item.quantidade}
-                      onChange={(e) => updateItem(idx, { quantidade: Number(e.target.value) })}
+                      onChange={(e) =>
+                        updateItem(idx, { quantidade: parseQuantity(e.target.value) })
+                      }
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
@@ -726,10 +738,13 @@ export function QuoteEditor({
                     <Input
                       type="number"
                       step="0.01"
+                      min="0"
+                      onWheel={(e) => e.currentTarget.blur()}
                       value={item.preco_unitario}
                       onChange={(e) =>
-                        updateItem(idx, { preco_unitario: Number(e.target.value) })
+                        updateItem(idx, { preco_unitario: parseMoney(e.target.value) })
                       }
+
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();

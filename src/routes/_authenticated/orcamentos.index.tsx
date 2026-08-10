@@ -43,10 +43,17 @@ import { duplicateQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/")({
   component: OrcamentosPage,
-  validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === "string" ? search.q : undefined,
-    mes: typeof search.mes === "string" ? search.mes : undefined,
-  }),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { q?: string; mes?: string; dia?: string; ano?: string } => {
+    const out: { q?: string; mes?: string; dia?: string; ano?: string } = {};
+    if (typeof search.q === "string" && search.q) out.q = search.q;
+    if (typeof search.mes === "string" && search.mes) out.mes = search.mes;
+    if (typeof search.dia === "string" && search.dia) out.dia = search.dia;
+    if (typeof search.ano === "string" && search.ano) out.ano = search.ano;
+    return out;
+  },
+
   head: () => ({
     meta: [
       { title: "Orçamentos — Rei dos Filtros" },
@@ -64,9 +71,20 @@ function OrcamentosPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const duplicateQuoteFn = useServerFn(duplicateQuote);
-  const { q: initialQ, mes: initialMes } = Route.useSearch();
+  const {
+    q: initialQ,
+    mes: initialMes,
+    dia: initialDia,
+    ano: initialAno,
+  } = Route.useSearch();
   const [search, setSearch] = useState(initialQ ?? "");
   const [mes, setMes] = useState(initialMes ?? "");
+  const [dia, setDia] = useState(initialDia ?? "");
+  const [ano, setAno] = useState(initialAno ?? "");
+  const [periodo, setPeriodo] = useState<"todos" | "dia" | "mes" | "ano">(
+    initialDia ? "dia" : initialMes ? "mes" : initialAno ? "ano" : "todos",
+  );
+
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [view, setView] = useState<"lista" | "pipeline">("lista");
   const [selected, setSelected] = useState<string[]>([]);
@@ -95,11 +113,17 @@ function OrcamentosPage() {
     },
   });
 
+  const prefixo =
+    periodo === "dia" ? dia : periodo === "mes" ? mes : periodo === "ano" ? ano : "";
+
   const filtered = useMemo(() => {
     if (!quotes) return [];
-    const base = mes ? quotes.filter((q) => (q.data_emissao ?? "").startsWith(mes)) : quotes;
+    const base = prefixo
+      ? quotes.filter((q) => (q.data_emissao ?? "").startsWith(prefixo))
+      : quotes;
     const t = search.trim().toLowerCase();
     if (!t) return base;
+
     return base.filter((q) => {
       const client = q.client as {
         razao_social?: string;
@@ -112,7 +136,7 @@ function OrcamentosPage() {
         q.vendedor_nome?.toLowerCase().includes(t)
       );
     });
-  }, [quotes, search, mes]);
+  }, [quotes, search, prefixo]);
 
   const del = useMutation({
     mutationFn: async (id: string) => {
@@ -296,23 +320,73 @@ function OrcamentosPage() {
             className="border-0 shadow-none focus-visible:ring-0"
           />
         </Card>
-        <Card className="flex items-center gap-2 rounded-2xl border-border/60 p-3 shadow-elegant">
-          <label htmlFor="filtro-mes" className="text-xs text-muted-foreground">
-            Mês
-          </label>
-          <Input
-            id="filtro-mes"
-            type="month"
-            value={mes}
-            onChange={(e) => setMes(e.target.value)}
-            className="w-[9.5rem] border-0 shadow-none focus-visible:ring-0"
-          />
-          {mes && (
-            <Button variant="ghost" size="sm" onClick={() => setMes("")}>
+        <Card className="flex flex-wrap items-center gap-2 rounded-2xl border-border/60 p-3 shadow-elegant">
+          <ToggleGroup
+            type="single"
+            value={periodo}
+            onValueChange={(v) => v && setPeriodo(v as typeof periodo)}
+            className="rounded-xl border border-border/60 p-1"
+          >
+            <ToggleGroupItem value="todos" className="rounded-lg px-2 text-xs">
+              Todos
+            </ToggleGroupItem>
+            <ToggleGroupItem value="dia" className="rounded-lg px-2 text-xs">
+              Dia
+            </ToggleGroupItem>
+            <ToggleGroupItem value="mes" className="rounded-lg px-2 text-xs">
+              Mês
+            </ToggleGroupItem>
+            <ToggleGroupItem value="ano" className="rounded-lg px-2 text-xs">
+              Ano
+            </ToggleGroupItem>
+          </ToggleGroup>
+
+          {periodo === "dia" && (
+            <Input
+              aria-label="Filtrar por dia"
+              type="date"
+              value={dia}
+              onChange={(e) => setDia(e.target.value)}
+              className="w-[10.5rem] border-0 shadow-none focus-visible:ring-0"
+            />
+          )}
+          {periodo === "mes" && (
+            <Input
+              aria-label="Filtrar por mês"
+              type="month"
+              value={mes}
+              onChange={(e) => setMes(e.target.value)}
+              className="w-[9.5rem] border-0 shadow-none focus-visible:ring-0"
+            />
+          )}
+          {periodo === "ano" && (
+            <Input
+              aria-label="Filtrar por ano"
+              type="number"
+              inputMode="numeric"
+              placeholder="2026"
+              value={ano}
+              onChange={(e) => setAno(e.target.value.slice(0, 4))}
+              className="w-[6rem] border-0 shadow-none focus-visible:ring-0"
+            />
+          )}
+          {periodo !== "todos" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              title="Limpar período"
+              onClick={() => {
+                setPeriodo("todos");
+                setDia("");
+                setMes("");
+                setAno("");
+              }}
+            >
               <X className="size-4" />
             </Button>
           )}
         </Card>
+
         <ToggleGroup
           type="single"
           value={view}
