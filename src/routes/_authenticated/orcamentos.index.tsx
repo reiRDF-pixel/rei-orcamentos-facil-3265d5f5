@@ -43,10 +43,17 @@ import { duplicateQuote } from "@/lib/quotes.functions";
 
 export const Route = createFileRoute("/_authenticated/orcamentos/")({
   component: OrcamentosPage,
-  validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === "string" ? search.q : undefined,
-    mes: typeof search.mes === "string" ? search.mes : undefined,
-  }),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { q?: string; mes?: string; dia?: string; ano?: string } => {
+    const out: { q?: string; mes?: string; dia?: string; ano?: string } = {};
+    if (typeof search.q === "string" && search.q) out.q = search.q;
+    if (typeof search.mes === "string" && search.mes) out.mes = search.mes;
+    if (typeof search.dia === "string" && search.dia) out.dia = search.dia;
+    if (typeof search.ano === "string" && search.ano) out.ano = search.ano;
+    return out;
+  },
+
   head: () => ({
     meta: [
       { title: "Orçamentos — Rei dos Filtros" },
