@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUploadField } from "@/components/image-upload-field";
 
 export const VENDOR_PROFILE_FIELDS = [
   "full_name",
