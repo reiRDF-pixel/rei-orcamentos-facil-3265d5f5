@@ -106,13 +106,14 @@ function EmpresaPage() {
               onChange={(e) => setField("inscricao_estadual", e.target.value)}
             />
           </Field>
-          <Field label="URL da logo (opcional)" full>
-            <Input
+          <div className="md:col-span-2">
+            <ImageUploadField
+              label="Logo da empresa"
               value={form.logo_url ?? ""}
-              onChange={(e) => setField("logo_url", e.target.value)}
-              placeholder="https://..."
+              onChange={(v) => setField("logo_url", v)}
+              hint="Envie o arquivo direto do computador ou celular (PNG ou JPG)."
             />
-          </Field>
+          </div>
         </Section>
 
         <Section title="Contato">
