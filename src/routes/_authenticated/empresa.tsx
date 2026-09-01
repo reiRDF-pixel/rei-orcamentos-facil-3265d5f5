@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/components/theme-provider";
+import { ImageUploadField } from "@/components/image-upload-field";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type Company = Tables<"company_settings">;
@@ -106,13 +107,14 @@ function EmpresaPage() {
               onChange={(e) => setField("inscricao_estadual", e.target.value)}
             />
           </Field>
-          <Field label="URL da logo (opcional)" full>
-            <Input
+          <div className="md:col-span-2">
+            <ImageUploadField
+              label="Logo da empresa"
               value={form.logo_url ?? ""}
-              onChange={(e) => setField("logo_url", e.target.value)}
-              placeholder="https://..."
+              onChange={(v) => setField("logo_url", v)}
+              hint="Envie o arquivo direto do computador ou celular (PNG ou JPG)."
             />
-          </Field>
+          </div>
         </Section>
 
         <Section title="Contato">

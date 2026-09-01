@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUploadField } from "@/components/image-upload-field";
 
 export const VENDOR_PROFILE_FIELDS = [
   "full_name",
@@ -130,21 +131,24 @@ export function VendorProfileForm({ userId, ownProfile }: Props) {
         <Field label="Telefone pessoal" value={val("phone")} onChange={(v) => set("phone", v)} />
       </Section>
 
-      <Section title="Imagens (URL)">
-        <Field
-          label="URL da foto de perfil"
+      <Section title="Imagens">
+        <ImageUploadField
+          label="Foto de perfil"
           value={val("avatar_url")}
           onChange={(v) => set("avatar_url", v)}
+          hint="Envie um arquivo do computador ou celular (PNG ou JPG)."
         />
-        <Field
-          label="URL da assinatura digital"
+        <ImageUploadField
+          label="Assinatura digital"
           value={val("signature_url")}
           onChange={(v) => set("signature_url", v)}
+          hint="Foto ou digitalização da assinatura, de preferência em PNG com fundo transparente."
         />
-        <Field
-          label="URL da logo da unidade"
+        <ImageUploadField
+          label="Logo da unidade"
           value={val("logo_url")}
           onChange={(v) => set("logo_url", v)}
+          hint="Aparece no PDF do orçamento."
         />
       </Section>
 

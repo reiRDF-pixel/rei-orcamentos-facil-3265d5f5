@@ -85,16 +85,22 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-4">
-        {collapsed ? (
-          <BrandLogo compact />
-        ) : (
-          <div className="flex flex-col gap-1">
-            <BrandLogo className="h-8" />
-            <span className="pl-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Portal Interno
-            </span>
-          </div>
-        )}
+        <Link
+          to="/dashboard"
+          aria-label="Voltar ao painel de controle"
+          className="block rounded-xl transition-opacity hover:opacity-80"
+        >
+          {collapsed ? (
+            <BrandLogo compact />
+          ) : (
+            <div className="flex flex-col gap-1">
+              <BrandLogo className="h-8" />
+              <span className="pl-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Portal Interno
+              </span>
+            </div>
+          )}
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
