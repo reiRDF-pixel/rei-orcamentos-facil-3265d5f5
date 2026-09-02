@@ -150,6 +150,11 @@ function DashboardPage() {
         />
       </section>
 
+      <MonthlyTargetsSection
+        mes={mesAtual}
+        approvedByVendor={new Map((stats?.vendors ?? []).map((v) => [v.id, v.approved]))}
+      />
+
       <section className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-foreground">Orçamentos do mês por vendedor</h2>
