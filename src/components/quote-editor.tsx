@@ -633,6 +633,9 @@ export function QuoteEditor({
                   <div className="col-span-6 md:col-span-1">
                     <Label className="text-[10px]">Cód. cliente</Label>
                     <Input
+                      ref={(el) => {
+                        descRefs.current[idx] = el;
+                      }}
                       placeholder="Código"
                       value={item.codigo ?? ""}
                       onChange={(e) => updateItem(idx, { codigo: e.target.value })}
@@ -679,9 +682,6 @@ export function QuoteEditor({
                   <div className="col-span-12 md:col-span-4">
                     <Label className="text-[10px]">Item / descrição</Label>
                     <Input
-                      ref={(el) => {
-                        descRefs.current[idx] = el;
-                      }}
                       placeholder="Ex: Filtro de óleo Mann W1160"
                       value={item.descricao}
                       onChange={(e) => updateItem(idx, { descricao: e.target.value })}
