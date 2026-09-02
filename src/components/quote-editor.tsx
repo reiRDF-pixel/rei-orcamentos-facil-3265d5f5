@@ -289,6 +289,21 @@ export function QuoteEditor({
     });
   addItemRef.current = addItem;
 
+  /** Enter navigates to the next field of the row; from the last field goes to the next item. */
+  const handleItemEnter = (idx: number, field: (typeof ITEM_FIELDS)[number]) => {
+    const pos = ITEM_FIELDS.indexOf(field);
+    if (pos < ITEM_FIELDS.length - 1) {
+      focusField(idx, ITEM_FIELDS[pos + 1]);
+      return;
+    }
+    if (idx < state.items.length - 1) {
+      focusField(idx + 1, "codigo");
+      return;
+    }
+    addItem();
+  };
+
+
   const removeItem = (idx: number) => {
 
     setState((s) => ({
