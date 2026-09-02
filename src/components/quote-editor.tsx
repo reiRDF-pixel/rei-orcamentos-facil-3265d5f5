@@ -103,10 +103,21 @@ export function QuoteEditor({
   const [newMachineOpen, setNewMachineOpen] = useState(false);
   const [csvOpen, setCsvOpen] = useState(false);
   const [autoSavedAt, setAutoSavedAt] = useState<string | null>(null);
-  const descRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const fieldRefs = useRef<Map<string, HTMLInputElement | null>>(new Map());
   const pendingFocusRef = useRef<number | null>(null);
   const restoreCheckedRef = useRef(false);
   const addItemRef = useRef<() => void>(() => {});
+
+  const ITEM_FIELDS = ["codigo", "codigo_interno", "descricao", "marca", "quantidade", "preco"] as const;
+  const focusField = (idx: number, field: string) => {
+    const el = fieldRefs.current.get(`${idx}-${field}`);
+    if (el) {
+      el.focus();
+      el.select?.();
+      return true;
+    }
+    return false;
+  };
 
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
@@ -114,12 +125,11 @@ export function QuoteEditor({
   useEffect(() => {
     if (pendingFocusRef.current === null) return;
     const idx = pendingFocusRef.current;
-    const el = descRefs.current[idx];
-    if (el) {
-      el.focus();
+    if (focusField(idx, "codigo")) {
       pendingFocusRef.current = null;
     }
   });
+
 
   // Offer to restore an auto-saved draft (once per mount).
   useEffect(() => {
