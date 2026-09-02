@@ -103,10 +103,21 @@ export function QuoteEditor({
   const [newMachineOpen, setNewMachineOpen] = useState(false);
   const [csvOpen, setCsvOpen] = useState(false);
   const [autoSavedAt, setAutoSavedAt] = useState<string | null>(null);
-  const descRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const fieldRefs = useRef<Map<string, HTMLInputElement | null>>(new Map());
   const pendingFocusRef = useRef<number | null>(null);
   const restoreCheckedRef = useRef(false);
   const addItemRef = useRef<() => void>(() => {});
+
+  const ITEM_FIELDS = ["codigo", "codigo_interno", "descricao", "marca", "quantidade", "preco"] as const;
+  const focusField = (idx: number, field: string) => {
+    const el = fieldRefs.current.get(`${idx}-${field}`);
+    if (el) {
+      el.focus();
+      el.select?.();
+      return true;
+    }
+    return false;
+  };
 
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
@@ -114,12 +125,11 @@ export function QuoteEditor({
   useEffect(() => {
     if (pendingFocusRef.current === null) return;
     const idx = pendingFocusRef.current;
-    const el = descRefs.current[idx];
-    if (el) {
-      el.focus();
+    if (focusField(idx, "codigo")) {
       pendingFocusRef.current = null;
     }
   });
+
 
   // Offer to restore an auto-saved draft (once per mount).
   useEffect(() => {
@@ -278,6 +288,21 @@ export function QuoteEditor({
       };
     });
   addItemRef.current = addItem;
+
+  /** Enter navigates to the next field of the row; from the last field goes to the next item. */
+  const handleItemEnter = (idx: number, field: (typeof ITEM_FIELDS)[number]) => {
+    const pos = ITEM_FIELDS.indexOf(field);
+    if (pos < ITEM_FIELDS.length - 1) {
+      focusField(idx, ITEM_FIELDS[pos + 1]);
+      return;
+    }
+    if (idx < state.items.length - 1) {
+      focusField(idx + 1, "codigo");
+      return;
+    }
+    addItem();
+  };
+
 
   const removeItem = (idx: number) => {
 
@@ -634,7 +659,7 @@ export function QuoteEditor({
                     <Label className="text-[10px]">Cód. cliente</Label>
                     <Input
                       ref={(el) => {
-                        descRefs.current[idx] = el;
+                        fieldRefs.current.set(`${idx}-codigo`, el);
                       }}
                       placeholder="Código"
                       value={item.codigo ?? ""}
@@ -642,9 +667,7 @@ export function QuoteEditor({
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.quantidade > 0) {
-                            addItem();
-                          }
+                          handleItemEnter(idx, "codigo");
                         }
                       }}
                     />
@@ -652,6 +675,9 @@ export function QuoteEditor({
                   <div className="col-span-6 md:col-span-1">
                     <Label className="text-[10px]">Nosso código</Label>
                     <Input
+                      ref={(el) => {
+                        fieldRefs.current.set(`${idx}-codigo_interno`, el);
+                      }}
                       placeholder="Buscar"
                       value={item.codigo_interno ?? ""}
                       onChange={(e) => updateItem(idx, { codigo_interno: e.target.value })}
@@ -659,7 +685,10 @@ export function QuoteEditor({
                         if (e.key !== "Enter") return;
                         e.preventDefault();
                         const code = (item.codigo_interno ?? "").trim();
-                        if (!code) return;
+                        if (!code) {
+                          handleItemEnter(idx, "codigo_interno");
+                          return;
+                        }
                         const { data } = await supabase
                           .from("products")
                           .select("id, codigo, descricao, preco_venda")
@@ -676,21 +705,23 @@ export function QuoteEditor({
                           descricao: item.descricao || data.descricao,
                         });
                         toast.success("Produto carregado");
+                        handleItemEnter(idx, "codigo_interno");
                       }}
                     />
                   </div>
                   <div className="col-span-12 md:col-span-4">
                     <Label className="text-[10px]">Item / descrição</Label>
                     <Input
+                      ref={(el) => {
+                        fieldRefs.current.set(`${idx}-descricao`, el);
+                      }}
                       placeholder="Ex: Filtro de óleo Mann W1160"
                       value={item.descricao}
                       onChange={(e) => updateItem(idx, { descricao: e.target.value })}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.quantidade > 0) {
-                            addItem();
-                          }
+                          handleItemEnter(idx, "descricao");
                         }
                       }}
                     />
@@ -698,15 +729,16 @@ export function QuoteEditor({
                   <div className="col-span-6 md:col-span-1">
                     <Label className="text-[10px]">Marca</Label>
                     <Input
+                      ref={(el) => {
+                        fieldRefs.current.set(`${idx}-marca`, el);
+                      }}
                       placeholder="Marca"
                       value={item.marca ?? ""}
                       onChange={(e) => updateItem(idx, { marca: e.target.value })}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.quantidade > 0) {
-                            addItem();
-                          }
+                          handleItemEnter(idx, "marca");
                         }
                       }}
                     />
@@ -714,6 +746,9 @@ export function QuoteEditor({
                   <div className="col-span-4 md:col-span-1">
                     <Label className="text-[10px]">Qtd</Label>
                     <Input
+                      ref={(el) => {
+                        fieldRefs.current.set(`${idx}-quantidade`, el);
+                      }}
                       type="number"
                       step="1"
                       min="0"
@@ -726,9 +761,7 @@ export function QuoteEditor({
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.quantidade > 0) {
-                            addItem();
-                          }
+                          handleItemEnter(idx, "quantidade");
                         }
                       }}
                     />
@@ -736,6 +769,9 @@ export function QuoteEditor({
                   <div className="col-span-4 md:col-span-1">
                     <Label className="text-[10px]">Preço un.</Label>
                     <Input
+                      ref={(el) => {
+                        fieldRefs.current.set(`${idx}-preco`, el);
+                      }}
                       type="number"
                       step="0.01"
                       min="0"
@@ -744,17 +780,15 @@ export function QuoteEditor({
                       onChange={(e) =>
                         updateItem(idx, { preco_unitario: parseMoney(e.target.value) })
                       }
-
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          if (idx === state.items.length - 1 && item.quantidade > 0) {
-                            addItem();
-                          }
+                          handleItemEnter(idx, "preco");
                         }
                       }}
                     />
                   </div>
+
 
                   <div className="col-span-4 md:col-span-1 text-right font-mono text-sm font-semibold">
                     {formatBRL(itemTotal(item))}
