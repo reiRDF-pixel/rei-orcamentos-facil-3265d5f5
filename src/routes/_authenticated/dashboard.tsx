@@ -59,13 +59,13 @@ function DashboardPage() {
 
       const byVendor = new Map<
         string,
-        { nome: string; count: number; quoted: number; approved: number }
+        { id: string; nome: string; count: number; quoted: number; approved: number }
       >();
       for (const q of monthQuotes) {
         const id = q.vendedor_id ?? "sem-vendedor";
         const entry =
           byVendor.get(id) ??
-          { nome: nameById.get(id) || "Sem vendedor", count: 0, quoted: 0, approved: 0 };
+          { id, nome: nameById.get(id) || "Sem vendedor", count: 0, quoted: 0, approved: 0 };
         entry.count += 1;
         entry.quoted += Number(q.total ?? 0);
         if (q.status === "aprovado") entry.approved += Number(q.total ?? 0);
