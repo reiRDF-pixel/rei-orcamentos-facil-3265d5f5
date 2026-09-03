@@ -469,7 +469,7 @@ function MonthlyTargetsSection({
           </p>
         ) : (
           <div className="space-y-5">
-            {totalMeta > 0 && (
+            {isAdmin && totalMeta > 0 && (
               <div className="rounded-2xl bg-muted/30 p-4">
                 <div className="mb-2 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   <span>Meta geral da equipe</span>
