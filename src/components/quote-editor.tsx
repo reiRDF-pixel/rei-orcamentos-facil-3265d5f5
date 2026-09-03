@@ -240,6 +240,19 @@ export function QuoteEditor({
     if (def) setState((s) => (s.sales_rep_id ? s : { ...s, sales_rep_id: def.id }));
   }, [salesReps, state.sales_rep_id, setState]);
 
+  const { data: paymentMethods } = useQuery({
+    queryKey: ["formas-pagamento"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("company_settings")
+        .select("formas_pagamento")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return (data?.formas_pagamento ?? []) as string[];
+    },
+  });
+
   const { data: machines } = useQuery({
     queryKey: ["machines-by-client", state.client_id],
     enabled: !!state.client_id,
@@ -842,8 +855,30 @@ export function QuoteEditor({
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Condição de pagamento</Label>
+              <Label>Forma / condição de pagamento</Label>
+              {(paymentMethods ?? []).length > 0 && (
+                <Select
+                  value={
+                    (paymentMethods ?? []).includes(state.condicao_pagamento)
+                      ? state.condicao_pagamento
+                      : ""
+                  }
+                  onValueChange={(v) => setField("condicao_pagamento", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma forma de pagamento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(paymentMethods ?? []).map((m) => (
+                      <SelectItem key={m} value={m}>
+                        {m}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               <Input
+                placeholder="Ou escreva a condição livremente"
                 value={state.condicao_pagamento}
                 onChange={(e) => setField("condicao_pagamento", e.target.value)}
               />
