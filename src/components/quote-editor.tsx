@@ -631,6 +631,9 @@ export function QuoteEditor({
                   <div className="col-span-12 flex items-center justify-between md:col-span-12">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                       Item {idx + 1}
+                      <span className="ml-2 font-mono text-xs font-semibold normal-case tracking-normal text-foreground">
+                        {formatBRL(itemTotal(item))}
+                      </span>
                     </span>
                     <div className="flex items-center gap-1">
                       <Button
@@ -655,7 +658,7 @@ export function QuoteEditor({
                       </Button>
                     </div>
                   </div>
-                  <div className="col-span-6 md:col-span-1">
+                  <div className="col-span-6 md:col-span-2">
                     <Label className="text-[10px]">Cód. cliente</Label>
                     <Input
                       ref={(el) => {
@@ -672,7 +675,7 @@ export function QuoteEditor({
                       }}
                     />
                   </div>
-                  <div className="col-span-6 md:col-span-1">
+                  <div className="col-span-6 md:col-span-2">
                     <Label className="text-[10px]">Nosso código</Label>
                     <Input
                       ref={(el) => {
@@ -709,7 +712,7 @@ export function QuoteEditor({
                       }}
                     />
                   </div>
-                  <div className="col-span-12 md:col-span-4">
+                  <div className="col-span-12 md:col-span-3">
                     <Label className="text-[10px]">Item / descrição</Label>
                     <Input
                       ref={(el) => {
@@ -790,9 +793,6 @@ export function QuoteEditor({
                   </div>
 
 
-                  <div className="col-span-4 md:col-span-1 text-right font-mono text-sm font-semibold">
-                    {formatBRL(itemTotal(item))}
-                  </div>
                   <div className="col-span-12 md:col-span-2 flex justify-end gap-1">
                     <Button
                       type="button"
