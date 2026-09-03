@@ -437,7 +437,8 @@ function MonthlyTargetsSection({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const rows = data ?? [];
+  // Cada vendedor vê apenas a sua própria meta; admins veem todas.
+  const rows = (data ?? []).filter((r) => isAdmin || r.id === user?.id);
   const totalMeta = rows.reduce((s, r) => s + r.meta, 0);
   const totalAprovado = rows.reduce((s, r) => s + (approvedByVendor.get(r.id) ?? 0), 0);
   const totalPct = totalMeta > 0 ? Math.min(100, (totalAprovado / totalMeta) * 100) : 0;
