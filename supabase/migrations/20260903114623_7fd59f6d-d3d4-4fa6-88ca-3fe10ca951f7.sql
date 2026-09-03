@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.purge_trashed_quotes() FROM anon, authenticated;
