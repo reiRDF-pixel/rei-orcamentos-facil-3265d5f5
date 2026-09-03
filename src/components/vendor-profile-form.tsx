@@ -37,7 +37,6 @@ export const VENDOR_PROFILE_FIELDS = [
   "validade_padrao_dias",
   "prazo_entrega_padrao",
   "condicao_pagamento_padrao",
-  "pix_key",
 ] as const;
 
 type VendorProfile = Record<string, string | number | null>;
