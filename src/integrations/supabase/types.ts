@@ -107,6 +107,7 @@ export type Database = {
           nome_fantasia: string | null
           numero: string | null
           observacoes_padrao: string | null
+          pdf_template_padrao: string
           phone: string | null
           razao_social: string | null
           updated_at: string
@@ -130,6 +131,7 @@ export type Database = {
           nome_fantasia?: string | null
           numero?: string | null
           observacoes_padrao?: string | null
+          pdf_template_padrao?: string
           phone?: string | null
           razao_social?: string | null
           updated_at?: string
@@ -153,6 +155,7 @@ export type Database = {
           nome_fantasia?: string | null
           numero?: string | null
           observacoes_padrao?: string | null
+          pdf_template_padrao?: string
           phone?: string | null
           razao_social?: string | null
           updated_at?: string
@@ -494,6 +497,8 @@ export type Database = {
           condicao_pagamento: string | null
           created_at: string
           data_emissao: string
+          deleted_at: string | null
+          deleted_by: string | null
           desconto_percentual: number
           desconto_valor: number
           frete: number
@@ -526,6 +531,8 @@ export type Database = {
           condicao_pagamento?: string | null
           created_at?: string
           data_emissao?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           desconto_percentual?: number
           desconto_valor?: number
           frete?: number
@@ -558,6 +565,8 @@ export type Database = {
           condicao_pagamento?: string | null
           created_at?: string
           data_emissao?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           desconto_percentual?: number
           desconto_valor?: number
           frete?: number
@@ -750,6 +759,7 @@ export type Database = {
       expire_overdue_quotes: { Args: never; Returns: number }
       get_public_quote: { Args: { _quote_id: string }; Returns: Json }
       get_public_quote_by_token: { Args: { _token: string }; Returns: Json }
+      purge_trashed_quotes: { Args: never; Returns: number }
       update_quote_with_items: {
         Args: { _payload: Json; _quote_id: string }
         Returns: string
