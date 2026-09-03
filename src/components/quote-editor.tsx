@@ -240,6 +240,19 @@ export function QuoteEditor({
     if (def) setState((s) => (s.sales_rep_id ? s : { ...s, sales_rep_id: def.id }));
   }, [salesReps, state.sales_rep_id, setState]);
 
+  const { data: paymentMethods } = useQuery({
+    queryKey: ["formas-pagamento"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("company_settings")
+        .select("formas_pagamento")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return (data?.formas_pagamento ?? []) as string[];
+    },
+  });
+
   const { data: machines } = useQuery({
     queryKey: ["machines-by-client", state.client_id],
     enabled: !!state.client_id,
@@ -631,6 +644,9 @@ export function QuoteEditor({
                   <div className="col-span-12 flex items-center justify-between md:col-span-12">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                       Item {idx + 1}
+                      <span className="ml-2 font-mono text-xs font-semibold normal-case tracking-normal text-foreground">
+                        {formatBRL(itemTotal(item))}
+                      </span>
                     </span>
                     <div className="flex items-center gap-1">
                       <Button
@@ -655,7 +671,7 @@ export function QuoteEditor({
                       </Button>
                     </div>
                   </div>
-                  <div className="col-span-6 md:col-span-1">
+                  <div className="col-span-6 md:col-span-2">
                     <Label className="text-[10px]">Cód. cliente</Label>
                     <Input
                       ref={(el) => {
@@ -672,7 +688,7 @@ export function QuoteEditor({
                       }}
                     />
                   </div>
-                  <div className="col-span-6 md:col-span-1">
+                  <div className="col-span-6 md:col-span-2">
                     <Label className="text-[10px]">Nosso código</Label>
                     <Input
                       ref={(el) => {
@@ -709,7 +725,7 @@ export function QuoteEditor({
                       }}
                     />
                   </div>
-                  <div className="col-span-12 md:col-span-4">
+                  <div className="col-span-12 md:col-span-3">
                     <Label className="text-[10px]">Item / descrição</Label>
                     <Input
                       ref={(el) => {
@@ -790,9 +806,6 @@ export function QuoteEditor({
                   </div>
 
 
-                  <div className="col-span-4 md:col-span-1 text-right font-mono text-sm font-semibold">
-                    {formatBRL(itemTotal(item))}
-                  </div>
                   <div className="col-span-12 md:col-span-2 flex justify-end gap-1">
                     <Button
                       type="button"
@@ -842,8 +855,30 @@ export function QuoteEditor({
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Condição de pagamento</Label>
+              <Label>Forma / condição de pagamento</Label>
+              {(paymentMethods ?? []).length > 0 && (
+                <Select
+                  value={
+                    (paymentMethods ?? []).includes(state.condicao_pagamento)
+                      ? state.condicao_pagamento
+                      : ""
+                  }
+                  onValueChange={(v) => setField("condicao_pagamento", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma forma de pagamento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(paymentMethods ?? []).map((m) => (
+                      <SelectItem key={m} value={m}>
+                        {m}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               <Input
+                placeholder="Ou escreva a condição livremente"
                 value={state.condicao_pagamento}
                 onChange={(e) => setField("condicao_pagamento", e.target.value)}
               />

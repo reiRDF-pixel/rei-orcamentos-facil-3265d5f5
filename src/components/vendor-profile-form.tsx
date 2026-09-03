@@ -37,7 +37,6 @@ export const VENDOR_PROFILE_FIELDS = [
   "validade_padrao_dias",
   "prazo_entrega_padrao",
   "condicao_pagamento_padrao",
-  "pix_key",
 ] as const;
 
 type VendorProfile = Record<string, string | number | null>;
@@ -188,7 +187,6 @@ export function VendorProfileForm({ userId, ownProfile }: Props) {
           value={val("validade_padrao_dias")}
           onChange={(v) => set("validade_padrao_dias", v)}
         />
-        <Field label="Chave PIX" value={val("pix_key")} onChange={(v) => set("pix_key", v)} />
         <div className="md:col-span-2 space-y-2">
           <Label>Mensagem padrão do orçamento</Label>
           <Textarea

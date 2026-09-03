@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save, Sun, Moon } from "lucide-react";
+import { Save, Sun, Moon, Plus, X } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { DataPageHeader } from "@/components/data-page-header";
@@ -171,6 +171,11 @@ function EmpresaPage() {
           </Field>
         </Section>
 
+        <PaymentMethodsSection
+          methods={(form.formas_pagamento as string[] | null) ?? []}
+          onChange={(list) => setField("formas_pagamento", list)}
+        />
+
         <Section title="Padrões de orçamento">
           <Field label="Validade padrão (dias)">
             <Input
@@ -207,6 +212,77 @@ function EmpresaPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+function PaymentMethodsSection({
+  methods,
+  onChange,
+}: {
+  methods: string[];
+  onChange: (list: string[]) => void;
+}) {
+  const [novo, setNovo] = useState("");
+
+  const add = () => {
+    const v = novo.trim().toUpperCase();
+    if (!v) return;
+    if (methods.some((m) => m.toUpperCase() === v)) {
+      setNovo("");
+      return;
+    }
+    onChange([...methods, v]);
+    setNovo("");
+  };
+
+  return (
+    <Card className="rounded-3xl border-border/60 p-6 shadow-elegant">
+      <h2 className="mb-1 text-sm font-bold uppercase tracking-widest text-muted-foreground">
+        Formas de pagamento
+      </h2>
+      <p className="mb-4 text-sm text-muted-foreground">
+        Estas opções aparecem para escolher na criação do orçamento.
+      </p>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        {methods.length === 0 && (
+          <span className="text-sm text-muted-foreground">Nenhuma forma cadastrada.</span>
+        )}
+        {methods.map((m) => (
+          <span
+            key={m}
+            className="flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-sm font-medium text-foreground"
+          >
+            {m}
+            <button
+              type="button"
+              aria-label={`Remover ${m}`}
+              onClick={() => onChange(methods.filter((x) => x !== m))}
+              className="text-muted-foreground transition-colors hover:text-destructive"
+            >
+              <X className="size-3.5" />
+            </button>
+          </span>
+        ))}
+      </div>
+
+      <div className="flex gap-2">
+        <Input
+          value={novo}
+          onChange={(e) => setNovo(e.target.value)}
+          placeholder="Ex: PIX / 30 DIAS / CARTÃO"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              add();
+            }
+          }}
+        />
+        <Button type="button" variant="outline" onClick={add} className="rounded-xl">
+          <Plus className="size-4" /> Adicionar
+        </Button>
+      </div>
+    </Card>
   );
 }
 

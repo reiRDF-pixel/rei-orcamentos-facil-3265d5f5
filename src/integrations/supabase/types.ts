@@ -100,6 +100,7 @@ export type Database = {
           email: string | null
           endereco: string | null
           estado: string | null
+          formas_pagamento: string[]
           id: string
           inscricao_estadual: string | null
           logo_url: string | null
@@ -122,6 +123,7 @@ export type Database = {
           email?: string | null
           endereco?: string | null
           estado?: string | null
+          formas_pagamento?: string[]
           id?: string
           inscricao_estadual?: string | null
           logo_url?: string | null
@@ -144,6 +146,7 @@ export type Database = {
           email?: string | null
           endereco?: string | null
           estado?: string | null
+          formas_pagamento?: string[]
           id?: string
           inscricao_estadual?: string | null
           logo_url?: string | null
