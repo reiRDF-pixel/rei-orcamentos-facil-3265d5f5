@@ -58,7 +58,11 @@ function NovoOrcamentoPage() {
     items: [] as QuoteItemDraft[],
   });
 
+  const appliedDefaults = useRef(false);
   useEffect(() => {
+    if (appliedDefaults.current) return;
+    if (!company && !profile) return;
+    appliedDefaults.current = true;
     setState((s) => {
       // User profile defaults take precedence; fall back to company defaults.
       const pCond = (profile?.condicao_pagamento_padrao as string | null) ?? null;
@@ -76,9 +80,13 @@ function NovoOrcamentoPage() {
             ? s.validade_dias
             : (pValid ?? company?.validade_padrao_dias ?? 7),
         observacoes: s.observacoes || pObs || company?.observacoes_padrao || "",
+        pdf_template:
+          (company?.pdf_template_padrao as QuoteFormState["pdf_template"] | null) ??
+          s.pdf_template,
       };
     });
   }, [company, profile]);
+
 
   // Auto-save no servidor: cria o rascunho na primeira vez e depois atualiza.
   const createdIdRef = useRef<string | null>(null);
