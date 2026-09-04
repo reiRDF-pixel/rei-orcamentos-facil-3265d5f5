@@ -91,11 +91,13 @@ export function GlobalSearch() {
           ? supabase
               .from("quotes")
               .select("id, numero, total, client:clients(razao_social, nome_fantasia)")
+              .is("deleted_at", null)
               .order("created_at", { ascending: false })
               .limit(30)
           : supabase
               .from("quotes")
               .select("id, numero, total, client:clients(razao_social, nome_fantasia)")
+              .is("deleted_at", null)
               .eq("numero", numeric)
               .limit(5),
       ]);

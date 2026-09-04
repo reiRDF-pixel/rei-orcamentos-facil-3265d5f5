@@ -97,6 +97,7 @@ function OrcamentosPage() {
         .select(
           "id, numero, status, total, data_emissao, created_at, vendedor_id, items:quote_items(id), client:clients(razao_social, nome_fantasia)",
         )
+        .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       const rows = data ?? [];
@@ -140,11 +141,14 @@ function OrcamentosPage() {
 
   const del = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("quotes").delete().eq("id", id);
+      const { error } = await supabase
+        .from("quotes")
+        .update({ deleted_at: new Date().toISOString(), deleted_by: user?.id ?? null })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Orçamento removido");
+      toast.success("Orçamento movido para a lixeira");
       qc.invalidateQueries({ queryKey: ["quotes"] });
       setDeleteId(null);
     },

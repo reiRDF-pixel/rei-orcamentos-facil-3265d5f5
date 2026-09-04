@@ -46,10 +46,14 @@ function DashboardPage() {
       const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
       const [quotesRes, monthQuotesRes] = await Promise.all([
-        supabase.from("quotes").select("id, total, status", { count: "exact" }),
+        supabase
+          .from("quotes")
+          .select("id, total, status", { count: "exact" })
+          .is("deleted_at", null),
         supabase
           .from("quotes")
           .select("id, total, status, vendedor_id")
+          .is("deleted_at", null)
           .gte("created_at", start),
       ]);
 
@@ -108,6 +112,7 @@ function DashboardPage() {
         .select(
           "id, numero, total, status, data_emissao, client:clients(razao_social, nome_fantasia)",
         )
+        .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .limit(6);
       return data ?? [];
@@ -449,7 +454,7 @@ function MonthlyTargetsSection({
         <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
           <Target className="size-5 text-primary" /> Metas do mês
         </h2>
-        {totalMeta > 0 && (
+        {isAdmin && totalMeta > 0 && (
           <span className="text-xs font-semibold text-muted-foreground">
             {formatBRL(totalAprovado)} de {formatBRL(totalMeta)} ({totalPct.toFixed(0)}%)
           </span>

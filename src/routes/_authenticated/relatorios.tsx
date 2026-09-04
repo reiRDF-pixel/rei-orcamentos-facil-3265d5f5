@@ -70,6 +70,7 @@ function RelatoriosPage() {
         .select(
           "id, numero, status, total, data_emissao, vendedor_id, client:clients(razao_social, nome_fantasia), items:quote_items(descricao, marca, codigo, quantidade, total)",
         )
+        .is("deleted_at", null)
         .gte("data_emissao", since)
         .order("data_emissao", { ascending: true });
       if (error) throw error;
