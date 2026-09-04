@@ -13,7 +13,9 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/components/theme-provider";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { PDF_TEMPLATES } from "@/lib/pdf-templates";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
+
 
 type Company = Tables<"company_settings">;
 
