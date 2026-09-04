@@ -191,6 +191,25 @@ function EmpresaPage() {
               placeholder="Ex: À vista / 30 dias"
             />
           </Field>
+          <Field label="Modelo de PDF padrão">
+            <div className="flex flex-wrap gap-2">
+              {PDF_TEMPLATES.map((t) => {
+                const active = (form.pdf_template_padrao ?? "azul") === t.id;
+                return (
+                  <Button
+                    key={t.id}
+                    type="button"
+                    variant={active ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-xl"
+                    onClick={() => setField("pdf_template_padrao", t.id)}
+                  >
+                    {t.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </Field>
           <Field label="Observações padrão do orçamento" full>
             <Textarea
               rows={3}
@@ -199,6 +218,7 @@ function EmpresaPage() {
             />
           </Field>
         </Section>
+
 
         <div className="flex justify-end">
           <Button
