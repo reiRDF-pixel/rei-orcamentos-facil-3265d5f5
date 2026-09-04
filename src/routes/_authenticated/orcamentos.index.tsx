@@ -97,6 +97,7 @@ function OrcamentosPage() {
         .select(
           "id, numero, status, total, data_emissao, created_at, vendedor_id, items:quote_items(id), client:clients(razao_social, nome_fantasia)",
         )
+        .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       const rows = data ?? [];
@@ -140,11 +141,14 @@ function OrcamentosPage() {
 
   const del = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("quotes").delete().eq("id", id);
+      const { error } = await supabase
+        .from("quotes")
+        .update({ deleted_at: new Date().toISOString(), deleted_by: user?.id ?? null })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Orçamento removido");
+      toast.success("Orçamento movido para a lixeira");
       qc.invalidateQueries({ queryKey: ["quotes"] });
       setDeleteId(null);
     },
@@ -277,16 +281,24 @@ function OrcamentosPage() {
   );
 
   const newQuoteButton = (
-    <Button
-      asChild
-      size="lg"
-      className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
-    >
-      <Link to="/orcamentos/novo">
-        <Plus className="size-4" /> Novo orçamento
-      </Link>
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      <Button asChild variant="outline" size="lg" className="rounded-2xl">
+        <Link to="/orcamentos/lixeira">
+          <Trash2 className="size-4" /> Lixeira
+        </Link>
+      </Button>
+      <Button
+        asChild
+        size="lg"
+        className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
+      >
+        <Link to="/orcamentos/novo">
+          <Plus className="size-4" /> Novo orçamento
+        </Link>
+      </Button>
+    </div>
   );
+
 
   const empty = (
     <EmptyState

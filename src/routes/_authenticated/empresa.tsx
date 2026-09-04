@@ -13,7 +13,9 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/components/theme-provider";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { PDF_TEMPLATES } from "@/lib/pdf-templates";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
+
 
 type Company = Tables<"company_settings">;
 
@@ -191,6 +193,25 @@ function EmpresaPage() {
               placeholder="Ex: À vista / 30 dias"
             />
           </Field>
+          <Field label="Modelo de PDF padrão">
+            <div className="flex flex-wrap gap-2">
+              {PDF_TEMPLATES.map((t) => {
+                const active = (form.pdf_template_padrao ?? "azul") === t.id;
+                return (
+                  <Button
+                    key={t.id}
+                    type="button"
+                    variant={active ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-xl"
+                    onClick={() => setField("pdf_template_padrao", t.id)}
+                  >
+                    {t.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </Field>
           <Field label="Observações padrão do orçamento" full>
             <Textarea
               rows={3}
@@ -199,6 +220,7 @@ function EmpresaPage() {
             />
           </Field>
         </Section>
+
 
         <div className="flex justify-end">
           <Button

@@ -26,6 +26,7 @@ import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedBalcaoRouteImport } from './routes/_authenticated/balcao'
 import { Route as AuthenticatedOrcamentosIndexRouteImport } from './routes/_authenticated/orcamentos.index'
 import { Route as AuthenticatedOrcamentosNovoRouteImport } from './routes/_authenticated/orcamentos.novo'
+import { Route as AuthenticatedOrcamentosLixeiraRouteImport } from './routes/_authenticated/orcamentos.lixeira'
 import { Route as AuthenticatedOrcamentosIdIndexRouteImport } from './routes/_authenticated/orcamentos.$id.index'
 import { Route as AuthenticatedOrcamentosIdEditarRouteImport } from './routes/_authenticated/orcamentos.$id.editar'
 
@@ -115,6 +116,12 @@ const AuthenticatedOrcamentosNovoRoute =
     path: '/orcamentos/novo',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOrcamentosLixeiraRoute =
+  AuthenticatedOrcamentosLixeiraRouteImport.update({
+    id: '/orcamentos/lixeira',
+    path: '/orcamentos/lixeira',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOrcamentosIdIndexRoute =
   AuthenticatedOrcamentosIdIndexRouteImport.update({
     id: '/orcamentos/$id/',
@@ -143,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/vendedores': typeof AuthenticatedVendedoresRoute
   '/q/$id': typeof QIdRoute
+  '/orcamentos/lixeira': typeof AuthenticatedOrcamentosLixeiraRoute
   '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/orcamentos/': typeof AuthenticatedOrcamentosIndexRoute
   '/orcamentos/$id/editar': typeof AuthenticatedOrcamentosIdEditarRoute
@@ -163,6 +171,7 @@ export interface FileRoutesByTo {
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/vendedores': typeof AuthenticatedVendedoresRoute
   '/q/$id': typeof QIdRoute
+  '/orcamentos/lixeira': typeof AuthenticatedOrcamentosLixeiraRoute
   '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/orcamentos': typeof AuthenticatedOrcamentosIndexRoute
   '/orcamentos/$id/editar': typeof AuthenticatedOrcamentosIdEditarRoute
@@ -185,6 +194,7 @@ export interface FileRoutesById {
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/_authenticated/vendedores': typeof AuthenticatedVendedoresRoute
   '/q/$id': typeof QIdRoute
+  '/_authenticated/orcamentos/lixeira': typeof AuthenticatedOrcamentosLixeiraRoute
   '/_authenticated/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/_authenticated/orcamentos/': typeof AuthenticatedOrcamentosIndexRoute
   '/_authenticated/orcamentos/$id/editar': typeof AuthenticatedOrcamentosIdEditarRoute
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/usuarios'
     | '/vendedores'
     | '/q/$id'
+    | '/orcamentos/lixeira'
     | '/orcamentos/novo'
     | '/orcamentos/'
     | '/orcamentos/$id/editar'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/usuarios'
     | '/vendedores'
     | '/q/$id'
+    | '/orcamentos/lixeira'
     | '/orcamentos/novo'
     | '/orcamentos'
     | '/orcamentos/$id/editar'
@@ -248,6 +260,7 @@ export interface FileRouteTypes {
     | '/_authenticated/usuarios'
     | '/_authenticated/vendedores'
     | '/q/$id'
+    | '/_authenticated/orcamentos/lixeira'
     | '/_authenticated/orcamentos/novo'
     | '/_authenticated/orcamentos/'
     | '/_authenticated/orcamentos/$id/editar'
@@ -383,6 +396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrcamentosNovoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/orcamentos/lixeira': {
+      id: '/_authenticated/orcamentos/lixeira'
+      path: '/orcamentos/lixeira'
+      fullPath: '/orcamentos/lixeira'
+      preLoaderRoute: typeof AuthenticatedOrcamentosLixeiraRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/orcamentos/$id/': {
       id: '/_authenticated/orcamentos/$id/'
       path: '/orcamentos/$id'
@@ -411,6 +431,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
   AuthenticatedVendedoresRoute: typeof AuthenticatedVendedoresRoute
+  AuthenticatedOrcamentosLixeiraRoute: typeof AuthenticatedOrcamentosLixeiraRoute
   AuthenticatedOrcamentosNovoRoute: typeof AuthenticatedOrcamentosNovoRoute
   AuthenticatedOrcamentosIndexRoute: typeof AuthenticatedOrcamentosIndexRoute
   AuthenticatedOrcamentosIdEditarRoute: typeof AuthenticatedOrcamentosIdEditarRoute
@@ -428,6 +449,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
   AuthenticatedVendedoresRoute: AuthenticatedVendedoresRoute,
+  AuthenticatedOrcamentosLixeiraRoute: AuthenticatedOrcamentosLixeiraRoute,
   AuthenticatedOrcamentosNovoRoute: AuthenticatedOrcamentosNovoRoute,
   AuthenticatedOrcamentosIndexRoute: AuthenticatedOrcamentosIndexRoute,
   AuthenticatedOrcamentosIdEditarRoute: AuthenticatedOrcamentosIdEditarRoute,

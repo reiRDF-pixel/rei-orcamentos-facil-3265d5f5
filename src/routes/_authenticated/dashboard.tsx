@@ -46,10 +46,14 @@ function DashboardPage() {
       const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
       const [quotesRes, monthQuotesRes] = await Promise.all([
-        supabase.from("quotes").select("id, total, status", { count: "exact" }),
+        supabase
+          .from("quotes")
+          .select("id, total, status", { count: "exact" })
+          .is("deleted_at", null),
         supabase
           .from("quotes")
           .select("id, total, status, vendedor_id")
+          .is("deleted_at", null)
           .gte("created_at", start),
       ]);
 
@@ -108,6 +112,7 @@ function DashboardPage() {
         .select(
           "id, numero, total, status, data_emissao, client:clients(razao_social, nome_fantasia)",
         )
+        .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .limit(6);
       return data ?? [];
@@ -449,7 +454,7 @@ function MonthlyTargetsSection({
         <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
           <Target className="size-5 text-primary" /> Metas do mês
         </h2>
-        {totalMeta > 0 && (
+        {isAdmin && totalMeta > 0 && (
           <span className="text-xs font-semibold text-muted-foreground">
             {formatBRL(totalAprovado)} de {formatBRL(totalMeta)} ({totalPct.toFixed(0)}%)
           </span>
@@ -469,16 +474,6 @@ function MonthlyTargetsSection({
           </p>
         ) : (
           <div className="space-y-5">
-            {isAdmin && totalMeta > 0 && (
-              <div className="rounded-2xl bg-muted/30 p-4">
-                <div className="mb-2 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  <span>Meta geral da equipe</span>
-                  <span>{totalPct.toFixed(0)}%</span>
-                </div>
-                <Progress value={totalPct} className="h-3" />
-              </div>
-            )}
-
             {rows.map((row) => {
               const aprovado = approvedByVendor.get(row.id) ?? 0;
               const pct = row.meta > 0 ? Math.min(100, (aprovado / row.meta) * 100) : 0;

@@ -59,6 +59,14 @@ function BalcaoPage() {
   const [quantidade, setQuantidade] = useState(1);
   const [preco, setPreco] = useState(0);
 
+  const { data: company } = useQuery({
+    queryKey: ["company_settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("company_settings").select("*").limit(1).maybeSingle();
+      return data;
+    },
+  });
+
   const { data: clients } = useQuery({
     queryKey: ["clients-min"],
     queryFn: async () => {
@@ -69,6 +77,7 @@ function BalcaoPage() {
       return data ?? [];
     },
   });
+
 
   const selectedClient = clients?.find((c) => c.id === clientId) ?? null;
   const term = clientSearch.trim().toLowerCase();
@@ -97,12 +106,13 @@ function BalcaoPage() {
           condicao_pagamento: "",
           tipo_frete: "SEM FRETE",
           prazo_entrega: "",
-          validade_dias: 7,
+          validade_dias: company?.validade_padrao_dias ?? 7,
           desconto_percentual: 0,
           desconto_valor: 0,
           frete: 0,
           observacoes: "",
-          pdf_template: "azul",
+          pdf_template: (company?.pdf_template_padrao as "azul") ?? "azul",
+
           items: [
             {
               product_id: null,

@@ -27,6 +27,7 @@ export function ClientHistoryDialog({ clientId, clientName, onOpenChange }: Prop
         .from("quotes")
         .select("id, numero, status, total, data_emissao, items:quote_items(descricao, codigo, marca, quantidade)")
         .eq("client_id", clientId!)
+        .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return quotes ?? [];

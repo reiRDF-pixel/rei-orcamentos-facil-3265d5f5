@@ -80,7 +80,8 @@ function VendedoresPage() {
     queryFn: async (): Promise<QuoteRow[]> => {
       const { data: quotes, error } = await supabase
         .from("quotes")
-        .select("id, status, total, vendedor_id, data_emissao");
+        .select("id, status, total, vendedor_id, data_emissao")
+        .is("deleted_at", null);
       if (error) throw error;
 
       const rows = quotes ?? [];
