@@ -281,16 +281,24 @@ function OrcamentosPage() {
   );
 
   const newQuoteButton = (
-    <Button
-      asChild
-      size="lg"
-      className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
-    >
-      <Link to="/orcamentos/novo">
-        <Plus className="size-4" /> Novo orçamento
-      </Link>
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      <Button asChild variant="outline" size="lg" className="rounded-2xl">
+        <Link to="/orcamentos/lixeira">
+          <Trash2 className="size-4" /> Lixeira
+        </Link>
+      </Button>
+      <Button
+        asChild
+        size="lg"
+        className="rounded-2xl bg-primary text-primary-foreground shadow-lifted hover:bg-primary-hover"
+      >
+        <Link to="/orcamentos/novo">
+          <Plus className="size-4" /> Novo orçamento
+        </Link>
+      </Button>
+    </div>
   );
+
 
   const empty = (
     <EmptyState
