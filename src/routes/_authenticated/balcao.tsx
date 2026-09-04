@@ -106,12 +106,13 @@ function BalcaoPage() {
           condicao_pagamento: "",
           tipo_frete: "SEM FRETE",
           prazo_entrega: "",
-          validade_dias: 7,
+          validade_dias: company?.validade_padrao_dias ?? 7,
           desconto_percentual: 0,
           desconto_valor: 0,
           frete: 0,
           observacoes: "",
-          pdf_template: "azul",
+          pdf_template: (company?.pdf_template_padrao as "azul") ?? "azul",
+
           items: [
             {
               product_id: null,
