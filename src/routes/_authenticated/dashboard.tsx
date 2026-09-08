@@ -1,26 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, formatDate, QUOTE_STATUS_LABEL, QUOTE_STATUS_CLASS } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/use-auth";
-import { useIsAdmin } from "@/hooks/use-is-admin";
-import {
-  FileText,
-  TrendingUp,
-  CheckCircle2,
-  DollarSign,
-  Plus,
-  ArrowRight,
-  Target,
-  Save,
-} from "lucide-react";
+import { FileText, TrendingUp, CheckCircle2, DollarSign, Plus, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
@@ -170,10 +155,6 @@ function DashboardPage() {
         />
       </section>
 
-      <MonthlyTargetsSection
-        mes={mesAtual}
-        approvedByVendor={new Map((stats?.vendors ?? []).map((v) => [v.id, v.approved]))}
-      />
 
       <section className="mb-8">
         <div className="mb-4 flex items-center justify-between">
@@ -396,150 +377,3 @@ function EmptyRecentQuotes() {
   );
 }
 
-function MonthlyTargetsSection({
-  mes,
-  approvedByVendor,
-}: {
-  mes: string;
-  approvedByVendor: Map<string, number>;
-}) {
-  const qc = useQueryClient();
-  const { user } = useAuth();
-  const { isAdmin } = useIsAdmin();
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["metas-mes", mes],
-    queryFn: async () => {
-      const [profilesRes, targetsRes] = await Promise.all([
-        supabase.from("profiles").select("id, full_name, active").order("full_name"),
-        supabase.from("sales_targets").select("user_id, meta_valor").eq("mes", mes),
-      ]);
-      const metaById = new Map(
-        (targetsRes.data ?? []).map((t) => [t.user_id, Number(t.meta_valor ?? 0)]),
-      );
-      return (profilesRes.data ?? [])
-        .filter((p) => p.active !== false)
-        .map((p) => ({
-          id: p.id,
-          nome: p.full_name || "Vendedor",
-          meta: metaById.get(p.id) ?? 0,
-        }));
-    },
-  });
-
-  const saveMeta = useMutation({
-    mutationFn: async ({ userId, meta }: { userId: string; meta: number }) => {
-      const { error } = await supabase
-        .from("sales_targets")
-        .upsert({ user_id: userId, mes, meta_valor: meta }, { onConflict: "user_id,mes" });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Meta salva");
-      qc.invalidateQueries({ queryKey: ["metas-mes", mes] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  // Cada vendedor vê apenas a sua própria meta; admins veem todas.
-  const rows = (data ?? []).filter((r) => isAdmin || r.id === user?.id);
-  const totalMeta = rows.reduce((s, r) => s + r.meta, 0);
-  const totalAprovado = rows.reduce((s, r) => s + (approvedByVendor.get(r.id) ?? 0), 0);
-  const totalPct = totalMeta > 0 ? Math.min(100, (totalAprovado / totalMeta) * 100) : 0;
-
-  return (
-    <section className="mb-8">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-          <Target className="size-5 text-primary" /> Metas do mês
-        </h2>
-        {isAdmin && totalMeta > 0 && (
-          <span className="text-xs font-semibold text-muted-foreground">
-            {formatBRL(totalAprovado)} de {formatBRL(totalMeta)} ({totalPct.toFixed(0)}%)
-          </span>
-        )}
-      </div>
-
-      <Card className="rounded-3xl border-border/60 p-6 shadow-elegant">
-        {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-14 w-full rounded-xl" />
-            ))}
-          </div>
-        ) : rows.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            Nenhum vendedor cadastrado ainda.
-          </p>
-        ) : (
-          <div className="space-y-5">
-            {rows.map((row) => {
-              const aprovado = approvedByVendor.get(row.id) ?? 0;
-              const pct = row.meta > 0 ? Math.min(100, (aprovado / row.meta) * 100) : 0;
-              const canEdit = isAdmin || user?.id === row.id;
-              const draft = drafts[row.id];
-              return (
-                <div key={row.id} className="space-y-2">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-foreground">{row.nome}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {formatBRL(aprovado)} /{" "}
-                        {row.meta > 0 ? formatBRL(row.meta) : "sem meta definida"}
-                      </span>
-                      {canEdit && (
-                        <>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="100"
-                            className="h-8 w-32"
-                            placeholder="Meta R$"
-                            value={draft ?? (row.meta > 0 ? String(row.meta) : "")}
-                            onChange={(e) =>
-                              setDrafts((d) => ({ ...d, [row.id]: e.target.value }))
-                            }
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                saveMeta.mutate({
-                                  userId: row.id,
-                                  meta: Number(draft ?? row.meta) || 0,
-                                });
-                              }
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            disabled={saveMeta.isPending}
-                            onClick={() =>
-                              saveMeta.mutate({
-                                userId: row.id,
-                                meta: Number(draft ?? row.meta) || 0,
-                              })
-                            }
-                          >
-                            <Save className="size-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <Progress value={pct} className="h-2" />
-                  <p className="text-[10px] font-medium text-muted-foreground">
-                    {row.meta > 0
-                      ? `${pct.toFixed(0)}% da meta • falta ${formatBRL(Math.max(0, row.meta - aprovado))}`
-                      : "Defina uma meta para acompanhar o progresso."}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </Card>
-    </section>
-  );
-}
