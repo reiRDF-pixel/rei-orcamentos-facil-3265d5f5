@@ -401,13 +401,27 @@ function ClientDialog({
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-2">
-          <Label>CNPJ / CPF</Label>
-          <Input
-            value={form.cnpj_cpf ?? ""}
-            onChange={(e) => setField("cnpj_cpf", e.target.value)}
-          />
-        </div>
+        <CnpjLookupField
+          value={form.cnpj_cpf ?? ""}
+          onChange={(v) => setField("cnpj_cpf", v)}
+          lookupEnabled={form.tipo === "juridica"}
+          onFound={(d) =>
+            setForm((f) => ({
+              ...f,
+              razao_social: f.razao_social?.trim() ? f.razao_social : d.razao_social,
+              nome_fantasia: f.nome_fantasia?.trim() ? f.nome_fantasia : d.nome_fantasia,
+              email: f.email?.trim() ? f.email : d.email,
+              phone: f.phone?.trim() ? f.phone : d.phone,
+              cep: f.cep?.trim() ? f.cep : d.cep,
+              endereco: f.endereco?.trim() ? f.endereco : d.endereco,
+              numero: f.numero?.trim() ? f.numero : d.numero,
+              complemento: f.complemento?.trim() ? f.complemento : d.complemento,
+              bairro: f.bairro?.trim() ? f.bairro : d.bairro,
+              cidade: f.cidade?.trim() ? f.cidade : d.cidade,
+              estado: f.estado?.trim() ? f.estado : d.estado,
+            }))
+          }
+        />
         <div className="space-y-2 md:col-span-2">
           <Label>Razão social / Nome *</Label>
           <Input
