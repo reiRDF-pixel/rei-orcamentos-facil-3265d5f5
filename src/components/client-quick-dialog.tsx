@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { CnpjLookupField } from "@/components/cnpj-lookup-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -111,10 +112,22 @@ export function ClientQuickDialog({ open, onOpenChange, onCreated }: Props) {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label>CNPJ / CPF</Label>
-            <Input value={form.cnpj_cpf} onChange={(e) => setField("cnpj_cpf", e.target.value)} />
-          </div>
+          <CnpjLookupField
+            value={form.cnpj_cpf}
+            onChange={(v) => setField("cnpj_cpf", v)}
+            lookupEnabled={form.tipo === "juridica"}
+            onFound={(d) =>
+              setForm((f) => ({
+                ...f,
+                razao_social: f.razao_social.trim() || d.razao_social,
+                nome_fantasia: f.nome_fantasia.trim() || d.nome_fantasia,
+                email: f.email.trim() || d.email,
+                phone: f.phone.trim() || d.phone,
+                cidade: f.cidade.trim() || d.cidade,
+                estado: f.estado.trim() || d.estado,
+              }))
+            }
+          />
           <div className="space-y-2 md:col-span-2">
             <Label>Razão social / Nome *</Label>
             <Input
