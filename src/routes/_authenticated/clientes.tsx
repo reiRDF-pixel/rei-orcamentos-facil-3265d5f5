@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { ClientHistoryDialog } from "@/components/client-history-dialog";
+import { CnpjLookupField } from "@/components/cnpj-lookup-field";
 import { Badge } from "@/components/ui/badge";
 import { Toggle } from "@/components/ui/toggle";
 import { CLIENT_TAGS, clientTagLabel } from "@/lib/client-tags";
